@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import Header from '../components/Layout/Header'
+import Sidebar from '../components/Layout/Sidebar'
+import HeroSection from '../components/Layout/HeroSection'
+import ProjectsGrid from '../components/Layout/ProjectsGrid'
+import TemplatesCarousel from '../components/Layout/TemplatesCarousel'
+import IntegrationsSection from '../components/Layout/IntegrationsSection'
 
 function DashboardPage() {
   const [user, setUser] = useState(null)
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -50,7 +57,7 @@ function DashboardPage() {
     navigate('/')
   }
 
-  const createNewProject = async () => {
+  const createNewProject = async (prompt = '') => {
     if (!supabase || !user) return
 
     try {
@@ -58,8 +65,8 @@ function DashboardPage() {
         .from('projects')
         .insert({
           user_id: user.id,
-          name: 'New Project',
-          description: 'Created on dashboard',
+          name: prompt || 'New Project',
+          description: prompt || 'Created on dashboard',
           code: '',
           status: 'draft'
         })
@@ -75,73 +82,77 @@ function DashboardPage() {
     }
   }
 
+  const handleProjectAction = async (action, projectId) => {
+    switch (action) {
+      case 'duplicate':
+        // Duplicate project logic
+        console.log('Duplicating project:', projectId)
+        break
+      case 'delete':
+        // Delete project logic
+        try {
+          await supabase.from('projects').delete().eq('id', projectId)
+          setProjects(prev => prev.filter(p => p.id !== projectId))
+        } catch (error) {
+          console.error('Error deleting project:', error)
+        }
+        break
+      case 'favorite':
+        // Favorite project logic
+        console.log('Favoriting project:', projectId)
+        break
+      case 'share':
+        // Share project logic
+        console.log('Sharing project:', projectId)
+        break
+      case 'rename':
+        // Rename project logic
+        console.log('Renaming project:', projectId)
+        break
+      case 'move':
+        // Move project logic
+        console.log('Moving project:', projectId)
+        break
+      case 'archive':
+        // Archive project logic
+        console.log('Archiving project:', projectId)
+        break
+      default:
+        console.log('Unknown action:', action, projectId)
+    }
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-white">
-        Loading...
+      <div className="min-h-screen bg-primary-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-secondary">Loading your workspace...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background p-10">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-4xl font-bold mb-3 gradient-text">
-              Dashboard
-            </h1>
-            <p className="text-text-secondary text-lg">
-              Welcome back, {user?.user_metadata?.full_name || user?.email}
-            </p>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className="px-6 py-3 bg-transparent text-red-500 border-2 border-red-500 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="bg-surface p-8 rounded-xl mb-8">
-          <h2 className="text-2xl font-semibold mb-6 text-white">
-            Projects
-          </h2>
-          
-          <button
-            onClick={createNewProject}
-            className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold hover:scale-105 transition-transform cursor-pointer border-none mb-6"
-          >
-            New Project
-          </button>
-
-          {projects.length === 0 ? (
-            <p className="text-text-secondary text-center py-12">
-              No projects yet. Create your first project to get started!
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <div
-                  key={project.id}
-                  onClick={() => navigate(`/builder/${project.id}`)}
-                  className="bg-background p-6 rounded-lg cursor-pointer hover:bg-border hover:scale-105 transition-all border border-border"
-                >
-                  <h3 className="text-xl font-semibold mb-3 text-white">
-                    {project.name}
-                  </h3>
-                  <p className="text-text-secondary text-sm mb-4">
-                    {project.description}
-                  </p>
-                  <p className="text-gray-500 text-xs">
-                    Created: {new Date(project.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-primary-bg flex">
+      <Sidebar 
+        isCollapsed={isSidebarCollapsed}
+        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
+      
+      <div className="flex-1 flex flex-col" style={{ marginLeft: isSidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)' }}>
+        <Header user={user} onLogout={handleLogout} />
+        
+        <main className="flex-1 overflow-y-auto">
+          <HeroSection onCreateProject={createNewProject} />
+          <ProjectsGrid 
+            projects={projects}
+            onCreateProject={() => createNewProject()}
+            onProjectAction={handleProjectAction}
+          />
+          <TemplatesCarousel />
+          <IntegrationsSection />
+        </main>
       </div>
     </div>
   )
