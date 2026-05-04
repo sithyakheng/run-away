@@ -37,15 +37,15 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="bg-surface p-10 rounded-xl w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
+      <div className="card p-10 rounded-xl w-full max-w-md shadow-xl" style={{ backgroundColor: 'var(--color-card-bg)' }}>
         <h2 className="text-3xl font-bold mb-8 text-center gradient-text">
           Welcome Back
         </h2>
 
         <form onSubmit={handleLogin}>
           <div className="mb-6">
-            <label className="block mb-3 text-text-secondary">
+            <label className="block mb-3" style={{ color: 'var(--color-text-secondary)' }}>
               Email
             </label>
             <input
@@ -53,13 +53,14 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3 bg-background border border-border rounded-lg text-white focus:outline-none focus:border-primary"
+              className="w-full p-3 input text-white"
               placeholder="Enter your email"
+              style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
             />
           </div>
 
           <div className="mb-6">
-            <label className="block mb-3 text-text-secondary">
+            <label className="block mb-3" style={{ color: 'var(--color-text-secondary)' }}>
               Password
             </label>
             <input
@@ -67,13 +68,14 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 bg-background border border-border rounded-lg text-white focus:outline-none focus:border-primary"
+              className="w-full p-3 input text-white"
               placeholder="Enter your password"
+              style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
             />
           </div>
 
           {error && (
-            <div className="mb-6 p-3 bg-red-500 text-white rounded-lg text-sm">
+            <div className="mb-6 p-3 text-white rounded-lg text-sm" style={{ backgroundColor: 'var(--color-error)' }}>
               {error}
             </div>
           )}
@@ -81,17 +83,18 @@ function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-4 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform cursor-pointer border-none"
+            className="w-full p-4 btn-primary font-semibold"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-text-secondary">
+        <p className="mt-6 text-center" style={{ color: 'var(--color-text-secondary)' }}>
           Don't have an account?{' '}
           <span
             onClick={() => navigate('/signup')}
-            className="text-primary cursor-pointer hover:underline"
+            className="cursor-pointer hover:underline"
+            style={{ color: 'var(--color-primary-accent)' }}
           >
             Sign up
           </span>
