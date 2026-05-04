@@ -1,0 +1,17 @@
+{
+  "name": "run-away",
+  "version": "1.0.0",
+  "description": "AI-powered website builder",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["ai", "web-builder", "run-away", "vercel"],
+  "author": "Run Away",
+  "license": "MIT"
+}
