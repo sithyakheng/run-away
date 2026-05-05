@@ -28,13 +28,19 @@ function SignupPage() {
         options: {
           data: {
             full_name: fullName
-          }
+          },
+          emailRedirectTo: null
         }
       })
 
-      if (error) throw error
+      if (error) {
+        setError(error.message)
+        return
+      }
 
-      navigate('/dashboard')
+      if (data.user) {
+        navigate('/dashboard')
+      }
     } catch (error) {
       setError(error.message || 'Signup failed. Please try again.')
     } finally {
@@ -96,17 +102,30 @@ function SignupPage() {
           </div>
 
           {error && (
-            <div className="mb-6 p-3 text-white rounded-lg text-sm" style={{ backgroundColor: 'var(--color-error)' }}>
-              {error}
+            <div className="mb-6 p-4 text-white rounded-lg text-sm animate-pulse" style={{ backgroundColor: 'var(--color-error)' }}>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 012 0 1 1 0 01-2 0z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-4 btn-primary font-semibold"
+            className="w-full p-4 btn-primary font-semibold relative overflow-hidden"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8 8 8 0 01-8 8 8 8 0 018-8z" />
+                </svg>
+                <span>Creating account...</span>
+              </div>
+            ) : 'Sign Up'}
           </button>
         </form>
 
