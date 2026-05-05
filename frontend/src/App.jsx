@@ -127,11 +127,21 @@ function App() {
         gap: '16px'
       }}>
         <h1 style={{color: '#7c3aed', fontSize: '48px', margin: 0}}>Run Away</h1>
-        <p style={{color: '#94a3b8'}}>Setting up your environment...</p>
-        <p style={{color: '#ef4444', fontSize: '12px'}}>
-          VITE_SUPABASE_URL: {supabaseUrl ? '✅' : '❌ missing'}<br/>
-          VITE_SUPABASE_ANON_KEY: {supabaseKey ? '✅' : '❌ missing'}
-        </p>
+        <p style={{color: '#94a3b8'}}>App needs configuration</p>
+        <button
+          onClick={() => window.open('https://github.com/sithyakheng/run-away#environment-setup', '_blank')}
+          style={{
+            padding: '12px 24px',
+            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            cursor: 'pointer'
+          }}
+        >
+          Configure App
+        </button>
       </div>
     )
   }
