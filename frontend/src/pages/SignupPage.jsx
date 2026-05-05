@@ -12,26 +12,40 @@ function SignupPage() {
 
   const handleSignup = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
+    setError('')
 
-    if (!supabase) {
-      setError('Supabase is not configured. Please check your environment variables.')
+    if (!fullName || !email || !password) {
+      setError('Please fill in all fields')
       setLoading(false)
       return
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Connection timeout. Please check your internet connection and try again.')), 30000)
+    })
+
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName
-          },
-          emailRedirectTo: null
-        }
-      })
+      const { data, error } = await Promise.race([
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName
+            },
+            emailRedirectTo: null
+          }
+        }),
+        timeoutPromise
+      ])
 
       if (error) {
         setError(error.message)
