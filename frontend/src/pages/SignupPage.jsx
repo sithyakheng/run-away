@@ -74,78 +74,69 @@ function SignupPage() {
           }}>
             Run Away
           </h2>
-          <p style={{
-            fontSize: '16px',
-            color: 'white'
-          }}>
-            Create Account
-          </p>
         </div>
 
         <form onSubmit={handleSignup}>
-          <div style={{ marginBottom: '24px' }}>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              placeholder="Full Name"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                width: '100%',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            placeholder="Full Name"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              width: '100%',
+              fontSize: '16px',
+              marginBottom: '16px',
+              boxSizing: 'border-box'
+            }}
+          />
 
-          <div style={{ marginBottom: '24px' }}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Email"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                width: '100%',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="Email"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              width: '100%',
+              fontSize: '16px',
+              marginBottom: '16px',
+              boxSizing: 'border-box'
+            }}
+          />
 
-          <div style={{ marginBottom: '24px' }}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Password"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'white',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                width: '100%',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="Password"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              width: '100%',
+              fontSize: '16px',
+              marginBottom: '16px',
+              boxSizing: 'border-box'
+            }}
+          />
 
           {error && (
             <div style={{
-              marginBottom: '24px',
+              marginBottom: '16px',
               padding: '12px',
               backgroundColor: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
@@ -167,8 +158,8 @@ function SignupPage() {
               borderRadius: '8px',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '16px',
               width: '100%',
+              fontSize: '16px',
               opacity: loading ? 0.7 : 1
             }}
           >

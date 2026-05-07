@@ -182,7 +182,7 @@ function DashboardPage() {
             color: 'white',
             marginBottom: '8px'
           }}>
-            Welcome back, {user?.user_metadata?.full_name || user?.email || 'User'}!
+            Welcome back, {user?.email || 'User'}!
           </h1>
           <p style={{
             fontSize: '16px',
