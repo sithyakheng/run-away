@@ -30,7 +30,7 @@ function LandingPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#050508',
+      backgroundColor: '#050505',
       color: 'white',
       fontFamily: 'Inter, sans-serif',
       position: 'relative',
@@ -112,7 +112,7 @@ function LandingPage() {
               fontSize: '24px',
               fontWeight: '700',
               color: '#7c3aed',
-              fontFamily: "'Space Grotesk', sans-serif"
+              fontFamily: "'Space Grotesk', sans-serif",
             }}>
               Run Away
             </span>
@@ -168,259 +168,407 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div style={{
+      {/* Hero Section with Topographic Wavy Line */}
+      <section style={{
         position: 'relative',
         zIndex: 10,
-        maxWidth: '1400px',
-        margin: '0 auto',
-        padding: '120px 40px 80px',
-        textAlign: 'center'
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#050505',
+        overflow: 'hidden'
       }}>
-        <h1 style={{
-          fontSize: 'clamp(48px, 8vw, 80px)',
-          fontWeight: '700',
-          marginBottom: '32px',
-          background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          color: 'transparent',
-          fontFamily: "'Space Grotesk', sans-serif",
-          lineHeight: '1.1'
-        }}>
-          Build Apps With Just A Prompt
-        </h1>
-        
+        {/* Topographic Wavy Line SVG */}
+        <svg
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '0',
+            right: '0',
+            transform: 'translateY(-50%)',
+            width: '100%',
+            height: '200px',
+            opacity: 0.3,
+            zIndex: 1
+          }}
+          viewBox="0 0 1200 200"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#7c3aed" stopOpacity="1" />
+              <stop offset="100%" stopColor="#06b6d4" stopOpacity="1" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0,100 C150,50 350,150 600,100 C850,50 1050,150 1200,100"
+            stroke="url(#waveGradient)"
+            strokeWidth="3"
+            fill="none"
+          />
+          <path
+            d="M0,120 C150,70 350,170 600,120 C850,70 1050,170 1200,120"
+            stroke="url(#waveGradient)"
+            strokeWidth="2"
+            fill="none"
+            opacity="0.7"
+          />
+          <path
+            d="M0,80 C150,30 350,130 600,80 C850,30 1050,130 1200,80"
+            stroke="url(#waveGradient)"
+            strokeWidth="2"
+            fill="none"
+            opacity="0.5"
+          />
+        </svg>
+
         <div style={{
-          fontSize: 'clamp(28px, 4vw, 40px)',
-          fontWeight: '600',
-          marginBottom: '32px',
-          fontFamily: "'Space Grotesk', sans-serif',
-          minHeight: '60px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px'
+          position: 'relative',
+          zIndex: 2,
+          textAlign: 'center',
+          maxWidth: '1200px',
+          padding: '0 40px'
         }}>
-          {typingText}
-          <span style={{
-            color: '#7c3aed',
-            animation: 'pulse 2s infinite'
-          }}>|</span>
-        </div>
-        
-        <p style={{
-          fontSize: '20px',
-          marginBottom: '64px',
-          color: '#94a3b8',
-          maxWidth: '700px',
-          margin: '0 auto 64px',
-          lineHeight: '1.6',
-          fontFamily: "'Inter', sans-serif"
-        }}>
-          Describe what you want and Run Away builds it instantly using AI
-        </p>
-        
-        <div style={{
-          display: 'flex',
-          gap: '20px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
+          {/* Massive Welcome Heading */}
+          <h1 style={{
+            fontSize: 'clamp(80px, 12vw, 200px)',
+            fontWeight: '900',
+            color: 'white',
+            marginBottom: '40px',
+            fontFamily: "'Space Grotesk', sans-serif",
+            lineHeight: '0.8',
+            letterSpacing: '-0.05em',
+            textShadow: '0 0 40px rgba(124, 58, 237, 0.3)',
+            animation: 'fadeInUp 1s ease-out'
+          }}>
+            Welcome.
+          </h1>
+          
+          {/* Animated typing text */}
+          <div style={{
+            fontSize: 'clamp(24px, 4vw, 36px)',
+            fontWeight: '600',
+            marginBottom: '60px',
+            fontFamily: "'Space Grotesk', sans-serif",
+            minHeight: '60px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            color: '#94a3b8',
+            animation: 'fadeInUp 1s ease-out 0.2s both'
+          }}>
+            Build {typingText}
+            <span style={{
+              color: '#7c3aed',
+              animation: 'pulse 2s infinite'
+            }}>|</span>
+          </div>
+          
+          {/* Search Bar */}
+          <div style={{
+            maxWidth: '600px',
+            margin: '0 auto 60px',
+            position: 'relative',
+            animation: 'fadeInUp 1s ease-out 0.4s both'
+          }}>
+            <input
+              type="text"
+              placeholder="Describe your app idea..."
+              style={{
+                width: '100%',
+                padding: '20px 60px 20px 24px',
+                fontSize: '18px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '2px solid rgba(124, 58, 237, 0.3)',
+                borderRadius: '50px',
+                color: 'white',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                fontFamily: "'Inter', sans-serif"
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#7c3aed'
+                e.target.style.boxShadow = '0 0 30px rgba(124, 58, 237, 0.4)'
+                e.target.style.background = 'rgba(255,255,255,0.08)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(124, 58, 237, 0.3)'
+                e.target.style.boxShadow = 'none'
+                e.target.style.background = 'rgba(255,255,255,0.05)'
+              }}
+            />
+            <button
+              onClick={() => navigate('/signup')}
+              style={{
+                position: 'absolute',
+                right: '4px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 0 20px rgba(124, 58, 237, 0.4)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'translateY(-50%) scale(1.1)'
+                e.target.style.boxShadow = '0 0 30px rgba(124, 58, 237, 0.6)'
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'translateY(-50%) scale(1)'
+                e.target.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.4)'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+          
+          {/* Get Started Button */}
           <button
             onClick={() => navigate('/signup')}
             style={{
-              background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+              background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
               color: 'white',
+              padding: '20px 48px',
+              borderRadius: '50px',
               border: 'none',
-              padding: '18px 36px',
-              fontSize: '18px',
               cursor: 'pointer',
-              borderRadius: '12px',
+              fontSize: '20px',
+              fontWeight: '600',
               transition: 'all 0.3s ease',
-              boxShadow: '0 0 40px rgba(124, 58, 237, 0.4)',
+              boxShadow: '0 0 40px rgba(59, 130, 246, 0.4)',
               fontFamily: "'Inter', sans-serif",
-              fontWeight: '600'
+              animation: 'fadeInUp 1s ease-out 0.6s both'
             }}
             onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-3px)'
-              e.target.style.boxShadow = '0 0 60px rgba(124, 58, 237, 0.6)'
+              e.target.style.transform = 'translateY(-3px) scale(1.05)'
+              e.target.style.boxShadow = '0 0 60px rgba(59, 130, 246, 0.6)'
             }}
             onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.boxShadow = '0 0 40px rgba(124, 58, 237, 0.4)'
+              e.target.style.transform = 'translateY(0) scale(1)'
+              e.target.style.boxShadow = '0 0 40px rgba(59, 130, 246, 0.4)'
             }}
           >
-            Start Building Free
-          </button>
-          
-          <button
-            onClick={() => navigate('/login')}
-            style={{
-              background: 'transparent',
-              color: 'white',
-              border: '2px solid rgba(124, 58, 237, 0.5)',
-              padding: '18px 36px',
-              fontSize: '18px',
-              cursor: 'pointer',
-              borderRadius: '12px',
-              transition: 'all 0.3s ease',
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: '600'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.borderColor = 'rgba(124, 58, 237, 0.8)'
-              e.target.style.transform = 'translateY(-3px)'
-            }}
-            onMouseOut={(e) => {
-              e.target.style.borderColor = 'rgba(124, 58, 237, 0.5)'
-              e.target.style.transform = 'translateY(0)'
-            }}
-          >
-            See Demo
+            Get Started
           </button>
         </div>
+      </section>
 
-        {/* Animated Mockup */}
+      {/* Built with Run Away Showcase Section */}
+      <section style={{
+        position: 'relative',
+        zIndex: 10,
+        padding: '120px 40px',
+        background: '#050505',
+        overflow: 'hidden'
+      }}>
+        {/* Noise/Grain Texture Overlay */}
         <div style={{
-          marginTop: '100px',
-          maxWidth: '900px',
-          margin: '100px auto 0',
-          animation: 'fadeIn 1s ease-out 0.5s both'
-        }}>
-          <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)'
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          opacity: 0.03,
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
+          pointerEvents: 'none'
+        }} />
+
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <h2 style={{
+            fontSize: 'clamp(36px, 5vw, 56px)',
+            fontWeight: '800',
+            color: 'white',
+            textAlign: 'center',
+            marginBottom: '80px',
+            fontFamily: "'Space Grotesk', sans-serif",
+            letterSpacing: '-0.02em'
           }}>
-            {/* Browser header */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '16px 20px',
-              borderBottom: '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.02)'
-            }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-              <div style={{
-                flex: 1,
-                height: '20px',
-                background: 'rgba(255,255,255,0.05)',
-                borderRadius: '10px',
-                marginLeft: '16px'
-              }} />
-            </div>
-            
-            {/* Content */}
-            <div style={{ padding: '32px' }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '32px',
-                alignItems: 'center'
-              }}>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#64748b',
-                    marginBottom: '8px',
-                    fontFamily: 'monospace',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px'
-                  }}>
-                    AI Prompt
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: '#e2e8f0',
-                    marginBottom: '24px',
-                    fontFamily: 'monospace',
-                    lineHeight: '1.6'
-                  }}>
-                    Create a modern landing page<br/>
-                    with hero section, features, and<br/>
-                    contact form using React
-                  </div>
-                  
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#64748b',
-                    marginBottom: '8px',
-                    fontFamily: 'monospace',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px'
-                  }}>
-                    Generated Code
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: '#10b981',
-                    fontFamily: 'monospace',
-                    lineHeight: '1.6',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    padding: '16px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(16, 185, 129, 0.2)'
-                  }}>
-                    {'<'}div className="hero"{'>'}<br/>
-                    &nbsp;&nbsp;{'<'}h1{'>'}Welcome{'<'}/h1{'>'}<br/>
-                    &nbsp;&nbsp;{'<'}button{'>'}Get Started{'<'}/button{'>'}<br/>
-                    {'<'}/div{'>'}
-                  </div>
-                </div>
-                
+            Built with Run Away
+          </h2>
+          
+          {/* Collage Layout with Overlapping Cards */}
+          <div style={{
+            position: 'relative',
+            height: '800px',
+            margin: '0 auto'
+          }}>
+            {[
+              {
+                title: 'E-commerce Store',
+                description: 'Modern shopping experience with AI recommendations',
+                type: 'laptop',
+                position: { top: '0%', left: '10%' },
+                rotation: -5,
+                zIndex: 3
+              },
+              {
+                title: 'SaaS Dashboard',
+                description: 'Analytics platform with real-time data visualization',
+                type: 'desktop',
+                position: { top: '15%', right: '5%' },
+                rotation: 3,
+                zIndex: 2
+              },
+              {
+                title: 'Travel Site',
+                description: 'Beautiful destination finder with booking system',
+                type: 'tablet',
+                position: { top: '45%', left: '25%' },
+                rotation: -2,
+                zIndex: 4
+              },
+              {
+                title: 'Social App',
+                description: 'Connect and share with friends worldwide',
+                type: 'mobile',
+                position: { top: '55%', right: '20%' },
+                rotation: 5,
+                zIndex: 1
+              },
+              {
+                title: 'Portfolio',
+                description: 'Creative showcase for designers and developers',
+                type: 'laptop',
+                position: { top: '70%', left: '45%' },
+                rotation: -3,
+                zIndex: 5
+              }
+            ].map((project, index) => (
+              <div
+                key={index}
+                style={{
+                  position: 'absolute',
+                  ...project.position,
+                  transform: `rotate(${project.rotation}deg)`,
+                  zIndex: project.zIndex,
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = `rotate(${project.rotation}deg) scale(1.05) translateY(-10px)`
+                  e.currentTarget.style.zIndex = 10
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = `rotate(${project.rotation}deg) scale(1)`
+                  e.currentTarget.style.zIndex = project.zIndex
+                }}
+              >
                 <div style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '24px',
-                  height: '200px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  borderRadius: project.type === 'mobile' ? '20px' : '16px',
+                  padding: project.type === 'mobile' ? '16px' : '24px',
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                  width: project.type === 'mobile' ? '200px' : project.type === 'tablet' ? '280px' : '400px',
+                  height: project.type === 'mobile' ? '400px' : project.type === 'tablet' ? '350px' : '250px'
                 }}>
-                  <div style={{ textAlign: 'center' }}>
+                  {/* Mockup Header */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px'
+                  }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
                     <div style={{
-                      fontSize: '16px',
-                      color: '#94a3b8',
-                      marginBottom: '16px'
+                      flex: 1,
+                      height: '4px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '2px'
+                    }} />
+                  </div>
+                  
+                  {/* Mockup Content */}
+                  <div style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    height: 'calc(100% - 60px)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: 'white',
+                      marginBottom: '8px',
+                      fontFamily: "'Space Grotesk', sans-serif",
                     }}>
-                      Live Preview
+                      {project.title}
                     </div>
                     <div style={{
-                      fontSize: '24px',
-                      fontWeight: '700',
-                      color: 'white',
-                      marginBottom: '16px',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}>
-                      Welcome
-                    </div>
-                    <div style={{
-                      background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
                       fontSize: '12px',
-                      display: 'inline-block'
+                      color: '#94a3b8',
+                      marginBottom: '16px',
+                      fontFamily: "'Inter', sans-serif",
+                      lineHeight: '1.4'
                     }}>
-                      Get Started
+                      {project.description}
+                    </div>
+                    
+                    {/* Sample UI Elements */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{
+                        height: '8px',
+                        background: 'rgba(124, 58, 237, 0.3)',
+                        borderRadius: '4px',
+                        width: '80%'
+                      }} />
+                      <div style={{
+                        height: '8px',
+                        background: 'rgba(6, 182, 212, 0.3)',
+                        borderRadius: '4px',
+                        width: '60%'
+                      }} />
+                      <div style={{
+                        height: '8px',
+                        background: 'rgba(124, 58, 237, 0.3)',
+                        borderRadius: '4px',
+                        width: '90%'
+                      }} />
+                    </div>
+                    
+                    <div style={{
+                      display: 'flex',
+                      gap: '8px',
+                      marginTop: 'auto'
+                    }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                        height: '24px',
+                        borderRadius: '6px',
+                        flex: 1
+                      }} />
+                      <div style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        height: '24px',
+                        borderRadius: '6px',
+                        width: '40px'
+                      }} />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Features Section */}
       <section style={{
@@ -436,7 +584,7 @@ function LandingPage() {
             color: 'white',
             textAlign: 'center',
             marginBottom: '80px',
-            fontFamily: "'Space Grotesk', sans-serif"
+            fontFamily: "'Space Grotesk', sans-serif",
           }}>
             Everything you need to build
           </h2>
@@ -504,7 +652,7 @@ function LandingPage() {
                   fontWeight: '600',
                   color: 'white',
                   marginBottom: '16px',
-                  fontFamily: "'Space Grotesk', sans-serif"
+                  fontFamily: "'Space Grotesk', sans-serif",
                 }}>
                   {feature.title}
                 </h3>
@@ -535,7 +683,7 @@ function LandingPage() {
             color: 'white',
             textAlign: 'center',
             marginBottom: '80px',
-            fontFamily: "'Space Grotesk', sans-serif"
+            fontFamily: "'Space Grotesk', sans-serif",
           }}>
             How it works
           </h2>
@@ -572,7 +720,7 @@ function LandingPage() {
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   color: 'transparent',
-                  fontFamily: "'Space Grotesk', sans-serif"
+                  fontFamily: "'Space Grotesk', sans-serif",
                 }}>
                   {step.step}
                 </div>
@@ -581,7 +729,7 @@ function LandingPage() {
                   fontWeight: '600',
                   color: 'white',
                   marginBottom: '16px',
-                  fontFamily: "'Space Grotesk', sans-serif"
+                  fontFamily: "'Space Grotesk', sans-serif",
                 }}>
                   {step.title}
                 </h3>
@@ -626,7 +774,7 @@ function LandingPage() {
               fontSize: '28px',
               fontWeight: '700',
               color: '#7c3aed',
-              fontFamily: "'Space Grotesk', sans-serif"
+              fontFamily: "'Space Grotesk', sans-serif",
             }}>
               Run Away
             </span>
@@ -665,6 +813,11 @@ function LandingPage() {
         
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(60px); }
           to { opacity: 1; transform: translateY(0); }
         }
         
