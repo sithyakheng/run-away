@@ -10,6 +10,12 @@ function SignupPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  console.log('ENV CHECK:', {
+    url: import.meta.env.VITE_SUPABASE_URL,
+    keyExists: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+    keyLength: import.meta.env.VITE_SUPABASE_ANON_KEY?.length
+  })
+
   const handleSignup = async (e) => {
     e.preventDefault()
     setLoading(true)
