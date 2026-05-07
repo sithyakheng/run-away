@@ -75,6 +75,11 @@ function SignupPage() {
           Create Account
         </h2>
 
+        <div style={{color: 'yellow', fontSize: '12px', padding: '10px', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '4px', marginBottom: '20px'}}>
+          URL: {import.meta.env.VITE_SUPABASE_URL || 'MISSING'}
+          KEY: {import.meta.env.VITE_SUPABASE_ANON_KEY ? 'EXISTS - length: ' + import.meta.env.VITE_SUPABASE_ANON_KEY.length : 'MISSING'}
+        </div>
+
         <form onSubmit={handleSignup}>
           <div className="mb-6">
             <label className="block mb-3" style={{ color: 'var(--color-text-secondary)' }}>
