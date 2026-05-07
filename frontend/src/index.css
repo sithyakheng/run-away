@@ -1,26 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --color-primary-bg: #0F172A;
-  --color-secondary-bg: #1A1F3A;
-  --color-card-bg: #1F2937;
-  --color-primary-accent: #3B82F6;
-  --color-secondary-accent: #A855F7;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-text-primary: #F9FAFB;
-  --color-text-secondary: #D1D5DB;
-  --color-text-tertiary: #9CA3AF;
-  --color-border: #374151;
-  --color-surface: #111827;
+  --color-primary-bg: #050508;
+  --color-secondary-bg: #0a0a0f;
+  --color-card-bg: rgba(255, 255, 255, 0.03);
+  --color-primary-accent: #7c3aed;
+  --color-secondary-accent: #06b6d4;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #71717a;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-surface: rgba(255, 255, 255, 0.05);
   --header-height: 80px;
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 70px;
+  
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 * {
