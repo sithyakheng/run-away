@@ -66,7 +66,7 @@ function SignupPage() {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Animated floating orbs */}
+      {/* Animated gradient background */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -79,33 +79,33 @@ function SignupPage() {
           position: 'absolute',
           top: '10%',
           left: '15%',
-          width: '300px',
-          height: '300px',
+          width: '400px',
+          height: '400px',
           background: 'radial-gradient(circle, rgba(124, 58, 237, 0.4) 0%, transparent 70%)',
           borderRadius: '50%',
-          filter: 'blur(40px)',
+          filter: 'blur(60px)',
           animation: 'float1 20s ease-in-out infinite'
         }} />
         <div style={{
           position: 'absolute',
           top: '60%',
           right: '10%',
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, transparent 70%)',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%)',
           borderRadius: '50%',
-          filter: 'blur(50px)',
+          filter: 'blur(70px)',
           animation: 'float2 25s ease-in-out infinite'
         }} />
         <div style={{
           position: 'absolute',
           bottom: '20%',
           left: '20%',
-          width: '250px',
-          height: '250px',
+          width: '350px',
+          height: '350px',
           background: 'radial-gradient(circle, rgba(124, 58, 237, 0.3) 0%, transparent 70%)',
           borderRadius: '50%',
-          filter: 'blur(35px)',
+          filter: 'blur(50px)',
           animation: 'float3 18s ease-in-out infinite'
         }} />
       </div>
@@ -126,22 +126,24 @@ function SignupPage() {
       }}>
         <div style={{
           textAlign: 'center',
-          marginBottom: '40px'
+          marginBottom: '48px'
         }}>
           <h2 style={{
             fontSize: '36px',
             fontWeight: '700',
-            background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+            background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            marginBottom: '8px'
+            marginBottom: '12px',
+            fontFamily: "'Space Grotesk', sans-serif"
           }}>
             Join Run Away
           </h2>
           <p style={{
             fontSize: '16px',
-            color: '#94a3b8'
+            color: '#94a3b8',
+            fontFamily: "'Inter', sans-serif"
           }}>
             Start building for free
           </p>
@@ -156,7 +158,7 @@ function SignupPage() {
             placeholder="Full Name"
             style={{
               background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.08)',
               color: 'white',
               padding: '16px 20px',
               borderRadius: '12px',
@@ -165,15 +167,18 @@ function SignupPage() {
               marginBottom: '20px',
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
-              outline: 'none'
+              outline: 'none',
+              fontFamily: "'Inter', sans-serif"
             }}
             onFocus={(e) => {
               e.target.style.borderColor = '#7c3aed'
               e.target.style.boxShadow = '0 0 20px rgba(124,58,237,0.3)'
+              e.target.style.background = 'rgba(255,255,255,0.08)'
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,255,255,0.1)'
+              e.target.style.borderColor = 'rgba(255,255,255,0.08)'
               e.target.style.boxShadow = 'none'
+              e.target.style.background = 'rgba(255,255,255,0.05)'
             }}
           />
 
@@ -185,7 +190,7 @@ function SignupPage() {
             placeholder="Email"
             style={{
               background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.08)',
               color: 'white',
               padding: '16px 20px',
               borderRadius: '12px',
@@ -194,15 +199,18 @@ function SignupPage() {
               marginBottom: '20px',
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
-              outline: 'none'
+              outline: 'none',
+              fontFamily: "'Inter', sans-serif"
             }}
             onFocus={(e) => {
               e.target.style.borderColor = '#7c3aed'
               e.target.style.boxShadow = '0 0 20px rgba(124,58,237,0.3)'
+              e.target.style.background = 'rgba(255,255,255,0.08)'
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,255,255,0.1)'
+              e.target.style.borderColor = 'rgba(255,255,255,0.08)'
               e.target.style.boxShadow = 'none'
+              e.target.style.background = 'rgba(255,255,255,0.05)'
             }}
           />
 
@@ -214,7 +222,7 @@ function SignupPage() {
             placeholder="Password"
             style={{
               background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.08)',
               color: 'white',
               padding: '16px 20px',
               borderRadius: '12px',
@@ -223,24 +231,27 @@ function SignupPage() {
               marginBottom: '16px',
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
-              outline: 'none'
+              outline: 'none',
+              fontFamily: "'Inter', sans-serif"
             }}
             onFocus={(e) => {
               e.target.style.borderColor = '#7c3aed'
               e.target.style.boxShadow = '0 0 20px rgba(124,58,237,0.3)'
+              e.target.style.background = 'rgba(255,255,255,0.08)'
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,255,255,0.1)'
+              e.target.style.borderColor = 'rgba(255,255,255,0.08)'
               e.target.style.boxShadow = 'none'
+              e.target.style.background = 'rgba(255,255,255,0.05)'
             }}
           />
 
           {/* Password strength indicator */}
           {password.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '24px' }}>
               <div style={{
                 height: '4px',
-                background: 'rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.08)',
                 borderRadius: '2px',
                 overflow: 'hidden',
                 marginBottom: '8px'
@@ -255,7 +266,8 @@ function SignupPage() {
               </div>
               <p style={{
                 fontSize: '12px',
-                color: passwordStrength < 50 ? '#ef4444' : passwordStrength < 75 ? '#f59e0b' : '#10b981'
+                color: passwordStrength < 50 ? '#ef4444' : passwordStrength < 75 ? '#f59e0b' : '#10b981',
+                fontFamily: "'Inter', sans-serif"
               }}>
                 {passwordStrength < 50 ? 'Weak password' : passwordStrength < 75 ? 'Medium strength' : 'Strong password'}
               </p>
@@ -264,13 +276,14 @@ function SignupPage() {
 
           {error && (
             <div style={{
-              marginBottom: '20px',
+              marginBottom: '24px',
               padding: '12px',
               backgroundColor: 'rgba(239, 68, 68, 0.1)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
               borderRadius: '8px',
               color: '#ef4444',
-              fontSize: '14px'
+              fontSize: '14px',
+              fontFamily: "'Inter', sans-serif"
             }}>
               {error}
             </div>
@@ -280,7 +293,7 @@ function SignupPage() {
             type="submit"
             disabled={loading}
             style={{
-              background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+              background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
               color: 'white',
               padding: '16px 24px',
               borderRadius: '12px',
@@ -291,19 +304,20 @@ function SignupPage() {
               fontWeight: '600',
               opacity: loading ? 0.7 : 1,
               transition: 'all 0.3s ease',
-              boxShadow: '0 0 30px rgba(124,58,237,0.4)',
+              boxShadow: '0 0 40px rgba(124,58,237,0.4)',
               outline: 'none',
-              marginBottom: '24px'
+              marginBottom: '24px',
+              fontFamily: "'Inter', sans-serif"
             }}
             onMouseOver={(e) => {
               if (!loading) {
-                e.target.style.transform = 'scale(1.02)'
-                e.target.style.boxShadow = '0 0 40px rgba(124,58,237,0.6)'
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 0 60px rgba(124,58,237,0.6)'
               }
             }}
             onMouseOut={(e) => {
-              e.target.style.transform = 'scale(1)'
-              e.target.style.boxShadow = '0 0 30px rgba(124,58,237,0.4)'
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.boxShadow = '0 0 40px rgba(124,58,237,0.4)'
             }}
           >
             {loading ? 'Creating account...' : 'Sign Up'}
@@ -315,7 +329,8 @@ function SignupPage() {
           textAlign: 'center',
           marginBottom: '24px',
           fontSize: '12px',
-          color: '#64748b'
+          color: '#64748b',
+          fontFamily: "'Inter', sans-serif"
         }}>
           By signing up you agree to our{' '}
           <span style={{ color: '#7c3aed', cursor: 'pointer' }}>Terms</span>
@@ -330,19 +345,20 @@ function SignupPage() {
           <div style={{
             flex: 1,
             height: '1px',
-            background: 'rgba(255,255,255,0.1)'
+            background: 'rgba(255,255,255,0.08)'
           }} />
           <span style={{
             padding: '0 16px',
             color: '#64748b',
-            fontSize: '14px'
+            fontSize: '14px',
+            fontFamily: "'Inter', sans-serif"
           }}>
             or continue with
           </span>
           <div style={{
             flex: 1,
             height: '1px',
-            background: 'rgba(255,255,255,0.1)'
+            background: 'rgba(255,255,255,0.08)'
           }} />
         </div>
 
@@ -362,7 +378,8 @@ function SignupPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '12px',
-            marginBottom: '24px'
+            marginBottom: '24px',
+            fontFamily: "'Inter', sans-serif"
           }}
           onMouseOver={(e) => {
             e.target.style.borderColor = 'rgba(255,255,255,0.4)'
@@ -386,7 +403,7 @@ function SignupPage() {
           textAlign: 'center',
           marginTop: '24px'
         }}>
-          <span style={{ color: '#94a3b8' }}>
+          <span style={{ color: '#94a3b8', fontFamily: "'Inter', sans-serif" }}>
             Already have an account?{' '}
             <span
               onClick={() => navigate('/login')}
@@ -394,7 +411,8 @@ function SignupPage() {
                 color: '#7c3aed',
                 cursor: 'pointer',
                 textDecoration: 'underline',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                fontFamily: "'Inter', sans-serif"
               }}
               onMouseOver={(e) => e.target.style.color = '#8b5cf6'}
               onMouseOut={(e) => e.target.style.color = '#7c3aed'}
@@ -408,26 +426,26 @@ function SignupPage() {
       <style>{`
         @keyframes float1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(30px, -40px) scale(1.1); }
-          50% { transform: translate(-20px, 20px) scale(0.9); }
-          75% { transform: translate(40px, 10px) scale(1.05); }
+          25% { transform: translate(50px, -60px) scale(1.1); }
+          50% { transform: translate(-30px, 40px) scale(0.9); }
+          75% { transform: translate(60px, 20px) scale(1.05); }
         }
         
         @keyframes float2 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-50px, 30px) scale(1.15); }
-          66% { transform: translate(20px, -50px) scale(0.85); }
+          33% { transform: translate(-70px, 40px) scale(1.15); }
+          66% { transform: translate(30px, -70px) scale(0.85); }
         }
         
         @keyframes float3 {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(40px, 20px) scale(1.08); }
-          50% { transform: translate(-30px, -30px) scale(0.92); }
-          75% { transform: translate(20px, -40px) scale(1.04); }
+          25% { transform: translate(50px, 30px) scale(1.08); }
+          50% { transform: translate(-40px, -40px) scale(0.92); }
+          75% { transform: translate(30px, -50px) scale(1.04); }
         }
         
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
