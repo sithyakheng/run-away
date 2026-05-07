@@ -625,5 +625,3 @@ function LandingPage() {
 }
 
 export default LandingPage
-
-export default LandingPage
