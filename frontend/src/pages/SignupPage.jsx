@@ -17,11 +17,12 @@ function SignupPage() {
     try {
       const { supabase } = await import('../lib/supabase')
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 10000)
-      )
+      // Validate environment variables
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error('Missing Supabase configuration. Please check environment variables.')
+      }
       
-      const signupPromise = supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -31,15 +32,31 @@ function SignupPage() {
         }
       })
       
-      const { data, error } = await Promise.race([signupPromise, timeoutPromise])
-      
-      if (error) throw error
+      if (error) {
+        if (error.message.includes('timeout') || error.message.includes('fetch')) {
+          throw new Error('Connection to authentication service failed. Please check your internet connection and try again.')
+        }
+        throw error
+      }
       
       if (data.user) {
-        navigate('/dashboard')
+        // Show success message before redirecting
+        setError('Account created successfully! Redirecting...')
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 1500)
       }
     } catch (error) {
-      setError(error.message || 'Signup failed. Please try again.')
+      console.error('Signup error:', error)
+      if (error.message.includes('timeout') || error.message.includes('fetch') || error.message.includes('Connection')) {
+        setError('Unable to connect to authentication service. Please check your internet connection and try again.')
+      } else if (error.message.includes('already registered')) {
+        setError('This email is already registered. Please try logging in instead.')
+      } else if (error.message.includes('password')) {
+        setError('Password is too weak. Please choose a stronger password.')
+      } else {
+        setError(error.message || 'Signup failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }

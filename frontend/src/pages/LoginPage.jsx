@@ -15,18 +15,38 @@ function LoginPage() {
 
     try {
       const { supabase } = await import('../lib/supabase')
+      
+      // Validate environment variables
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error('Missing Supabase configuration. Please check environment variables.')
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        if (error.message.includes('timeout') || error.message.includes('fetch')) {
+          throw new Error('Connection to authentication service failed. Please check your internet connection and try again.')
+        }
+        throw error
+      }
 
       if (data.user) {
         navigate('/dashboard')
       }
     } catch (error) {
-      setError(error.message || 'Login failed. Please try again.')
+      console.error('Login error:', error)
+      if (error.message.includes('timeout') || error.message.includes('fetch') || error.message.includes('Connection')) {
+        setError('Unable to connect to authentication service. Please check your internet connection and try again.')
+      } else if (error.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please try again.')
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Please confirm your email address before logging in.')
+      } else {
+        setError(error.message || 'Login failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
