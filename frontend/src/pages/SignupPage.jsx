@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 function SignupPage() {
   const [fullName, setFullName] = useState('')
@@ -15,38 +16,23 @@ function SignupPage() {
     setError('')
 
     try {
-    console.log('SUPABASE URL:', import.meta.env.VITE_SUPABASE_URL)
-    console.log('KEY LENGTH:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length)
-    
-    console.log('Attempting signup with:', email)
-    
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: password,
-      options: {
-        data: {
-          full_name: fullName
-        }
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+      })
+
+      if (error) {
+        console.log("Signup error:", error.message)
+      } else {
+        console.log("Signup success!", data)
+        navigate('/dashboard')
       }
-    })
-    
-    console.log('Signup response:', data, error)
-    
-    if (error) {
-      setError(error.message)
-      return
+    } catch (err) {
+      console.error('Signup catch error:', err)
+      setError('Connection failed: ' + err.message)
+    } finally {
+      setLoading(false)
     }
-    
-    if (data?.user) {
-      navigate('/dashboard')
-    }
-    
-  } catch (err) {
-    console.error('Signup catch error:', err)
-    setError('Connection failed: ' + err.message)
-  } finally {
-    setLoading(false)
-  }
   }
 
   const getPasswordStrength = (password) => {
