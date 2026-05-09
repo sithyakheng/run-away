@@ -54,6 +54,18 @@ function DashboardPage() {
     navigate('/')
   }
 
+  const handleGenerate = () => {
+    if (prompt.trim()) {
+      navigate('/builder', { state: { prompt: prompt.trim() } })
+    }
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleGenerate()
+    }
+  }
+
   const createNewProject = async (prompt = '') => {
     const { supabase } = await import('../lib/supabase')
     if (!supabase || !user) return
@@ -291,111 +303,73 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Large rounded input box */}
+        {/* Text input and Generate button */}
         <div style={{
           width: '100%',
           maxWidth: '800px',
           position: 'relative'
         }}>
           <div style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '20px',
-            padding: '24px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-            position: 'relative'
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center'
           }}>
-            <textarea
+            <input
+              type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
+              onKeyPress={handleKeyPress}
               placeholder="Describe what you want to build..."
               style={{
-                width: '100%',
-                minHeight: '120px',
-                border: 'none',
-                outline: 'none',
+                flex: 1,
+                padding: '16px 20px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
                 fontSize: '16px',
                 fontFamily: 'Inter, sans-serif',
-                color: '#1f2937',
-                resize: 'none',
-                backgroundColor: 'transparent',
-                lineHeight: '1.5'
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                backgroundColor: '#ffffff'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb'
               }}
             />
-            
-            {/* Bottom action items */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '16px'
-            }}>
-              {/* Left dropdown */}
-              <div style={{
-                backgroundColor: '#f9fafb',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                color: '#6b7280',
-                fontFamily: 'Inter, sans-serif'
-              }}>
-                Run Away AI 1.0
-              </div>
-              
-              {/* Right action buttons */}
-              <div style={{
+            <button
+              onClick={handleGenerate}
+              disabled={!prompt.trim()}
+              style={{
+                backgroundColor: !prompt.trim() ? '#9ca3af' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                padding: '16px 32px',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: !prompt.trim() ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                fontFamily: 'Inter, sans-serif',
                 display: 'flex',
+                alignItems: 'center',
                 gap: '8px',
-                alignItems: 'center'
-              }}>
-                <button style={{
-                  width: '36px',
-                  height: '36px',
-                  border: 'none',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}>
-                  🤖
-                </button>
-                <button style={{
-                  width: '36px',
-                  height: '36px',
-                  border: 'none',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}>
-                  🎤
-                </button>
-                <button 
-                  onClick={() => createNewProject(prompt)}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    border: 'none',
-                    backgroundColor: '#3b82f6',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span style={{ color: 'white', fontSize: '16px' }}>→</span>
-                </button>
-              </div>
-            </div>
+                minWidth: '120px',
+                justifyContent: 'center'
+              }}
+            >
+              <span>✨</span>
+              Generate
+            </button>
+          </div>
+          <div style={{
+            marginTop: '8px',
+            fontSize: '12px',
+            color: '#6b7280',
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            Press Ctrl+Enter to generate
           </div>
         </div>
 

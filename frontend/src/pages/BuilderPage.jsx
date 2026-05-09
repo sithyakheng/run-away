@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 function BuilderPage() {
@@ -10,6 +10,7 @@ function BuilderPage() {
   const [project, setProject] = useState(null)
   const navigate = useNavigate()
   const { id } = useParams()
+  const location = useLocation()
   const iframeRef = useRef(null)
 
   useEffect(() => {
@@ -26,6 +27,15 @@ function BuilderPage() {
           return
         }
         setUser(user)
+
+        // Get prompt from location state
+        const locationPrompt = location.state?.prompt
+        if (locationPrompt) {
+          setPrompt(locationPrompt)
+          
+          // Auto-generate when prompt is received
+          await generateCode(locationPrompt)
+        }
 
         // Load project if id exists
         if (id) {
@@ -47,10 +57,10 @@ function BuilderPage() {
     }
 
     checkUser()
-  }, [navigate, id])
+  }, [navigate, id, location.state])
 
-  const generateCode = async () => {
-    if (!prompt.trim()) return
+  const generateCode = async (promptToUse = prompt) => {
+    if (!promptToUse.trim()) return
 
     setLoading(true)
     
@@ -66,7 +76,7 @@ function BuilderPage() {
           messages: [
             {
               role: 'user',
-              content: `Generate a complete single file HTML website with inline CSS and JS based on this request: ${prompt}. Return ONLY in HTML code, nothing else.`
+              content: `Generate a complete single file HTML website with inline CSS and JS based on this request: ${promptToUse}. Return ONLY the raw HTML code, no explanation, no markdown, no backticks.`
             }
           ],
           max_tokens: 4000,
@@ -229,84 +239,24 @@ function BuilderPage() {
         </div>
       </div>
 
-      {/* Input Section */}
-      <div style={{
-        padding: '24px',
-        backgroundColor: '#f9fafb',
-        borderBottom: '1px solid #e5e7eb'
-      }}>
+      {/* Prompt Display */}
+      {prompt && (
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          gap: '16px',
-          alignItems: 'flex-end'
+          padding: '16px 24px',
+          backgroundColor: '#f0f9ff',
+          borderBottom: '1px solid #bae6fd'
         }}>
-          <div style={{ flex: 1 }}>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what you want to build..."
-              style={{
-                width: '100%',
-                minHeight: '80px',
-                padding: '12px 16px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontFamily: 'Inter, sans-serif',
-                resize: 'vertical',
-                outline: 'none',
-                transition: 'border-color 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#3b82f6'
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb'
-              }}
-            />
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            fontSize: '14px',
+            color: '#0369a1',
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            <strong>Building:</strong> {prompt}
           </div>
-          <button
-            onClick={generateCode}
-            disabled={loading || !prompt.trim()}
-            style={{
-              backgroundColor: loading || !prompt.trim() ? '#9ca3af' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              minWidth: '140px'
-            }}
-          >
-            {loading ? (
-              <>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid #ffffff',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                Generating...
-              </>
-            ) : (
-              <>
-                <span>✨</span>
-                Generate
-              </>
-            )}
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Split Screen Layout */}
       <div style={{
