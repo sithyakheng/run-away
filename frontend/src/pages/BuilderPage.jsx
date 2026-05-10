@@ -5,6 +5,7 @@ import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy } from 'lucide-reac
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState('')
+  const [generatedHTML, setGeneratedHTML] = useState('')
   const [loading, setLoading] = useState(false)
   const [chatInput, setChatInput] = useState('')
   const [messages, setMessages] = useState([])
@@ -129,6 +130,7 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
       const html = data.choices[0].message.content
       
       setGeneratedCode(html)
+      setGeneratedHTML(html)
       
       // Update iframe preview
       if (iframeRef.current) {
@@ -549,10 +551,10 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                   </div>
                 )}
                 
-                {generatedCode ? (
+                {generatedHTML ? (
                   <iframe
   key={previewKey}
-  srcDoc={generatedCode}
+  srcDoc={generatedHTML}
   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
   style={{ width: '100%', height: '100%', border: 'none' }}
   onLoad={() => setIframeLoading(false)}
