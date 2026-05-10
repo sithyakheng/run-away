@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
@@ -7,7 +7,6 @@ function BuilderPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const { id } = useParams()
   const iframeRef = useRef(null)
 
   useEffect(() => {
@@ -73,6 +72,7 @@ function BuilderPage() {
     }
   }
 
+  // Loading state
   if (loading) {
     return (
       <div style={{
@@ -117,6 +117,7 @@ function BuilderPage() {
     )
   }
 
+  // Main content
   return (
     <div style={{
       minHeight: '100vh',
@@ -185,14 +186,6 @@ function BuilderPage() {
               gap: '8px'
             }}
           >
-            <div style={{
-              width: '16px',
-              height: '16px',
-              border: '2px solid #ffffff',
-              borderTop: '2px solid transparent',
-              borderRadius: '50%',
-              animation: loading ? 'spin 1s linear infinite' : 'none'
-            }} />
             Regenerate
           </button>
           <button
@@ -334,22 +327,6 @@ function BuilderPage() {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: #1e293b;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #475569;
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #64748b;
         }
       `}</style>
     </div>
