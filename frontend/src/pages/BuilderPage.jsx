@@ -213,7 +213,27 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
         padding: '0 20px',
         flexShrink: 0
       }}>
-        {/* Left: Project Name */}
+        {/* Left: Go Back to Dashboard */}
+        <button
+          onClick={() => navigate('/dashboard')}
+          style={{
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: '#6b7280',
+            padding: '6px 12px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          ← Back to Dashboard
+        </button>
+
+        {/* Center: Project Name */}
         <div style={{
           fontSize: '14px',
           color: '#6b7280',
@@ -221,8 +241,6 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
         }}>
           {projectName}
         </div>
-
-        {/* Center: Empty */}
 
         {/* Right: Icons and Buttons */}
         <div style={{
