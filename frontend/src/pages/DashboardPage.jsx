@@ -314,11 +314,17 @@ function DashboardPage() {
           maxWidth: '800px',
           position: 'relative'
         }}>
-          <DashboardPromptInput
-            onSend={handleGenerate}
-            placeholder="Describe what you want to build..."
-            className="w-full"
-          />
+          <div style={{
+            backgroundColor: '#f3f4f6',
+            padding: '4px',
+            borderRadius: '12px'
+          }}>
+            <DashboardPromptInput
+              onSend={handleGenerate}
+              placeholder="Describe what you want to build..."
+              className="w-full"
+            />
+          </div>
         </div>
 
         {/* Quick action suggestions */}
