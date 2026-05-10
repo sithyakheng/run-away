@@ -14,6 +14,9 @@ function BuilderPage() {
   const location = useLocation()
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [previewKey, setPreviewKey] = useState(0)
+  const [iframeLoading, setIframeLoading] = useState(false)
 
   useEffect(() => {
     // Get prompt from location state
@@ -128,10 +131,14 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
       
       setGeneratedCode(html)
       
-      // Update iframe preview
-      if (iframeRef.current) {
-        iframeRef.current.srcdoc = html
-      }
+      // Create blob URL for iframe
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      setPreviewUrl(url)
+      setPreviewKey(prev => prev + 1)
+      setIframeLoading(true)
+      
+      return () => URL.revokeObjectURL(url)
 
       // Add AI response to chat
       const aiMessage = {
@@ -522,19 +529,40 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
             {activeTab === 'preview' && (
               <div style={{
                 width: '100%',
-                height: '100%'
+                height: '100%',
+                position: 'relative'
               }}>
-                {generatedCode ? (
+                {iframeLoading && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 10
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '4px solid #e5e7eb',
+                      borderTop: '4px solid #3b82f6',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
+                  </div>
+                )}
+                
+                {previewUrl ? (
                   <iframe
-                    ref={iframeRef}
+                    key={previewKey}
+                    src={previewUrl}
                     style={{
                       width: '100%',
                       height: '100%',
-                      border: 'none',
-                      backgroundColor: 'white'
+                      border: 'none'
                     }}
-                    sandbox="allow-scripts"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                     title="Preview"
+                    onLoad={() => setIframeLoading(false)}
                   />
                 ) : (
                   <div style={{
@@ -610,6 +638,11 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
           40% {
             opacity: 1;
           }
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         textarea::-webkit-scrollbar {
