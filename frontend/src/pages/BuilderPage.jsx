@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 
 function BuilderPage() {
@@ -18,9 +18,9 @@ function BuilderPage() {
       // Auto-generate when prompt is received
       generateCode(locationPrompt)
     }
-  }, [location.state])
+  }, [location.state, generateCode])
 
-  const generateCode = async (promptToUse = prompt) => {
+  const generateCode = useCallback(async (promptToUse = prompt) => {
     if (!promptToUse.trim()) return
 
     setLoading(true)
@@ -64,7 +64,7 @@ function BuilderPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [prompt, setGeneratedCode])
 
   const refreshPreview = () => {
     if (iframeRef.current && generatedCode) {
