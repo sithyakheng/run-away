@@ -50,12 +50,7 @@ function BuilderPage() {
       const messagesForAPI = [
         {
           role: 'system',
-          content: `You are a web developer assistant. Generate complete single-file HTML websites with inline CSS and JavaScript based on user requests. Always return ONLY the raw HTML code without any explanations, markdown, or backticks.
-
-Additionally, you are an expert in React component integration. When users ask about integrating React components, provide detailed guidance following these instructions:
-
-REACT COMPONENT INTEGRATION GUIDELINES:
-
+          content: "You are an expert web developer. Generate a stunning, modern, professional single-file HTML website based on this request: \"" + promptToUse + "\".\n\nRequirements:\n- Use modern CSS with gradients, animations, and smooth transitions\n- Mobile responsive design\n- Beautiful typography using Google Fonts (import them with a link tag)\n- Hero section with a stunning gradient background\n- Clean navigation bar\n- Professional color scheme that fits to the topic\n- Smooth scroll behavior\n- Hover effects on buttons and cards\n- Use Font Awesome icons (import from cdnjs)\n- Add subtle animations using CSS keyframes\n- Make it look like a $10,000 professionally designed website\n- Use modern layout techniques like CSS Grid and Flexbox\n- Add a footer\n\nReturn ONLY raw HTML code. No explanation, no markdown, no backticks, just pure HTML starting with <!DOCTYPE html>"
 You are given a task to integrate an existing React component in the codebase.
 
 The codebase should support:
