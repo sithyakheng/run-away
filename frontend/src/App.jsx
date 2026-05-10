@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
+import { useAuthStore } from './store/authStore'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -64,28 +65,12 @@ class ErrorBoundary extends React.Component {
 }
 
 function ProtectedRoute({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading, initializeAuth } = useAuthStore()
 
   useEffect(() => {
-    async function checkUser() {
-      try {
-        if (!supabase) {
-          setUser(null)
-          setLoading(false)
-          return
-        }
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user)
-      } catch (error) {
-        console.error('Error checking user:', error)
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkUser()
-  }, [])
+    // Initialize auth on component mount
+    initializeAuth()
+  }, [initializeAuth])
 
   if (loading) {
     return (
@@ -112,6 +97,12 @@ function ProtectedRoute({ children }) {
 function App() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const { user, loading, initializeAuth } = useAuthStore()
+
+  // Initialize auth on app startup
+  useEffect(() => {
+    initializeAuth()
+  }, [initializeAuth])
 
   if (!supabaseUrl || !supabaseKey) {
     return (
@@ -142,6 +133,22 @@ function App() {
         >
           Configure App
         </button>
+      </div>
+    )
+  }
+
+  // Show loading while checking session
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: '#0a0a0f',
+        color: 'white'
+      }}>
+        Loading...
       </div>
     )
   }
