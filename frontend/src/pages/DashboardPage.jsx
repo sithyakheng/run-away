@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { PromptInputBox } from '../components/ui/ai-prompt-box'
 
 function DashboardPage() {
   const [user, setUser] = useState(null)
@@ -54,15 +55,19 @@ function DashboardPage() {
     navigate('/')
   }
 
-  const handleGenerate = () => {
-    if (prompt.trim()) {
-      navigate('/builder', { state: { prompt: prompt.trim() } })
+  const handleGenerate = (message, files = []) => {
+    // Remove mode prefixes if present
+    let cleanPrompt = message
+    if (message.startsWith('[Search: ')) {
+      cleanPrompt = message.slice(9, -1) // Remove [Search: prefix and closing ]
+    } else if (message.startsWith('[Think: ')) {
+      cleanPrompt = message.slice(8, -1) // Remove [Think: prefix and closing ]
+    } else if (message.startsWith('[Canvas: ')) {
+      cleanPrompt = message.slice(9, -1) // Remove [Canvas: prefix and closing ]
     }
-  }
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleGenerate()
+    
+    if (cleanPrompt.trim()) {
+      navigate('/builder', { state: { prompt: cleanPrompt.trim() } })
     }
   }
 
@@ -303,74 +308,17 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Text input and Generate button */}
+        {/* Advanced AI Prompt Input */}
         <div style={{
           width: '100%',
           maxWidth: '800px',
           position: 'relative'
         }}>
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center'
-          }}>
-            <input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Describe what you want to build..."
-              style={{
-                flex: 1,
-                padding: '16px 20px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontFamily: 'Inter, sans-serif',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-                backgroundColor: '#ffffff'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#3b82f6'
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb'
-              }}
-            />
-            <button
-              onClick={handleGenerate}
-              disabled={!prompt.trim()}
-              style={{
-                backgroundColor: !prompt.trim() ? '#9ca3af' : '#3b82f6',
-                color: 'white',
-                border: 'none',
-                padding: '16px 32px',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: !prompt.trim() ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: 'Inter, sans-serif',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                minWidth: '120px',
-                justifyContent: 'center'
-              }}
-            >
-              <span>✨</span>
-              Generate
-            </button>
-          </div>
-          <div style={{
-            marginTop: '8px',
-            fontSize: '12px',
-            color: '#6b7280',
-            fontFamily: 'Inter, sans-serif'
-          }}>
-            Press Enter to generate
-          </div>
+          <PromptInputBox
+            onSend={handleGenerate}
+            placeholder="Describe what you want to build..."
+            className="w-full"
+          />
         </div>
 
         {/* Quick action suggestions */}
