@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 function LoginPage() {
   const [email, setEmail] = useState('')
@@ -8,14 +9,11 @@ function LoginPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
+  const handleLogin = async () => {
     setLoading(true)
     setError('')
 
     try {
-      const { supabase } = await import('../lib/supabase')
-      
       // Validate environment variables
       if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
         throw new Error('Missing Supabase configuration. Please check environment variables.')
@@ -146,7 +144,7 @@ function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleLogin}>
+        <div>
           <input
             type="email"
             value={email}
@@ -227,7 +225,7 @@ function LoginPage() {
           )}
 
           <button
-            type="submit"
+            onClick={handleLogin}
             disabled={loading}
             style={{
               background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
@@ -258,7 +256,7 @@ function LoginPage() {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
-        </form>
+        </div>
 
         {/* Divider */}
         <div style={{
