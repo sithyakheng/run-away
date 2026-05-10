@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PromptInputBox } from '../components/ui/ai-prompt-box'
+import { DashboardPromptInput } from '../components/ui/dashboard-prompt-input'
 
 function DashboardPage() {
   const [user, setUser] = useState(null)
@@ -308,13 +308,13 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Advanced AI Prompt Input */}
+        {/* Clean AI Prompt Input */}
         <div style={{
           width: '100%',
           maxWidth: '800px',
           position: 'relative'
         }}>
-          <PromptInputBox
+          <DashboardPromptInput
             onSend={handleGenerate}
             placeholder="Describe what you want to build..."
             className="w-full"
