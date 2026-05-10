@@ -25,11 +25,17 @@ function BuilderPage() {
     setLoading(true)
     
     try {
+      const apiKey = import.meta.env.VITE_GROQ_API_KEY
+      
+      if (!apiKey) {
+        throw new Error('Groq API key is missing. Please configure VITE_GROQ_API_KEY.')
+      }
+
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
+          'Authorization': `Bearer ${apiKey}` 
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
@@ -44,7 +50,13 @@ function BuilderPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate code')
+        if (response.status === 401) {
+          throw new Error('Invalid Groq API key. Please check your API key configuration.')
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please try again in a moment.')
+        } else {
+          throw new Error(`API Error: ${response.status} - ${response.statusText}`)
+        }
       }
 
       const data = await response.json()
@@ -59,7 +71,7 @@ function BuilderPage() {
       }
     } catch (error) {
       console.error('Error generating code:', error)
-      alert('Failed to generate code. Please try again.')
+      alert(error.message || 'Failed to generate code. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -313,7 +325,7 @@ function BuilderPage() {
                 border: 'none',
                 backgroundColor: 'white'
               }}
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts"
               title="Preview"
             />
           </div>
