@@ -61,7 +61,7 @@ function DashboardPage() {
   }
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter') {
       handleGenerate()
     }
   }
