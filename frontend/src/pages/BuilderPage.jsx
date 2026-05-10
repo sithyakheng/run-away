@@ -49,14 +49,14 @@ function BuilderPage() {
       }
 
       const data = await response.json()
-      const code = data.choices[0].message.content
+      const html = data.choices[0].message.content
       
-      setGeneratedCode(code)
+      setGeneratedCode(html)
       
       // Update iframe preview
       if (iframeRef.current) {
         const iframe = iframeRef.current
-        iframe.srcdoc = code
+        iframe.srcdoc = html
       }
     } catch (error) {
       console.error('Error generating code:', error)
@@ -66,27 +66,52 @@ function BuilderPage() {
     }
   }
 
+  const refreshPreview = () => {
+    if (iframeRef.current && generatedCode) {
+      const iframe = iframeRef.current
+      iframe.srcdoc = generatedCode
+    }
+  }
+
   if (loading) {
     return (
       <div style={{
         minHeight: '100vh',
         backgroundColor: '#0f172a',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Inter, sans-serif'
+        fontFamily: 'Inter, sans-serif',
+        color: '#e2e8f0'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '64px',
+            height: '64px',
             border: '4px solid #334155',
             borderTop: '4px solid #3b82f6',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
+            margin: '0 auto 24px'
           }} />
-          <p style={{ color: '#e2e8f0', fontSize: '18px' }}>Building your website...</p>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '600',
+            margin: '16px 0 8px',
+            color: '#f1f5f9'
+          }}>
+            Building your website...
+          </h2>
+          <p style={{
+            fontSize: '16px',
+            margin: '0 0 32px',
+            color: '#94a3b8',
+            maxWidth: '400px',
+            lineHeight: '1.5'
+          }}>
+            "{prompt}"
+          </p>
         </div>
       </div>
     )
@@ -100,22 +125,47 @@ function BuilderPage() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      {/* Header */}
+      {/* TOP NAVBAR */}
       <div style={{
         backgroundColor: '#1e293b',
         borderBottom: '1px solid #334155',
-        padding: '16px 24px',
+        padding: '12px 20px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        height: '56px'
       }}>
         <div style={{
-          fontSize: '20px',
+          fontSize: '18px',
           fontWeight: '600',
-          color: '#f1f5f9'
+          color: '#f1f5f9',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          Run Away AI
+          <div style={{
+            width: '8px',
+            height: '8px',
+            backgroundColor: '#3b82f6',
+            borderRadius: '4px'
+          }} />
+          Run Away
         </div>
+        
+        <div style={{
+          fontSize: '14px',
+          color: '#94a3b8',
+          maxWidth: '400px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          flex: 1,
+          textAlign: 'center',
+          margin: '0 20px'
+        }}>
+          {prompt}
+        </div>
+
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={() => generateCode()}
@@ -129,9 +179,20 @@ function BuilderPage() {
               fontSize: '14px',
               fontWeight: '500',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
+            <div style={{
+              width: '16px',
+              height: '16px',
+              border: '2px solid #ffffff',
+              borderTop: '2px solid transparent',
+              borderRadius: '50%',
+              animation: loading ? 'spin 1s linear infinite' : 'none'
+            }} />
             Regenerate
           </button>
           <button
@@ -153,35 +214,16 @@ function BuilderPage() {
         </div>
       </div>
 
-      {/* Prompt Display */}
-      {prompt && (
-        <div style={{
-          padding: '16px 24px',
-          backgroundColor: '#1e293b',
-          borderBottom: '1px solid #334155'
-        }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            fontSize: '14px',
-            color: '#94a3b8',
-            fontFamily: 'Inter, sans-serif'
-          }}>
-            <strong style={{ color: '#e2e8f0' }}>Prompt:</strong> {prompt}
-          </div>
-        </div>
-      )}
-
-      {/* Split Screen Layout */}
+      {/* MAIN AREA - Split Screen */}
       <div style={{
         flex: 1,
         display: 'flex',
-        minHeight: 'calc(100vh - 200px)'
+        overflow: 'hidden'
       }}>
-        {/* Left Side - Code Editor */}
+        {/* LEFT SIDE (40%) - Code Editor */}
         <div style={{
-          flex: 1,
-          backgroundColor: '#0f172a',
+          width: '40%',
+          backgroundColor: '#0d1117',
           borderRight: '1px solid #334155',
           display: 'flex',
           flexDirection: 'column'
@@ -190,34 +232,47 @@ function BuilderPage() {
             backgroundColor: '#1e293b',
             padding: '12px 16px',
             borderBottom: '1px solid #334155',
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#e2e8f0'
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#8b92a9',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
-            Generated Code
+            <span>Code</span>
+            <div style={{
+              fontSize: '10px',
+              color: '#64748b',
+              fontFamily: 'Monaco, Consolas, monospace'
+            }}>
+              HTML
+            </div>
           </div>
           <div style={{
             flex: 1,
-            padding: '16px',
-            overflow: 'auto'
+            overflow: 'auto',
+            padding: '16px'
           }}>
             <pre style={{
               margin: 0,
-              fontFamily: 'Monaco, Consolas, monospace',
-              fontSize: '14px',
+              fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+              fontSize: '13px',
               lineHeight: '1.5',
               color: '#e2e8f0',
               whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word'
+              wordBreak: 'break-word',
+              tabSize: 2
             }}>
               {generatedCode || '// Your generated code will appear here...'}
             </pre>
           </div>
         </div>
 
-        {/* Right Side - Live Preview */}
+        {/* RIGHT SIDE (60%) - Live Preview */}
         <div style={{
-          flex: 1,
+          width: '60%',
           backgroundColor: '#ffffff',
           display: 'flex',
           flexDirection: 'column'
@@ -226,15 +281,42 @@ function BuilderPage() {
             backgroundColor: '#f8fafc',
             padding: '12px 16px',
             borderBottom: '1px solid #e2e8f0',
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#475569'
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#475569',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
-            Live Preview
+            <span>Preview</span>
+            <button
+              onClick={refreshPreview}
+              style={{
+                backgroundColor: 'transparent',
+                color: '#64748b',
+                border: '1px solid #e2e8f0',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 4v6h-6v6h6v-6h-6zm-6 0l-6 6v6h6v-6z" transform="rotate(180 12 12)"/>
+              </svg>
+              Refresh
+            </button>
           </div>
           <div style={{
             flex: 1,
-            position: 'relative'
+            position: 'relative',
+            backgroundColor: '#ffffff'
           }}>
             <iframe
               ref={iframeRef}
@@ -255,6 +337,22 @@ function BuilderPage() {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #475569;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
         }
       `}</style>
     </div>
