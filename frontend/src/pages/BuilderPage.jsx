@@ -117,7 +117,7 @@ function BuilderPage() {
     )
   }
 
-  // Main content
+  // Main content - always render this
   return (
     <div style={{
       minHeight: '100vh',
@@ -180,10 +180,7 @@ function BuilderPage() {
               fontSize: '14px',
               fontWeight: '500',
               cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+              transition: 'all 0.2s ease'
             }}
           >
             Regenerate
