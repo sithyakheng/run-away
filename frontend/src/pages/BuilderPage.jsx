@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 
 function BuilderPage() {
@@ -18,10 +18,10 @@ function BuilderPage() {
       // Auto-generate when prompt is received
       generateCode(locationPrompt)
     }
-  }, [location.state, generateCode])
+  }, [location.state])
 
-  const generateCode = useCallback(async (promptToUse = prompt) => {
-    if (!promptToUse.trim()) return
+  const generateCode = async (promptToUse) => {
+    if (!promptToUse || !promptToUse.trim()) return
 
     setLoading(true)
     
@@ -64,7 +64,7 @@ function BuilderPage() {
     } finally {
       setLoading(false)
     }
-  }, [prompt, setGeneratedCode])
+  }
 
   const refreshPreview = () => {
     if (iframeRef.current && generatedCode) {
@@ -163,22 +163,22 @@ function BuilderPage() {
           textAlign: 'center',
           margin: '0 20px'
         }}>
-          {prompt}
+          {prompt || 'Enter a prompt to generate code'}
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            onClick={() => generateCode()}
-            disabled={loading}
+            onClick={() => generateCode(prompt)}
+            disabled={loading || !prompt.trim()}
             style={{
-              backgroundColor: loading ? '#475569' : '#3b82f6',
+              backgroundColor: loading || !prompt.trim() ? '#475569' : '#3b82f6',
               color: 'white',
               border: 'none',
               padding: '8px 16px',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: '500',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               alignItems: 'center',
@@ -307,10 +307,7 @@ function BuilderPage() {
                 gap: '4px'
               }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M23 4v6h-6v6h6v-6h-6zm-6 0l-6 6v6h6v-6z" transform="rotate(180 12 12)"/>
-              </svg>
-              Refresh
+              ↻ Refresh
             </button>
           </div>
           <div style={{
