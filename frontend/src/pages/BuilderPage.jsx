@@ -551,16 +551,12 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                 
                 {generatedCode ? (
                   <iframe
-                    key={previewKey}
-                    srcDoc={generatedHTML}
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      border: 'none'
-                    }}
-                    onLoad={() => setIframeLoading(false)}
-                  />
+  key={previewKey}
+  srcDoc={generatedCode}
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+  style={{ width: '100%', height: '100%', border: 'none' }}
+  onLoad={() => setIframeLoading(false)}
+/>
                 ) : (
                   <div style={{
                     display: 'flex',
