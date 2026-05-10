@@ -1,63 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 
 function BuilderPage() {
-  const [user, setUser] = useState(null)
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState('')
   const [loading, setLoading] = useState(false)
-  const [project, setProject] = useState(null)
   const navigate = useNavigate()
-  const { id } = useParams()
   const location = useLocation()
+  const { id } = useParams()
   const iframeRef = useRef(null)
 
   useEffect(() => {
-    async function checkUser() {
-      try {
-        if (!supabase) {
-          navigate('/login')
-          return
-        }
-
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          navigate('/login')
-          return
-        }
-        setUser(user)
-
-        // Get prompt from location state
-        const locationPrompt = location.state?.prompt
-        if (locationPrompt) {
-          setPrompt(locationPrompt)
-          
-          // Auto-generate when prompt is received
-          await generateCode(locationPrompt)
-        }
-
-        // Load project if id exists
-        if (id) {
-          const { data: project, error } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single()
-
-          if (error) throw error
-          setProject(project)
-          setGeneratedCode(project.code || '')
-        }
-      } catch (error) {
-        console.error('Error loading project:', error)
-        navigate('/dashboard')
-      }
+    // Get prompt from location state
+    const locationPrompt = location.state?.prompt
+    if (locationPrompt) {
+      setPrompt(locationPrompt)
+      // Auto-generate when prompt is received
+      generateCode(locationPrompt)
     }
-
-    checkUser()
-  }, [navigate, id, location.state])
+  }, [location.state])
 
   const generateCode = async (promptToUse = prompt) => {
     if (!promptToUse.trim()) return
@@ -68,20 +29,19 @@ function BuilderPage() {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [
             {
               role: 'user',
-              content: `Generate a complete single file HTML website with inline CSS and JS based on this request: ${promptToUse}. Return ONLY the raw HTML code, no explanation, no markdown, no backticks.`
+              content: `Generate a complete single file HTML website with inline CSS and JS based on this request: ${promptToUse}. Return ONLY: raw HTML code, no explanation, no markdown, no backticks.` 
             }
           ],
-          max_tokens: 4000,
-          temperature: 0.7,
-        }),
+          max_tokens: 4000
+        })
       })
 
       if (!response.ok) {
@@ -93,21 +53,10 @@ function BuilderPage() {
       
       setGeneratedCode(code)
       
-      // Update project if it exists
-      if (project) {
-        await supabase
-          .from('projects')
-          .update({ code })
-          .eq('id', project.id)
-      }
-
       // Update iframe preview
       if (iframeRef.current) {
         const iframe = iframeRef.current
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document
-        iframeDoc.open()
-        iframeDoc.write(code)
-        iframeDoc.close()
+        iframe.srcdoc = code
       }
     } catch (error) {
       console.error('Error generating code:', error)
@@ -117,46 +66,11 @@ function BuilderPage() {
     }
   }
 
-  const saveProject = async () => {
-    if (!user || !generatedCode) return
-
-    try {
-      if (project) {
-        // Update existing project
-        await supabase
-          .from('projects')
-          .update({ code: generatedCode })
-          .eq('id', project.id)
-      } else {
-        // Create new project
-        const { data, error } = await supabase
-          .from('projects')
-          .insert({
-            user_id: user.id,
-            name: prompt || 'New AI Generated Project',
-            description: `Generated with prompt: ${prompt}`,
-            code: generatedCode,
-            status: 'generated'
-          })
-          .select()
-
-        if (error) throw error
-        
-        if (data && data[0]) {
-          navigate(`/builder/${data[0].id}`)
-        }
-      }
-    } catch (error) {
-      console.error('Error saving project:', error)
-      alert('Failed to save project')
-    }
-  }
-
   if (loading) {
     return (
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#0f172a',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -166,13 +80,13 @@ function BuilderPage() {
           <div style={{
             width: '48px',
             height: '48px',
-            border: '4px solid #e5e7eb',
+            border: '4px solid #334155',
             borderTop: '4px solid #3b82f6',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
           }} />
-          <p style={{ color: '#6b7280', fontFamily: "'Inter', sans-serif" }}>Generating your code...</p>
+          <p style={{ color: '#e2e8f0', fontSize: '18px' }}>Building your website...</p>
         </div>
       </div>
     )
@@ -181,51 +95,51 @@ function BuilderPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#0f172a',
       fontFamily: 'Inter, sans-serif',
       display: 'flex',
       flexDirection: 'column'
     }}>
       {/* Header */}
       <div style={{
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e5e7eb',
+        backgroundColor: '#1e293b',
+        borderBottom: '1px solid #334155',
         padding: '16px 24px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        alignItems: 'center'
       }}>
         <div style={{
           fontSize: '20px',
           fontWeight: '600',
-          color: '#1f2937'
+          color: '#f1f5f9'
         }}>
           Run Away AI
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            onClick={saveProject}
+            onClick={() => generateCode()}
+            disabled={loading}
             style={{
-              backgroundColor: '#3b82f6',
+              backgroundColor: loading ? '#475569' : '#3b82f6',
               color: 'white',
               border: 'none',
               padding: '8px 16px',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: '500',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease'
             }}
           >
-            Save Project
+            Regenerate
           </button>
           <button
             onClick={() => navigate('/dashboard')}
             style={{
               backgroundColor: 'transparent',
-              color: '#6b7280',
-              border: '1px solid #e5e7eb',
+              color: '#94a3b8',
+              border: '1px solid #334155',
               padding: '8px 16px',
               borderRadius: '8px',
               fontSize: '14px',
@@ -243,17 +157,17 @@ function BuilderPage() {
       {prompt && (
         <div style={{
           padding: '16px 24px',
-          backgroundColor: '#f0f9ff',
-          borderBottom: '1px solid #bae6fd'
+          backgroundColor: '#1e293b',
+          borderBottom: '1px solid #334155'
         }}>
           <div style={{
             maxWidth: '1200px',
             margin: '0 auto',
             fontSize: '14px',
-            color: '#0369a1',
+            color: '#94a3b8',
             fontFamily: 'Inter, sans-serif'
           }}>
-            <strong>Building:</strong> {prompt}
+            <strong style={{ color: '#e2e8f0' }}>Prompt:</strong> {prompt}
           </div>
         </div>
       )}
@@ -267,13 +181,13 @@ function BuilderPage() {
         {/* Left Side - Code Editor */}
         <div style={{
           flex: 1,
-          backgroundColor: '#1e293b',
+          backgroundColor: '#0f172a',
           borderRight: '1px solid #334155',
           display: 'flex',
           flexDirection: 'column'
         }}>
           <div style={{
-            backgroundColor: '#0f172a',
+            backgroundColor: '#1e293b',
             padding: '12px 16px',
             borderBottom: '1px solid #334155',
             fontSize: '14px',
@@ -311,10 +225,10 @@ function BuilderPage() {
           <div style={{
             backgroundColor: '#f8fafc',
             padding: '12px 16px',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid #e2e8f0',
             fontSize: '14px',
             fontWeight: '500',
-            color: '#374151'
+            color: '#475569'
           }}>
             Live Preview
           </div>
