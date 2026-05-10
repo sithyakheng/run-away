@@ -1,25 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Send, RefreshCw, Undo, Redo, Eye, Code, Share, Upload } from 'lucide-react'
 
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState('')
   const [loading, setLoading] = useState(false)
+  const [chatInput, setChatInput] = useState('')
+  const [messages, setMessages] = useState([])
+  const [activeTab, setActiveTab] = useState('preview')
+  const [projectName, setProjectName] = useState('Untitled Project')
   const navigate = useNavigate()
   const location = useLocation()
   const iframeRef = useRef(null)
+  const chatEndRef = useRef(null)
 
   useEffect(() => {
     // Get prompt from location state
     const locationPrompt = location.state?.prompt
     if (locationPrompt) {
       setPrompt(locationPrompt)
+      setProjectName(locationPrompt.slice(0, 30) + '...')
       // Auto-generate when prompt is received
       generateCode(locationPrompt)
     }
   }, [])
 
-  const generateCode = async (promptToUse) => {
+  useEffect(() => {
+    // Scroll to bottom of chat when new messages are added
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const generateCode = async (promptToUse, conversationHistory = []) => {
     if (!promptToUse || !promptToUse.trim()) return
 
     setLoading(true)
@@ -31,6 +43,22 @@ function BuilderPage() {
         throw new Error('Groq API key is missing. Please configure VITE_GROQ_API_KEY.')
       }
 
+      // Build conversation history for context
+      const messagesForAPI = [
+        {
+          role: 'system',
+          content: 'You are a web developer assistant. Generate complete single-file HTML websites with inline CSS and JavaScript based on user requests. Always return ONLY the raw HTML code without any explanations, markdown, or backticks.'
+        },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        })),
+        {
+          role: 'user',
+          content: promptToUse
+        }
+      ]
+
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -39,12 +67,7 @@ function BuilderPage() {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'user',
-              content: `Generate a complete single file HTML website with inline CSS and JS based on this request: ${promptToUse}. Return ONLY: raw HTML code, no explanation, no markdown, no backticks.` 
-            }
-          ],
+          messages: messagesForAPI,
           max_tokens: 4000
         })
       })
@@ -66,9 +89,17 @@ function BuilderPage() {
       
       // Update iframe preview
       if (iframeRef.current) {
-        const iframe = iframeRef.current
-        iframe.srcdoc = html
+        iframeRef.current.srcdoc = html
       }
+
+      // Add AI response to chat
+      const aiMessage = {
+        id: Date.now(),
+        role: 'assistant',
+        content: `I've generated the website based on your request: "${promptToUse}". The preview is now showing on the right.`
+      }
+      setMessages(prev => [...prev, aiMessage])
+      
     } catch (error) {
       console.error('Error generating code:', error)
       alert(error.message || 'Failed to generate code. Please try again.')
@@ -77,265 +108,521 @@ function BuilderPage() {
     }
   }
 
-  const refreshPreview = () => {
-    if (iframeRef.current && generatedCode) {
-      const iframe = iframeRef.current
-      iframe.srcdoc = generatedCode
+  const handleSendMessage = () => {
+    if (!chatInput.trim() || loading) return
+
+    const userMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: chatInput
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    
+    // Add typing indicator
+    const typingMessage = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: 'typing...',
+      isTyping: true
+    }
+    setMessages(prev => [...prev, typingMessage])
+
+    // Generate code with conversation history
+    generateCode(chatInput, [...messages, userMessage])
+    setChatInput('')
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
     }
   }
 
-  // Loading state
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#0f172a',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'Inter, sans-serif',
-        color: '#e2e8f0'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            border: '4px solid #334155',
-            borderTop: '4px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 24px'
-          }} />
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: '600',
-            margin: '16px 0 8px',
-            color: '#f1f5f9'
-          }}>
-            Building your website...
-          </h2>
-          <p style={{
-            fontSize: '16px',
-            margin: '0 0 32px',
-            color: '#94a3b8',
-            maxWidth: '400px',
-            lineHeight: '1.5'
-          }}>
-            "{prompt}"
-          </p>
-        </div>
-      </div>
-    )
+  const refreshPreview = () => {
+    if (iframeRef.current && generatedCode) {
+      iframeRef.current.srcdoc = generatedCode
+    }
   }
 
-  // Main content - always render this
   return (
     <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#0f172a',
-      fontFamily: 'Inter, sans-serif',
+      height: '100vh',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      backgroundColor: '#0f0f0f',
+      color: 'white',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+      overflow: 'hidden'
     }}>
-      {/* TOP NAVBAR */}
+      {/* Top Navbar */}
       <div style={{
-        backgroundColor: '#1e293b',
-        borderBottom: '1px solid #334155',
-        padding: '12px 20px',
+        height: '48px',
+        backgroundColor: '#1a1a1a',
+        borderBottom: '1px solid #2a2a2a',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: '56px'
+        padding: '0 20px',
+        flexShrink: 0
       }}>
+        {/* Left: Project Name */}
         <div style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#f1f5f9',
           display: 'flex',
           alignItems: 'center',
+          gap: '16px'
+        }}>
+          <h1 style={{
+            margin: 0,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '#ffffff'
+          }}>
+            {projectName}
+          </h1>
+        </div>
+
+        {/* Center: Undo/Redo */}
+        <div style={{
+          display: 'flex',
           gap: '8px'
         }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: '#3b82f6',
-            borderRadius: '4px'
-          }} />
-          Run Away
-        </div>
-        
-        <div style={{
-          fontSize: '14px',
-          color: '#94a3b8',
-          maxWidth: '400px',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          flex: 1,
-          textAlign: 'center',
-          margin: '0 20px'
-        }}>
-          {prompt || 'Enter a prompt to generate code'}
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            onClick={() => generateCode(prompt)}
-            disabled={loading || !prompt.trim()}
-            style={{
-              backgroundColor: loading || !prompt.trim() ? '#475569' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            Regenerate
-          </button>
-          <button
-            onClick={() => navigate('/dashboard')}
             style={{
               backgroundColor: 'transparent',
-              color: '#94a3b8',
-              border: '1px solid #334155',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500',
+              border: '1px solid #3a3a3a',
+              color: '#888',
+              padding: '6px 10px',
+              borderRadius: '6px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px'
             }}
           >
-            Back to Dashboard
+            <Undo size={14} />
+            Undo
+          </button>
+          <button
+            style={{
+              backgroundColor: 'transparent',
+              border: '1px solid #3a3a3a',
+              color: '#888',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '12px'
+            }}
+          >
+            <Redo size={14} />
+            Redo
           </button>
         </div>
+
+        {/* Right: Publish Button */}
+        <button
+          style={{
+            backgroundColor: '#6366f1',
+            border: 'none',
+            color: 'white',
+            padding: '8px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Upload size={16} />
+          Publish
+        </button>
       </div>
 
-      {/* MAIN AREA - Split Screen */}
+      {/* Main Content Area */}
       <div style={{
         flex: 1,
         display: 'flex',
         overflow: 'hidden'
       }}>
-        {/* LEFT SIDE (40%) - Code Editor */}
+        {/* Left Panel - Chat (35%) */}
         <div style={{
-          width: '40%',
-          backgroundColor: '#0d1117',
-          borderRight: '1px solid #334155',
+          width: '35%',
+          backgroundColor: '#0f0f0f',
+          borderRight: '1px solid #2a2a2a',
           display: 'flex',
           flexDirection: 'column'
         }}>
+          {/* Chat Header */}
           <div style={{
-            backgroundColor: '#1e293b',
-            padding: '12px 16px',
-            borderBottom: '1px solid #334155',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: '#8b92a9',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            padding: '16px 20px',
+            borderBottom: '1px solid #2a2a2a',
+            backgroundColor: '#1a1a1a'
           }}>
-            <span>Code</span>
-            <div style={{
-              fontSize: '10px',
-              color: '#64748b',
-              fontFamily: 'Monaco, Consolas, monospace'
+            <h2 style={{
+              margin: 0,
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#ffffff'
             }}>
-              HTML
-            </div>
+              Conversation
+            </h2>
           </div>
+
+          {/* Chat Messages */}
           <div style={{
             flex: 1,
-            overflow: 'auto',
-            padding: '16px'
+            overflowY: 'auto',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
           }}>
-            <pre style={{
-              margin: 0,
-              fontFamily: 'Monaco, Consolas, "Courier New", monospace',
-              fontSize: '13px',
-              lineHeight: '1.5',
-              color: '#e2e8f0',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              tabSize: 2
+            {/* Initial prompt message */}
+            {prompt && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#888',
+                  fontWeight: '500'
+                }}>
+                  You
+                </div>
+                <div style={{
+                  backgroundColor: '#2a2a2a',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  lineHeight: '1.4'
+                }}>
+                  {prompt}
+                </div>
+              </div>
+            )}
+
+            {/* Chat messages */}
+            {messages.map((message) => (
+              <div key={message.id} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  color: '#888',
+                  fontWeight: '500'
+                }}>
+                  {message.role === 'user' ? 'You' : 'AI Assistant'}
+                </div>
+                <div style={{
+                  backgroundColor: message.role === 'user' ? '#2a2a2a' : '#1a1a1a',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  lineHeight: '1.4'
+                }}>
+                  {message.isTyping ? (
+                    <div style={{
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#6366f1',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.4s infinite'
+                      }}></div>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#6366f1',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.4s infinite 0.2s'
+                      }}></div>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#6366f1',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.4s infinite 0.4s'
+                      }}></div>
+                    </div>
+                  ) : (
+                    message.content
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Chat Input */}
+          <div style={{
+            padding: '16px 20px',
+            borderTop: '1px solid #2a2a2a',
+            backgroundColor: '#1a1a1a'
+          }}>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              alignItems: 'flex-end'
             }}>
-              {generatedCode || '// Your generated code will appear here...'}
-            </pre>
+              <textarea
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message..."
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  backgroundColor: '#2a2a2a',
+                  border: '1px solid #3a3a3a',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  resize: 'none',
+                  minHeight: '44px',
+                  maxHeight: '120px',
+                  fontFamily: 'inherit',
+                  outline: 'none'
+                }}
+                rows={1}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!chatInput.trim() || loading}
+                style={{
+                  backgroundColor: chatInput.trim() && !loading ? '#6366f1' : '#3a3a3a',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '10px',
+                  cursor: chatInput.trim() && !loading ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Send size={18} color={chatInput.trim() && !loading ? '#ffffff' : '#888'} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT SIDE (60%) - Live Preview */}
+        {/* Right Panel - Preview (65%) */}
         <div style={{
-          width: '60%',
+          width: '65%',
           backgroundColor: '#ffffff',
           display: 'flex',
           flexDirection: 'column'
         }}>
+          {/* Toolbar */}
           <div style={{
-            backgroundColor: '#f8fafc',
-            padding: '12px 16px',
-            borderBottom: '1px solid #e2e8f0',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: '#475569',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
+            height: '56px',
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #e5e7eb',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            padding: '0 24px'
           }}>
-            <span>Preview</span>
+            {/* Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '2px',
+              backgroundColor: '#f3f4f6',
+              padding: '4px',
+              borderRadius: '8px'
+            }}>
+              {[
+                { id: 'preview', label: 'Preview', icon: Eye },
+                { id: 'code', label: 'Code', icon: Code },
+                { id: 'share', label: 'Share', icon: Share }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    backgroundColor: activeTab === tab.id ? '#ffffff' : 'transparent',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: activeTab === tab.id ? '#1f2937' : '#6b7280',
+                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                  }}
+                >
+                  <tab.icon size={16} />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Refresh Button */}
             <button
               onClick={refreshPreview}
+              disabled={!generatedCode}
               style={{
-                backgroundColor: 'transparent',
-                color: '#64748b',
-                border: '1px solid #e2e8f0',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '8px',
+                cursor: generatedCode ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                if (generatedCode) {
+                  e.target.style.backgroundColor = '#f9fafb'
+                  e.target.style.borderColor = '#d1d5db'
+                }
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = '#ffffff'
+                e.target.style.borderColor = '#e5e7eb'
               }}
             >
-              ↻ Refresh
+              <RefreshCw size={16} color={generatedCode ? '#6b7280' : '#d1d5db'} />
             </button>
           </div>
+
+          {/* Content Area */}
           <div style={{
             flex: 1,
-            position: 'relative',
+            overflow: 'hidden',
             backgroundColor: '#ffffff'
           }}>
-            <iframe
-              ref={iframeRef}
-              style={{
+            {activeTab === 'preview' && (
+              <div style={{
+                width: '100%',
+                height: '100%'
+              }}>
+                {generatedCode ? (
+                  <iframe
+                    ref={iframeRef}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      border: 'none',
+                      backgroundColor: 'white'
+                    }}
+                    sandbox="allow-scripts"
+                    title="Preview"
+                  />
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    color: '#9ca3af',
+                    fontSize: '16px'
+                  }}>
+                    {loading ? 'Generating preview...' : 'No content to preview'}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'code' && (
+              <div style={{
                 width: '100%',
                 height: '100%',
-                border: 'none',
-                backgroundColor: 'white'
-              }}
-              sandbox="allow-scripts"
-              title="Preview"
-            />
+                backgroundColor: '#1e1e1e',
+                padding: '20px',
+                overflow: 'auto'
+              }}>
+                {generatedCode ? (
+                  <pre style={{
+                    margin: 0,
+                    color: '#d4d4d4',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                    fontFamily: 'Monaco, Menlo, monospace',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                  }}>
+                    {generatedCode}
+                  </pre>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    color: '#6b7280',
+                    fontSize: '16px'
+                  }}>
+                    No code generated yet
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'share' && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                color: '#6b7280',
+                fontSize: '16px'
+              }}>
+                Share functionality coming soon
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes pulse {
+          0%, 80%, 100% {
+            opacity: 0.3;
+          }
+          40% {
+            opacity: 1;
+          }
+        }
+        
+        textarea::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        textarea::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        textarea::-webkit-scrollbar-thumb {
+          background-color: #4a4a4a;
+          border-radius: 3px;
+        }
+        
+        textarea::-webkit-scrollbar-thumb:hover {
+          background-color: #5a5a5a;
         }
       `}</style>
     </div>
