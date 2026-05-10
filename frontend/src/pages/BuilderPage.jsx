@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Send, RefreshCw, Undo, Redo, Eye, Code, Share, Upload } from 'lucide-react'
+import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy } from 'lucide-react'
 
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
@@ -63,11 +63,11 @@ The codebase should support:
 If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or TypeScript.
 
 Determine the default path for components and styles. 
-If default path for components is not /components/ui, provide instructions on why it's important to create this folder.
+If the default path for components is not /components/ui, provide instructions on why it's important to create this folder.
 
 COMPONENT INTEGRATION STEPS:
-1. Analyze the component structure and identify all required dependencies
-2. Review the component's arguments and state
+1. Analyze component structure and identify all required dependencies
+2. Review component's arguments and state
 3. Identify any required context providers or hooks and install them
 4. Ask relevant questions:
    - What data/props will be passed to this component?
@@ -77,7 +77,7 @@ COMPONENT INTEGRATION STEPS:
    - What is the best place to use this component in the app?
 
 IMPLEMENTATION STEPS:
-0. Copy-paste the component code in the correct directories
+0. Copy-paste component code in the correct directories
 1. Install external dependencies (e.g., lucide-react, framer-motion)
 2. Fill image assets with Unsplash stock images if needed
 3. Use lucide-react icons for svgs or logos if component requires them
@@ -187,21 +187,26 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
     }
   }
 
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(prompt)
+    // Could add toast notification here
+  }
+
   return (
     <div style={{
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#0f0f0f',
-      color: 'white',
+      backgroundColor: '#ffffff',
+      color: '#1a1a1a',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
       overflow: 'hidden'
     }}>
       {/* Top Navbar */}
       <div style={{
         height: '48px',
-        backgroundColor: '#1a1a1a',
-        borderBottom: '1px solid #2a2a2a',
+        backgroundColor: '#f8f8f8',
+        borderBottom: '1px solid #e5e7eb',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -210,80 +215,62 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
       }}>
         {/* Left: Project Name */}
         <div style={{
+          fontSize: '14px',
+          color: '#6b7280',
+          fontWeight: '500'
+        }}>
+          {projectName}
+        </div>
+
+        {/* Center: Empty */}
+
+        {/* Right: Icons and Buttons */}
+        <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '16px'
         }}>
-          <h1 style={{
-            margin: 0,
-            fontSize: '16px',
-            fontWeight: '600',
-            color: '#ffffff'
-          }}>
-            {projectName}
-          </h1>
-        </div>
-
-        {/* Center: Undo/Redo */}
-        <div style={{
-          display: 'flex',
-          gap: '8px'
-        }}>
+          <Moon size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+          <RefreshCw size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+          <Link size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+          <Bookmark size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+          <Share2 size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+          
           <button
+            onClick={copyPrompt}
             style={{
-              backgroundColor: 'transparent',
-              border: '1px solid #3a3a3a',
-              color: '#888',
-              padding: '6px 10px',
+              backgroundColor: '#3b82f6',
+              border: 'none',
+              color: 'white',
+              padding: '6px 12px',
               borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: '500',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
-              fontSize: '12px'
+              gap: '4px'
             }}
           >
-            <Undo size={14} />
-            Undo
+            <Copy size={14} />
+            Copy prompt
           </button>
+          
           <button
             style={{
-              backgroundColor: 'transparent',
-              border: '1px solid #3a3a3a',
-              color: '#888',
-              padding: '6px 10px',
+              backgroundColor: '#10b981',
+              border: '1px solid #10b981',
+              color: 'white',
+              padding: '6px 16px',
               borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '12px'
+              fontSize: '12px',
+              fontWeight: '500',
+              cursor: 'pointer'
             }}
           >
-            <Redo size={14} />
-            Redo
+            Open
           </button>
         </div>
-
-        {/* Right: Publish Button */}
-        <button
-          style={{
-            backgroundColor: '#6366f1',
-            border: 'none',
-            color: 'white',
-            padding: '8px 20px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <Upload size={16} />
-          Publish
-        </button>
       </div>
 
       {/* Main Content Area */}
@@ -295,27 +282,11 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
         {/* Left Panel - Chat (35%) */}
         <div style={{
           width: '35%',
-          backgroundColor: '#0f0f0f',
-          borderRight: '1px solid #2a2a2a',
+          backgroundColor: '#ffffff',
+          borderRight: '1px solid #e5e7eb',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Chat Header */}
-          <div style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid #2a2a2a',
-            backgroundColor: '#1a1a1a'
-          }}>
-            <h2 style={{
-              margin: 0,
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#ffffff'
-            }}>
-              Conversation
-            </h2>
-          </div>
-
           {/* Chat Messages */}
           <div style={{
             flex: 1,
@@ -329,25 +300,29 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
             {prompt && (
               <div style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
+                justifyContent: 'flex-end'
               }}>
                 <div style={{
-                  fontSize: '12px',
-                  color: '#888',
-                  fontWeight: '500'
-                }}>
-                  You
-                </div>
-                <div style={{
-                  backgroundColor: '#2a2a2a',
-                  padding: '12px 16px',
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '12px',
-                  color: '#ffffff',
+                  padding: '12px 16px',
+                  maxWidth: '80%',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                   fontSize: '14px',
                   lineHeight: '1.4'
                 }}>
-                  {prompt}
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#64748b',
+                    fontWeight: '500',
+                    marginBottom: '4px'
+                  }}>
+                    You
+                  </div>
+                  <div style={{ color: '#1a1a1a' }}>
+                    {prompt}
+                  </div>
                 </div>
               </div>
             )}
@@ -356,55 +331,59 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
             {messages.map((message) => (
               <div key={message.id} style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
+                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start'
               }}>
                 <div style={{
-                  fontSize: '12px',
-                  color: '#888',
-                  fontWeight: '500'
-                }}>
-                  {message.role === 'user' ? 'You' : 'AI Assistant'}
-                </div>
-                <div style={{
-                  backgroundColor: message.role === 'user' ? '#2a2a2a' : '#1a1a1a',
-                  padding: '12px 16px',
+                  backgroundColor: message.role === 'user' ? '#f8fafc' : '#ffffff',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '12px',
-                  color: '#ffffff',
+                  padding: '12px 16px',
+                  maxWidth: '80%',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                   fontSize: '14px',
                   lineHeight: '1.4'
                 }}>
-                  {message.isTyping ? (
-                    <div style={{
-                      display: 'flex',
-                      gap: '4px',
-                      alignItems: 'center'
-                    }}>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#64748b',
+                    fontWeight: '500',
+                    marginBottom: '4px'
+                  }}>
+                    {message.role === 'user' ? 'You' : 'AI'}
+                  </div>
+                  <div style={{ color: '#1a1a1a' }}>
+                    {message.isTyping ? (
                       <div style={{
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: '#6366f1',
-                        borderRadius: '50%',
-                        animation: 'pulse 1.4s infinite'
-                      }}></div>
-                      <div style={{
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: '#6366f1',
-                        borderRadius: '50%',
-                        animation: 'pulse 1.4s infinite 0.2s'
-                      }}></div>
-                      <div style={{
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: '#6366f1',
-                        borderRadius: '50%',
-                        animation: 'pulse 1.4s infinite 0.4s'
-                      }}></div>
-                    </div>
-                  ) : (
-                    message.content
-                  )}
+                        display: 'flex',
+                        gap: '4px',
+                        alignItems: 'center'
+                      }}>
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          backgroundColor: '#9ca3af',
+                          borderRadius: '50%',
+                          animation: 'pulse 1.4s infinite'
+                        }}></div>
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          backgroundColor: '#9ca3af',
+                          borderRadius: '50%',
+                          animation: 'pulse 1.4s infinite 0.2s'
+                        }}></div>
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          backgroundColor: '#9ca3af',
+                          borderRadius: '50%',
+                          animation: 'pulse 1.4s infinite 0.4s'
+                        }}></div>
+                      </div>
+                    ) : (
+                      message.content
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -415,8 +394,8 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
           {/* Chat Input */}
           <div style={{
             padding: '16px 20px',
-            borderTop: '1px solid #2a2a2a',
-            backgroundColor: '#1a1a1a'
+            borderTop: '1px solid #e5e7eb',
+            backgroundColor: '#ffffff'
           }}>
             <div style={{
               display: 'flex',
@@ -431,11 +410,11 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                 disabled={loading}
                 style={{
                   flex: 1,
-                  backgroundColor: '#2a2a2a',
-                  border: '1px solid #3a3a3a',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e5e7eb',
                   borderRadius: '12px',
                   padding: '12px 16px',
-                  color: '#ffffff',
+                  color: '#1a1a1a',
                   fontSize: '14px',
                   resize: 'none',
                   minHeight: '44px',
@@ -449,10 +428,10 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                 onClick={handleSendMessage}
                 disabled={!chatInput.trim() || loading}
                 style={{
-                  backgroundColor: chatInput.trim() && !loading ? '#6366f1' : '#3a3a3a',
+                  backgroundColor: chatInput.trim() && !loading ? '#3b82f6' : '#f3f4f6',
                   border: 'none',
-                  borderRadius: '10px',
-                  padding: '10px',
+                  borderRadius: '12px',
+                  padding: '12px',
                   cursor: chatInput.trim() && !loading ? 'pointer' : 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',
@@ -460,7 +439,7 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                   transition: 'all 0.2s ease'
                 }}
               >
-                <Send size={18} color={chatInput.trim() && !loading ? '#ffffff' : '#888'} />
+                <Send size={18} color={chatInput.trim() && !loading ? '#ffffff' : '#9ca3af'} />
               </button>
             </div>
           </div>
@@ -473,28 +452,27 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Toolbar */}
+          {/* Tab Bar */}
           <div style={{
             height: '56px',
             backgroundColor: '#ffffff',
             borderBottom: '1px solid #e5e7eb',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '0 24px'
+            padding: '0 24px',
+            gap: '4px'
           }}>
-            {/* Tabs */}
             <div style={{
               display: 'flex',
-              gap: '2px',
+              gap: '4px',
               backgroundColor: '#f3f4f6',
               padding: '4px',
               borderRadius: '8px'
             }}>
               {[
-                { id: 'preview', label: 'Preview', icon: Eye },
-                { id: 'code', label: 'Code', icon: Code },
-                { id: 'share', label: 'Share', icon: Share }
+                { id: 'preview', label: 'Preview' },
+                { id: 'code', label: 'Code' },
+                { id: 'share', label: 'Share' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -505,49 +483,16 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                     padding: '8px 16px',
                     borderRadius: '6px',
                     cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
                     fontSize: '14px',
                     fontWeight: '500',
                     color: activeTab === tab.id ? '#1f2937' : '#6b7280',
-                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
                   }}
                 >
-                  <tab.icon size={16} />
                   {tab.label}
                 </button>
               ))}
             </div>
-
-            {/* Refresh Button */}
-            <button
-              onClick={refreshPreview}
-              disabled={!generatedCode}
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '8px',
-                cursor: generatedCode ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => {
-                if (generatedCode) {
-                  e.target.style.backgroundColor = '#f9fafb'
-                  e.target.style.borderColor = '#d1d5db'
-                }
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = '#ffffff'
-                e.target.style.borderColor = '#e5e7eb'
-              }}
-            >
-              <RefreshCw size={16} color={generatedCode ? '#6b7280' : '#d1d5db'} />
-            </button>
           </div>
 
           {/* Content Area */}
@@ -592,14 +537,14 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
               <div style={{
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#1e1e1e',
+                backgroundColor: '#f8fafc',
                 padding: '20px',
                 overflow: 'auto'
               }}>
                 {generatedCode ? (
                   <pre style={{
                     margin: 0,
-                    color: '#d4d4d4',
+                    color: '#374151',
                     fontSize: '14px',
                     lineHeight: '1.5',
                     fontFamily: 'Monaco, Menlo, monospace',
@@ -614,7 +559,7 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '100%',
-                    color: '#6b7280',
+                    color: '#9ca3af',
                     fontSize: '16px'
                   }}>
                     No code generated yet
@@ -629,7 +574,7 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
-                color: '#6b7280',
+                color: '#9ca3af',
                 fontSize: '16px'
               }}>
                 Share functionality coming soon
@@ -658,12 +603,12 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
         }
         
         textarea::-webkit-scrollbar-thumb {
-          background-color: #4a4a4a;
+          background-color: #e5e7eb;
           border-radius: 3px;
         }
         
         textarea::-webkit-scrollbar-thumb:hover {
-          background-color: #5a5a5a;
+          background-color: #d1d5db;
         }
       `}</style>
     </div>
