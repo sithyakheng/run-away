@@ -14,9 +14,8 @@ function BuilderPage() {
   const location = useLocation()
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
-  const [previewUrl, setPreviewUrl] = useState(null)
-  const [previewKey, setPreviewKey] = useState(0)
   const [iframeLoading, setIframeLoading] = useState(false)
+  const [previewKey, setPreviewKey] = useState(0)
 
   useEffect(() => {
     // Get prompt from location state
@@ -131,14 +130,13 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
       
       setGeneratedCode(html)
       
-      // Create blob URL for iframe
-      const blob = new Blob([html], { type: 'text/html' })
-      const url = URL.createObjectURL(blob)
-      setPreviewUrl(url)
+      // Update iframe preview
+      if (iframeRef.current) {
+        iframeRef.current.srcdoc = html
+      }
+      
       setPreviewKey(prev => prev + 1)
       setIframeLoading(true)
-      
-      return () => URL.revokeObjectURL(url)
 
       // Add AI response to chat
       const aiMessage = {
@@ -551,17 +549,16 @@ Always provide clear, step-by-step instructions and explain the reasoning behind
                   </div>
                 )}
                 
-                {previewUrl ? (
+                {generatedCode ? (
                   <iframe
                     key={previewKey}
-                    src={previewUrl}
+                    srcDoc={generatedHTML}
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
                     style={{
                       width: '100%',
                       height: '100%',
                       border: 'none'
                     }}
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    title="Preview"
                     onLoad={() => setIframeLoading(false)}
                   />
                 ) : (
