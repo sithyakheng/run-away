@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DashboardPromptInput } from '../components/ui/dashboard-prompt-input'
+import { Paperclip, Settings, Code, Mic, Send } from 'lucide-react'
 
 function DashboardPage() {
   const [user, setUser] = useState(null)
@@ -55,19 +55,16 @@ function DashboardPage() {
     navigate('/')
   }
 
-  const handleGenerate = (message, files = []) => {
-    // Remove mode prefixes if present
-    let cleanPrompt = message
-    if (message.startsWith('[Search: ')) {
-      cleanPrompt = message.slice(9, -1) // Remove [Search: prefix and closing ]
-    } else if (message.startsWith('[Think: ')) {
-      cleanPrompt = message.slice(8, -1) // Remove [Think: prefix and closing ]
-    } else if (message.startsWith('[Canvas: ')) {
-      cleanPrompt = message.slice(9, -1) // Remove [Canvas: prefix and closing ]
+  const handleGenerate = () => {
+    if (prompt.trim()) {
+      navigate('/builder', { state: { prompt: prompt.trim() } })
     }
-    
-    if (cleanPrompt.trim()) {
-      navigate('/builder', { state: { prompt: cleanPrompt.trim() } })
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleGenerate()
     }
   }
 
@@ -308,22 +305,226 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Clean AI Prompt Input */}
+        {/* Beautiful Lovable.dev-style Prompt Input */}
         <div style={{
           width: '100%',
           maxWidth: '800px',
           position: 'relative'
         }}>
           <div style={{
-            backgroundColor: '#f3f4f6',
-            padding: '4px',
-            borderRadius: '12px'
+            backgroundColor: '#f8f9fa',
+            borderRadius: '16px',
+            padding: '20px',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+            border: '1px solid #e9ecef'
           }}>
-            <DashboardPromptInput
-              onSend={handleGenerate}
+            {/* Textarea */}
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Describe what you want to build..."
-              className="w-full"
+              style={{
+                width: '100%',
+                minHeight: '120px',
+                maxHeight: '400px',
+                padding: '16px',
+                border: '2px solid #2d3748',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                lineHeight: '1.5',
+                resize: 'none',
+                outline: 'none',
+                backgroundColor: '#ffffff',
+                color: '#1a202c',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#4a5568'
+                e.target.style.boxShadow = '0 0 0 3px rgba(74, 85, 104, 0.1)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#2d3748'
+                e.target.style.boxShadow = 'none'
+              }}
             />
+
+            {/* Action Buttons Row */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: '16px',
+              gap: '12px'
+            }}>
+              {/* Left Side Icons */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'center'
+              }}>
+                {/* Attach File */}
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    color: '#64748b'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#f8fafc'
+                    e.target.style.borderColor = '#cbd5e1'
+                    e.target.style.color = '#475569'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#ffffff'
+                    e.target.style.borderColor = '#e2e8f0'
+                    e.target.style.color = '#64748b'
+                  }}
+                  title="Attach file"
+                >
+                  <Paperclip size={18} />
+                </button>
+
+                {/* Settings */}
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    color: '#64748b'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#f8fafc'
+                    e.target.style.borderColor = '#cbd5e1'
+                    e.target.style.color = '#475569'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#ffffff'
+                    e.target.style.borderColor = '#e2e8f0'
+                    e.target.style.color = '#64748b'
+                  }}
+                  title="Settings"
+                >
+                  <Settings size={18} />
+                </button>
+
+                {/* Code View */}
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    color: '#64748b'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#f8fafc'
+                    e.target.style.borderColor = '#cbd5e1'
+                    e.target.style.color = '#475569'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#ffffff'
+                    e.target.style.borderColor = '#e2e8f0'
+                    e.target.style.color = '#64748b'
+                  }}
+                  title="Code view"
+                >
+                  <Code size={18} />
+                </button>
+
+                {/* Mic */}
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    color: '#64748b'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#f8fafc'
+                    e.target.style.borderColor = '#cbd5e1'
+                    e.target.style.color = '#475569'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#ffffff'
+                    e.target.style.borderColor = '#e2e8f0'
+                    e.target.style.color = '#64748b'
+                  }}
+                  title="Voice input"
+                >
+                  <Mic size={18} />
+                </button>
+              </div>
+
+              {/* Right Side Send Button */}
+              <button
+                onClick={handleGenerate}
+                disabled={!prompt.trim()}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px 24px',
+                  backgroundColor: prompt.trim() ? '#1a202c' : '#e2e8f0',
+                  color: prompt.trim() ? '#ffffff' : '#a0aec0',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                  cursor: prompt.trim() ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s ease',
+                  boxShadow: prompt.trim() ? '0 2px 8px rgba(26, 32, 44, 0.15)' : 'none'
+                }}
+                onMouseOver={(e) => {
+                  if (prompt.trim()) {
+                    e.target.style.backgroundColor = '#2d3748'
+                    e.target.style.transform = 'translateY(-1px)'
+                    e.target.style.boxShadow = '0 4px 12px rgba(26, 32, 44, 0.25)'
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (prompt.trim()) {
+                    e.target.style.backgroundColor = '#1a202c'
+                    e.target.style.transform = 'translateY(0)'
+                    e.target.style.boxShadow = '0 2px 8px rgba(26, 32, 44, 0.15)'
+                  }
+                }}
+              >
+                <Send size={16} />
+                Generate
+              </button>
+            </div>
           </div>
         </div>
 
