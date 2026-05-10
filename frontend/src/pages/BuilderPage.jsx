@@ -17,7 +17,7 @@ function BuilderPage() {
       // Auto-generate when prompt is received
       generateCode(locationPrompt)
     }
-  }, [location.state])
+  }, [])
 
   const generateCode = async (promptToUse) => {
     if (!promptToUse || !promptToUse.trim()) return

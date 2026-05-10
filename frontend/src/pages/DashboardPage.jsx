@@ -369,7 +369,7 @@ function DashboardPage() {
             color: '#6b7280',
             fontFamily: 'Inter, sans-serif'
           }}>
-            Press Ctrl+Enter to generate
+            Press Enter to generate
           </div>
         </div>
 

@@ -162,7 +162,7 @@ function App() {
             } 
           />
           <Route 
-            path="/builder/:id" 
+            path="/builder" 
             element={
               <ProtectedRoute>
                 <BuilderPage />

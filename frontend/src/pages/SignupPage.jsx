@@ -354,6 +354,10 @@ function SignupPage() {
 
         {/* Google sign in */}
         <button
+          onClick={() => {
+            // TODO: Implement Google OAuth
+            console.log('Google OAuth not implemented yet')
+          }}
           style={{
             background: 'transparent',
             color: 'white',
