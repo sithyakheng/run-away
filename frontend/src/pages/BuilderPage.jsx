@@ -70,6 +70,8 @@ Requirements:
 - Use modern layout techniques like CSS Grid and Flexbox
 - Add a footer
 
+Important: All internal navigation links must use anchor href="#section-name" for smooth scroll within the page only. Do not use any absolute URLs or paths that would navigate away from the page.
+
 Return ONLY raw HTML code. No explanation, no markdown, no backticks, just pure HTML starting with <!DOCTYPE html>`
         },
         ...conversationHistory.map(msg => ({
