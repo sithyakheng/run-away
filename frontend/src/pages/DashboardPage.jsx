@@ -352,8 +352,8 @@ User prompt: "${userPrompt}"`
                     color: '#94a3b8',
                     lineHeight: '1.5',
                     display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
+                    'WebkitLineClamp': 3,
+                    'WebkitBoxOrient': 'vertical',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
                   }}>
