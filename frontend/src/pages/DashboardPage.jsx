@@ -184,8 +184,8 @@ User prompt: "${userPrompt}"`
       <div style={{
         display: 'flex',
         backgroundColor: '#1a1a1a',
-        borderBottom: '1px solid #2d3748'
-        padding: '0 24px'
+        borderBottom: '1px solid #2d3748',
+        padding: '0 24px',
         gap: '0'
       }}>
         {['fullstack', 'frontend', 'backend', 'ai'].map((tab) => (
