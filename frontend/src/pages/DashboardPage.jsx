@@ -64,7 +64,7 @@ function DashboardPage() {
           messages: [
             {
               role: 'user',
-              content: `You are a professional prompt engineer. A user wants to build a website. Take their simple prompt and enhance it into a detailed, specific, professional prompt that will generate a stunning website. Return ONLY the enhanced prompt, nothing else, no explanation, no quotes.
+              content: `You are a professional prompt engineer. A user wants to build a website. Take their simple prompt and enhance it into a detailed, specific, professional prompt that will generate a stunning website. Return ONLYs enhanced prompt, nothing else, no explanation, no quotes.
 
 User prompt: "${userPrompt}"`
             }
@@ -107,54 +107,24 @@ User prompt: "${userPrompt}"`
     }
   }
 
-  const createNewProject = async (prompt = '') => {
-    const { supabase } = await import('../lib/supabase')
-    if (!supabase || !user) return
-
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert({
-          user_id: user.id,
-          name: prompt || 'New Project',
-          description: prompt || 'Created on dashboard',
-          code: '',
-          status: 'draft'
-        })
-        .select()
-
-      if (error) throw error
-      
-      if (data && data[0]) {
-        navigate(`/builder/${data[0].id}`)
-      }
-    } catch (error) {
-      console.error('Error creating project:', error)
-    }
-  }
-
   if (loading) {
     return (
       <div style={{
         minHeight: '100vh',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#0a0a0f',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Inter, sans-serif'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '4px solid #e5e7eb',
-            borderTop: '4px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }} />
-          <p style={{ color: '#6b7280', fontFamily: "'Inter', sans-serif" }}>Loading your workspace...</p>
-        </div>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '4px solid #7c3aed',
+          borderTop: '4px solid #6366f1',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
       </div>
     )
   }
@@ -162,402 +132,159 @@ User prompt: "${userPrompt}"`
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#ffffff',
-      fontFamily: 'Inter, sans-serif',
-      position: 'relative',
-      overflow: 'hidden'
+      backgroundColor: '#0a0a0f',
+      fontFamily: 'Inter, sans-serif'
     }}>
-      {/* Grey dot grid pattern background */}
+      {/* Top Navigation */}
       <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundImage: `radial-gradient(circle, #e5e7eb 1px, transparent 1px)`,
-        backgroundSize: '20px 20px',
-        opacity: 0.5,
-        pointerEvents: 'none'
-      }} />
-
-      {/* Minimalist navbar */}
-      <nav style={{
-        position: 'relative',
-        zIndex: 50,
-        background: 'rgba(255,255,255,0.8)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(0,0,0,0.05)',
-        padding: '16px 40px'
+        backgroundColor: '#1a1a1a',
+        borderBottom: '1px solid #2d3748',
+        padding: '16px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
       }}>
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          <div style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            color: '#1f2937',
-            fontFamily: 'Inter, sans-serif'
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: '700',
+            color: '#ffffff',
+            margin: 0
           }}>
             Run Away
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px'
+          </h1>
+          <span style={{
+            fontSize: '14px',
+            color: '#94a3b8',
+            marginLeft: '8px'
           }}>
-            <span style={{
-              color: '#6b7280',
-              fontSize: '14px',
-              fontFamily: "'Inter', sans-serif"
-            }}>
-              {user?.email || 'user@example.com'}
-            </span>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent',
-                color: '#6b7280',
-                border: '1px solid #e5e7eb',
-                padding: '8px 16px',
-                fontSize: '14px',
-                cursor: 'pointer',
-                borderRadius: '8px',
-                transition: 'all 0.2s ease',
-                fontFamily: "'Inter', sans-serif"
-              }}
-              onMouseOver={(e) => {
-                e.target.style.borderColor = '#d1d5db'
-                e.target.style.backgroundColor = '#f9fafb'
-              }}
-              onMouseOut={(e) => {
-                e.target.style.borderColor = '#e5e7eb'
-                e.target.style.backgroundColor = 'transparent'
-              }}
-            >
-              Logout
-            </button>
-          </div>
+            {user?.email || 'user@example.com'}
+          </span>
         </div>
-      </nav>
+        
+        <button
+          onClick={handleLogout}
+          style={{
+            backgroundColor: 'transparent',
+            color: '#6b7280',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            border: '1px solid #374151',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* Tab Navigation */}
+      <div style={{
+        display: 'flex',
+        backgroundColor: '#1a1a1a',
+        borderBottom: '1px solid #2d3748'
+        padding: '0 24px'
+        gap: '0'
+      }}>
+        {['fullstack', 'frontend', 'backend', 'ai'].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+              color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
+              border: 'none',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {/* Main Content */}
-      <div style={{ 
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '60px 40px',
-        position: 'relative',
-        zIndex: 1,
+      <div style={{
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 'calc(100vh - 80px)'
+        flex: 1,
+        padding: '24px',
+        gap: '24px'
       }}>
-        {/* NEW announcement pill */}
+        {/* Left Side - Prompt Input */}
         <div style={{
-          backgroundColor: '#f0f9ff',
-          color: '#0369a1',
-          padding: '6px 16px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '600',
-          marginBottom: '24px',
-          border: '1px solid #bae6fd',
-          fontFamily: 'Inter, sans-serif'
-        }}>
-          NEW
-        </div>
-
-        {/* Main Heading */}
-        <h1 style={{
-          fontSize: 'clamp(32px, 4vw, 48px)',
-          fontWeight: '700',
-          color: '#1f2937',
-          marginBottom: '16px',
-          fontFamily: 'Georgia, serif',
-          lineHeight: '1.2',
-          textAlign: 'center'
-        }}>
-          Don't just think it. Run Away with it.
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{
-          fontSize: '18px',
-          color: '#6b7280',
-          marginBottom: '48px',
-          fontFamily: 'Inter, sans-serif',
-          textAlign: 'center'
-        }}>
-          Transform your ideas into reality with AI-powered development
-        </p>
-
-        {/* Multi-tab layout */}
-        <div style={{
-          width: '100%',
-          maxWidth: '800px',
-          marginBottom: '24px'
+          flex: 1,
+          maxWidth: '600px'
         }}>
           <div style={{
-            display: 'flex',
-            gap: '2px',
-            backgroundColor: '#f3f4f6',
-            padding: '4px',
-            borderRadius: '12px'
-          }}>
-            {[
-              { id: 'fullstack', label: 'Full Stack App', icon: '🌐' },
-              { id: 'mobile', label: 'Mobile App', icon: '📱' },
-              { id: 'website', label: 'Website', icon: '🌍' },
-              { id: 'extension', label: 'Chrome Extension', icon: '🔧' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  border: 'none',
-                  backgroundColor: activeTab === tab.id ? '#ffffff' : 'transparent',
-                  color: activeTab === tab.id ? '#1f2937' : '#6b7280',
-                  fontSize: '14px',
-                  fontWeight: activeTab === tab.id ? '600' : '500',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'Inter, sans-serif',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: activeTab === tab.id ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Beautiful Lovable.dev-style Prompt Input */}
-        <div style={{
-          width: '100%',
-          maxWidth: '800px',
-          position: 'relative'
-        }}>
-          <div style={{
-            backgroundColor: '#f8f9fa',
+            backgroundColor: '#1a1a1a',
             borderRadius: '16px',
-            padding: '20px',
-            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
-            border: '1px solid #e9ecef'
+            padding: '24px',
+            marginBottom: '24px'
           }}>
-            {/* Textarea */}
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Describe what you want to build..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                maxHeight: '400px',
-                padding: '16px',
-                border: '2px solid #2d3748',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                lineHeight: '1.5',
-                resize: 'none',
-                outline: 'none',
-                backgroundColor: '#ffffff',
-                color: '#1a202c',
-                transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#4a5568'
-                e.target.style.boxShadow = '0 0 0 3px rgba(74, 85, 104, 0.1)'
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#2d3748'
-                e.target.style.boxShadow = 'none'
-              }}
-            />
-
-            {/* Action Buttons Row */}
-            <div style={{
+            <h2 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#ffffff',
+              marginBottom: '16px',
               display: 'flex',
-              justifyContent: 'space-between',
               alignItems: 'center',
-              marginTop: '16px',
-              gap: '12px'
+              gap: '8px'
             }}>
-              {/* Left Side Icons */}
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                alignItems: 'center'
-              }}>
-                {/* Attach File */}
-                <button
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    color: '#64748b'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f8fafc'
-                    e.target.style.borderColor = '#cbd5e1'
-                    e.target.style.color = '#475569'
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = '#ffffff'
-                    e.target.style.borderColor = '#e2e8f0'
-                    e.target.style.color = '#64748b'
-                  }}
-                  title="Attach file"
-                >
-                  <Paperclip size={18} />
-                </button>
-
-                {/* Settings */}
-                <button
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    color: '#64748b'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f8fafc'
-                    e.target.style.borderColor = '#cbd5e1'
-                    e.target.style.color = '#475569'
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = '#ffffff'
-                    e.target.style.borderColor = '#e2e8f0'
-                    e.target.style.color = '#64748b'
-                  }}
-                  title="Settings"
-                >
-                  <Settings size={18} />
-                </button>
-
-                {/* Code View */}
-                <button
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    color: '#64748b'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f8fafc'
-                    e.target.style.borderColor = '#cbd5e1'
-                    e.target.style.color = '#475569'
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = '#ffffff'
-                    e.target.style.borderColor = '#e2e8f0'
-                    e.target.style.color = '#64748b'
-                  }}
-                  title="Code view"
-                >
-                  <Code size={18} />
-                </button>
-
-                {/* Mic */}
-                <button
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '36px',
-                    height: '36px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    backgroundColor: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    color: '#64748b'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f8fafc'
-                    e.target.style.borderColor = '#cbd5e1'
-                    e.target.style.color = '#475569'
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = '#ffffff'
-                    e.target.style.borderColor = '#e2e8f0'
-                    e.target.style.color = '#64748b'
-                  }}
-                  title="Voice input"
-                >
-                  <Mic size={18} />
-                </button>
-              </div>
-
+              <span style={{ fontSize: '16px' }}>🚀</span>
+              What would you like to build?
+            </h2>
+            
+            <div style={{
+              position: 'relative'
+            }}>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Describe your project idea..."
+                style={{
+                  width: '100%',
+                  minHeight: '120px',
+                  padding: '16px',
+                  backgroundColor: '#1f2937',
+                  border: '1px solid #374151',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: '#ffffff',
+                  fontFamily: 'Inter, sans-serif',
+                  resize: 'vertical',
+                  outline: 'none',
+                  lineHeight: '1.5'
+                }}
+              />
+              
               {/* Right Side Send Button */}
               <button
                 onClick={handleGenerate}
                 disabled={!prompt.trim()}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
+                  position: 'absolute',
+                  bottom: '16px',
+                  right: '16px',
+                  backgroundColor: '#8b5cf6',
+                  color: '#ffffff',
                   padding: '12px 24px',
-                  backgroundColor: prompt.trim() ? '#1a202c' : '#e2e8f0',
-                  color: prompt.trim() ? '#ffffff' : '#a0aec0',
+                  borderRadius: '12px',
                   border: 'none',
-                  borderRadius: '10px',
                   fontSize: '14px',
                   fontWeight: '600',
-                    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                  cursor: prompt.trim() ? 'pointer' : 'not-allowed',
+                  cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: prompt.trim() ? '0 2px 8px rgba(26, 32, 44, 0.15)' : 'none'
-                }}
-                onMouseOver={(e) => {
-                  if (prompt.trim()) {
-                    e.target.style.backgroundColor = '#2d3748'
-                    e.target.style.transform = 'translateY(-1px)'
-                    e.target.style.boxShadow = '0 4px 12px rgba(26, 32, 44, 0.25)'
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (prompt.trim()) {
-                    e.target.style.backgroundColor = '#1a202c'
-                    e.target.style.transform = 'translateY(0)'
-                    e.target.style.boxShadow = '0 2px 8px rgba(26, 32, 44, 0.15)'
-                  }
+                  boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
                 }}
               >
                 <Send size={16} />
@@ -567,74 +294,291 @@ User prompt: "${userPrompt}"`
           </div>
         </div>
 
-        {/* Quick action suggestions */}
+        {/* Right Side - Project Cards */}
         <div style={{
-          width: '100%',
-          maxWidth: '800px',
-          marginTop: '32px'
+          flex: 2,
+          overflow: 'auto'
         }}>
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center',
-            flexWrap: 'wrap'
-          }}>
-            {[
-              { title: 'AI Company Showcase', icon: '🏢' },
-              { title: 'AI Personal Brand Site', icon: '👤' },
-              { title: 'AI SaaS Waitlist Site', icon: '📋' }
-            ].map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => setPrompt(suggestion.title)}
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '14px',
-                  color: '#6b7280'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.backgroundColor = '#f9fafb'
-                  e.target.style.borderColor = '#d1d5db'
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.backgroundColor = '#ffffff'
-                  e.target.style.borderColor = '#e5e7eb'
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>{suggestion.icon}</span>
-                {suggestion.title}
-              </button>
-            ))}
-            
-            {/* Refresh/sync icon */}
-            <button style={{
-              width: '40px',
-              height: '40px',
-              border: '1px solid #e5e7eb',
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease'
+          {activeTab === 'fullstack' && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '16px'
             }}>
-              <span style={{ fontSize: '16px' }}>🔄</span>
-            </button>
-          </div>
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  onClick={() => navigate(`/builder/${project.id}`)}
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: '1px solid #2d3748',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: '200px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#2d3748'
+                    e.target.style.borderColor = '#4b5563'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#1a1a1a'
+                    e.target.style.borderColor = '#2d3748'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '12px'
+                  }}>
+                    <h3 style={{
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      color: '#ffffff',
+                      margin: 0
+                    }}>
+                      {project.title}
+                    </h3>
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#94a3b8'
+                    }}>
+                      {new Date(project.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#94a3b8',
+                    lineHeight: '1.5',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {project.description}
+                  </p>
+                </div>
+              </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'ai' && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '16px'
+            }}>
+              {[
+                { title: 'AI Website Generator', description: 'Generate stunning websites with AI' },
+                { title: 'UI Components', description: 'Beautiful React components' },
+                { title: 'Code Templates', description: 'Professional code templates' },
+                { title: 'Design System', description: 'Modern design patterns' }
+              ].map((suggestion, index) => (
+                <div
+                  key={index}
+                  onClick={() => setPrompt(suggestion.title)}
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    border: '1px solid #2d3748',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: '120px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#2d3748'
+                    e.target.style.borderColor = '#4b5563'
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#1a1a1a'
+                    e.target.style.borderColor = '#2d3748'
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>{suggestion.icon}</span>
+                  {suggestion.title}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Prompt Enhancement Modal */}
+      {showPromptModal && (
+        <div style={{
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '600px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            animation: 'slideIn 0.3s ease-out'
+          }}>
+            <h3 style={{
+              margin: '0 0 24px 0',
+              fontSize: '24px',
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent',
+              display: 'inline-block',
+              padding: '8px 16px'
+            }}>
+              ✨ Enhanced Prompt
+            </h3>
+            
+            <div style={{
+              marginBottom: '20px',
+              padding: '16px',
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <p style={{
+                margin: '0 0 12px 0',
+                fontSize: '14px',
+                color: '#64748b',
+                fontWeight: '500'
+              }}>
+                Original:
+              </p>
+              <p style={{
+                fontSize: '14px',
+                color: '#374151',
+                lineHeight: '1.5',
+                marginBottom: '16px',
+                padding: '12px',
+                backgroundColor: '#ffffff',
+                borderRadius: '6px',
+                border: '1px solid #e5e7eb',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word'
+              }}>
+                {prompt}
+              </p>
+            </div>
+
+            <div style={{
+              marginBottom: '20px',
+              padding: '16px',
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <p style={{
+                margin: '0 0 12px 0',
+                fontSize: '14px',
+                color: '#64748b',
+                fontWeight: '500'
+              }}>
+                Enhanced:
+              </p>
+              <textarea
+                value={enhancedPrompt}
+                onChange={(e) => setEnhancedPrompt(e.target.value)}
+                style={{
+                  width: '100%',
+                  minHeight: '120px',
+                  padding: '12px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontFamily: 'Monaco, Menlo, monospace',
+                  resize: 'vertical',
+                  outline: 'none',
+                  lineHeight: '1.5'
+                }}
+                placeholder={isEnhancing ? "Enhancing your prompt..." : "Enhanced prompt will appear here..."}
+                disabled={isEnhancing}
+              />
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => {
+                  navigate('/builder', { state: { prompt: enhancedPrompt || prompt } })
+                  setShowPromptModal(false)
+                }}
+                disabled={isEnhancing || !enhancedPrompt.trim()}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: isEnhancing ? 'not-allowed' : 'pointer',
+                  opacity: isEnhancing || !enhancedPrompt.trim() ? 0.7 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {isEnhancing ? 'Enhancing...' : 'Use Enhanced Prompt'}
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/builder', { state: { prompt: prompt } })
+                  setShowPromptModal(false)
+                }}
+                style={{
+                  background: '#ffffff',
+                  color: '#6b7280',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Use Original Instead
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0,
+            transform: translateY(-20px)
+          }
+          to {
+            opacity: 1,
+            transform: translateY(0)
+          }
+        }
+        
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
