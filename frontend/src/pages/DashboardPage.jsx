@@ -8,6 +8,9 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('fullstack')
   const [prompt, setPrompt] = useState('')
+  const [enhancedPrompt, setEnhancedPrompt] = useState('')
+  const [showPromptModal, setShowPromptModal] = useState(false)
+  const [isEnhancing, setIsEnhancing] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -47,6 +50,42 @@ function DashboardPage() {
     loadUserData()
   }, [navigate])
 
+  const enhancePrompt = async (userPrompt) => {
+    setIsEnhancing(true)
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'user',
+              content: `You are a professional prompt engineer. A user wants to build a website. Take their simple prompt and enhance it into a detailed, specific, professional prompt that will generate a stunning website. Return ONLY the enhanced prompt, nothing else, no explanation, no quotes.
+
+User prompt: "${userPrompt}"`
+            }
+          ],
+          max_tokens: 500
+        })
+      })
+
+      const data = await response.json()
+      const enhancedPrompt = data.choices[0].message.content
+      setEnhancedPrompt(enhancedPrompt)
+      setShowPromptModal(true)
+    } catch (error) {
+      console.error('Error enhancing prompt:', error)
+      setEnhancedPrompt(userPrompt)
+      setShowPromptModal(true)
+    } finally {
+      setIsEnhancing(false)
+    }
+  }
+
   const handleLogout = async () => {
     const { supabase } = await import('../lib/supabase')
     if (supabase) {
@@ -57,7 +96,7 @@ function DashboardPage() {
 
   const handleGenerate = () => {
     if (prompt.trim()) {
-      navigate('/builder', { state: { prompt: prompt.trim() } })
+      enhancePrompt(prompt.trim())
     }
   }
 

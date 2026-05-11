@@ -19,13 +19,16 @@ function BuilderPage() {
   const [previewKey, setPreviewKey] = useState(0)
 
   useEffect(() => {
-    // Get prompt from location state
+    // Get prompt from location state or dashboard enhancement
     const locationPrompt = location.state?.prompt
-    if (locationPrompt) {
-      setPrompt(locationPrompt)
-      setProjectName(locationPrompt.slice(0, 30) + '...')
+    const dashboardPrompt = location.state?.enhancedPrompt
+    const finalPrompt = dashboardPrompt || locationPrompt
+    
+    if (finalPrompt) {
+      setPrompt(finalPrompt)
+      setProjectName(finalPrompt.slice(0, 30) + '...')
       // Auto-generate when prompt is received
-      generateCode(locationPrompt)
+      generateCode(finalPrompt)
     }
   }, [])
 
@@ -50,43 +53,24 @@ function BuilderPage() {
       const messagesForAPI = [
         {
           role: 'system',
-          content: "You are an expert web developer. Generate a stunning, modern, professional single-file HTML website based on this request: \"" + promptToUse + "\".\n\nRequirements:\n- Use modern CSS with gradients, animations, and smooth transitions\n- Mobile responsive design\n- Beautiful typography using Google Fonts (import them with a link tag)\n- Hero section with a stunning gradient background\n- Clean navigation bar\n- Professional color scheme that fits to the topic\n- Smooth scroll behavior\n- Hover effects on buttons and cards\n- Use Font Awesome icons (import from cdnjs)\n- Add subtle animations using CSS keyframes\n- Make it look like a $10,000 professionally designed website\n- Use modern layout techniques like CSS Grid and Flexbox\n- Add a footer\n\nReturn ONLY raw HTML code. No explanation, no markdown, no backticks, just pure HTML starting with <!DOCTYPE html>"
-You are given a task to integrate an existing React component in the codebase.
+          content: `You are an expert web developer. Generate a stunning, modern, professional single-file HTML website based on this request: "${promptToUse}".
 
-The codebase should support:
-- shadcn project structure  
-- Tailwind CSS
-- TypeScript
+Requirements:
+- Use modern CSS with gradients, animations, and smooth transitions
+- Mobile responsive design
+- Beautiful typography using Google Fonts (import them with a link tag)
+- Hero section with a stunning gradient background
+- Clean navigation bar
+- Professional color scheme that fits to the topic
+- Smooth scroll behavior
+- Hover effects on buttons and cards
+- Use Font Awesome icons (import from cdnjs)
+- Add subtle animations using CSS keyframes
+- Make it look like a $10,000 professionally designed website
+- Use modern layout techniques like CSS Grid and Flexbox
+- Add a footer
 
-If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or TypeScript.
-
-Determine the default path for components and styles. 
-If the default path for components is not /components/ui, provide instructions on why it's important to create this folder.
-
-COMPONENT INTEGRATION STEPS:
-1. Analyze component structure and identify all required dependencies
-2. Review component's arguments and state
-3. Identify any required context providers or hooks and install them
-4. Ask relevant questions:
-   - What data/props will be passed to this component?
-   - Are there any specific state management requirements?
-   - Are there any required assets (images, icons, etc.)?
-   - What is the expected responsive behavior?
-   - What is the best place to use this component in the app?
-
-IMPLEMENTATION STEPS:
-0. Copy-paste component code in the correct directories
-1. Install external dependencies (e.g., lucide-react, framer-motion)
-2. Fill image assets with Unsplash stock images if needed
-3. Use lucide-react icons for svgs or logos if component requires them
-
-For example, to integrate the agent-plan component:
-- Copy agent-plan.tsx to /components/ui folder
-- Install dependencies: npm install lucide-react framer-motion
-- Ensure the project supports TypeScript and Tailwind CSS
-- Import and use the component where needed
-
-Always provide clear, step-by-step instructions and explain the reasoning behind each step.`
+Return ONLY raw HTML code. No explanation, no markdown, no backticks, just pure HTML starting with <!DOCTYPE html>`
         },
         ...conversationHistory.map(msg => ({
           role: msg.role === 'user' ? 'user' : 'assistant',
