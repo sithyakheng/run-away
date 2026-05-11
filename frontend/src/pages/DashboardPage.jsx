@@ -7,9 +7,9 @@ function DashboardPage() {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('fullstack')
-  const [prompt, setPrompt] = useState('')
+  const [userPrompt, setUserPrompt] = useState('')
   const [enhancedPrompt, setEnhancedPrompt] = useState('')
-  const [showPromptModal, setShowPromptModal] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [isEnhancing, setIsEnhancing] = useState(false)
   const navigate = useNavigate()
 
@@ -50,42 +50,7 @@ function DashboardPage() {
     loadUserData()
   }, [navigate])
 
-  const enhancePrompt = async (userPrompt) => {
-    setIsEnhancing(true)
-    try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'user',
-              content: `You are a professional prompt engineer. A user wants to build a website. Take their simple prompt and enhance it into a detailed, specific, professional prompt that will generate a stunning website. Return ONLYs enhanced prompt, nothing else, no explanation, no quotes.
-
-User prompt: "${userPrompt}"`
-            }
-          ],
-          max_tokens: 500
-        })
-      })
-
-      const data = await response.json()
-      const enhancedPrompt = data.choices[0].message.content
-      setEnhancedPrompt(enhancedPrompt)
-      setShowPromptModal(true)
-    } catch (error) {
-      console.error('Error enhancing prompt:', error)
-      setEnhancedPrompt(userPrompt)
-      setShowPromptModal(true)
-    } finally {
-      setIsEnhancing(false)
-    }
-  }
-
+  
   const handleLogout = async () => {
     const { supabase } = await import('../lib/supabase')
     if (supabase) {
@@ -94,11 +59,43 @@ User prompt: "${userPrompt}"`
     navigate('/')
   }
 
-  const handleGenerate = () => {
-    if (prompt.trim()) {
-      enhancePrompt(prompt.trim())
-    }
+  const handleGenerate = async () => {
+  if (!userPrompt.trim()) return
+  
+  setIsEnhancing(true)
+  
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'user',
+            content: `You are a professional prompt engineer. Take this simple prompt and enhance it into a detailed professional prompt for building a website. Return ONLY the enhanced prompt, nothing else.
+
+User prompt: "${userPrompt}"`
+          }
+        ],
+        max_tokens: 500
+      })
+    })
+    
+    const data = await response.json()
+    const enhancedPrompt = data.choices[0].message.content
+    setEnhancedPrompt(enhancedPrompt)
+    setShowModal(true)
+  } catch (error) {
+    console.log('Enhancement error:', error)
+    navigate('/builder', { state: { prompt: userPrompt } })
+  } finally {
+    setIsEnhancing(false)
   }
+}
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -247,8 +244,8 @@ User prompt: "${userPrompt}"`
               position: 'relative'
             }}>
               <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Describe your project idea..."
                 style={{
@@ -270,7 +267,7 @@ User prompt: "${userPrompt}"`
               {/* Right Side Send Button */}
               <button
                 onClick={handleGenerate}
-                disabled={!prompt.trim()}
+                disabled={isEnhancing || !userPrompt.trim()}
                 style={{
                   position: 'absolute',
                   bottom: '16px',
@@ -288,7 +285,7 @@ User prompt: "${userPrompt}"`
                 }}
               >
                 <Send size={16} />
-                Generate
+                {isEnhancing ? 'Enhancing...' : '✈ Generate'}
               </button>
             </div>
           </div>
@@ -414,7 +411,7 @@ User prompt: "${userPrompt}"`
       </div>
 
       {/* Prompt Enhancement Modal */}
-      {showPromptModal && (
+      {showModal && (
         <div style={{
           position: 'fixed',
           top: '0',
@@ -478,7 +475,7 @@ User prompt: "${userPrompt}"`
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word'
               }}>
-                {prompt}
+                {userPrompt}
               </p>
             </div>
 
@@ -524,8 +521,8 @@ User prompt: "${userPrompt}"`
             }}>
               <button
                 onClick={() => {
-                  navigate('/builder', { state: { prompt: enhancedPrompt || prompt } })
-                  setShowPromptModal(false)
+                  navigate('/builder', { state: { prompt: enhancedPrompt || userPrompt } })
+                  setShowModal(false)
                 }}
                 disabled={isEnhancing || !enhancedPrompt.trim()}
                 style={{
@@ -545,8 +542,8 @@ User prompt: "${userPrompt}"`
               </button>
               <button
                 onClick={() => {
-                  navigate('/builder', { state: { prompt: prompt } })
-                  setShowPromptModal(false)
+                  navigate('/builder', { state: { prompt: userPrompt } })
+                  setShowModal(false)
                 }}
                 style={{
                   background: '#ffffff',
