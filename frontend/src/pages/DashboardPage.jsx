@@ -188,7 +188,12 @@ User prompt: "${userPrompt}"`
         padding: '0 24px',
         gap: '0'
       }}>
-        {['fullstack', 'frontend', 'backend', 'ai'].map((tab) => (
+        {[
+          { id: 'fullstack', label: 'Full Stack' },
+          { id: 'frontend', label: 'Frontend' },
+          { id: 'backend', label: 'Backend' },
+          { id: 'ai', label: 'AI Tools' }
+        ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -360,7 +365,6 @@ User prompt: "${userPrompt}"`
                     {project.description}
                   </p>
                 </div>
-              </div>
               ))}
             </div>
           )}
@@ -372,14 +376,14 @@ User prompt: "${userPrompt}"`
               gap: '16px'
             }}>
               {[
-                { title: 'AI Website Generator', description: 'Generate stunning websites with AI' },
-                { title: 'UI Components', description: 'Beautiful React components' },
-                { title: 'Code Templates', description: 'Professional code templates' },
-                { title: 'Design System', description: 'Modern design patterns' }
+                { title: 'AI Website Generator', description: 'Generate stunning websites with AI', icon: '🤖' },
+                { title: 'UI Components', description: 'Beautiful React components', icon: '🎨' },
+                { title: 'Code Templates', description: 'Professional code templates', icon: '📝' },
+                { title: 'Design System', description: 'Modern design patterns', icon: '🎯' }
               ].map((suggestion, index) => (
                 <div
                   key={index}
-                  onClick={() => setPrompt(suggestion.title)}
+                  onClick={() => setUserPrompt(suggestion.title)}
                   style={{
                     backgroundColor: '#1a1a1a',
                     borderRadius: '12px',
