@@ -55,24 +55,28 @@ function BuilderPage() {
           role: 'system',
           content: `You are an expert web developer. Generate a stunning, modern, professional single-file HTML website based on this request: "${promptToUse}".
 
-Requirements:
-- Use modern CSS with gradients, animations, and smooth transitions
-- Mobile responsive design
-- Beautiful typography using Google Fonts (import them with a link tag)
-- Hero section with a stunning gradient background
-- Clean navigation bar
-- Professional color scheme that fits to the topic
-- Smooth scroll behavior
+CRITICAL RULES - YOU MUST FOLLOW THESE:
+- NEVER use href="/" anywhere in the code
+- NEVER use href="/about" or any path-based links
+- ALL navigation links must ONLY use href="#section-id" for smooth scrolling
+- Every nav link must point to a section id on the same page like href="#about" href="#services" href="#contact"
+- Every section must have a matching id like <section id="about"> <section id="services">
+- Do NOT use any external URLs except for Google Fonts and Font Awesome CDN imports
+
+DESIGN REQUIREMENTS:
+- Use Google Fonts (import with link tag)
+- Use Font Awesome icons from cdnjs
+- Modern CSS with gradients, animations, smooth transitions
+- Mobile responsive with media queries
+- Hero section with stunning gradient background
+- Clean navbar with smooth scroll links
+- Professional color scheme
 - Hover effects on buttons and cards
-- Use Font Awesome icons (import from cdnjs)
-- Add subtle animations using CSS keyframes
-- Make it look like a $10,000 professionally designed website
-- Use modern layout techniques like CSS Grid and Flexbox
-- Add a footer
+- CSS keyframe animations
+- CSS Grid and Flexbox layouts
+- Beautiful footer
 
-Important: All internal navigation links must use anchor href="#section-name" for smooth scroll within the page only. Do not use any absolute URLs or paths that would navigate away from the page.
-
-Return ONLY raw HTML code. No explanation, no markdown, no backticks, just pure HTML starting with <!DOCTYPE html>`
+Return ONLY raw HTML starting with <!DOCTYPE html>. No explanation, no markdown, no backticks.`
         },
         ...conversationHistory.map(msg => ({
           role: msg.role === 'user' ? 'user' : 'assistant',
