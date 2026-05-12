@@ -1,11 +1,11 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function LandingPage() {
-  const navigate = useNavigate()
+function Home() {
+  const navigate = useNavigate();
 
   return (
-    <div className="bg-black min-h-screen w-full relative selection:bg-white/30 selection:text-white">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -14,12 +14,12 @@ function LandingPage() {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
         <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
           Run Away
         </h1>
         
-        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto text-center">
+        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
           Transform your ideas into reality with AI-powered development
         </p>
 
@@ -39,7 +39,7 @@ function LandingPage() {
         </div>
 
         {/* Feature cards */}
-        <div className="grid md:grid-cols-3 gap-8 mt-20 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 mt-20">
           <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all hover:scale-105">
             <div className="text-3xl mb-4">🚀</div>
             <h3 className="text-xl font-semibold mb-2">AI-Powered</h3>
@@ -66,7 +66,7 @@ function LandingPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default LandingPage
+export default Home;
