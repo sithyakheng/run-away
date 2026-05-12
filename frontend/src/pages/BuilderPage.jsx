@@ -534,7 +534,7 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No explanation, no markdown,
                   <iframe
   key={previewKey}
   srcDoc={generatedHTML || ''}
-  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+  sandbox="allow-scripts allow-forms allow-popups allow-modals"
   style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
   onLoad={() => setIframeLoading(false)}
 />
