@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/authStore'
+import { CpuArchitecture } from './components/ui/cpu-architecture'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -105,13 +106,28 @@ function ProtectedRoute({ children }) {
     return (
       <div style={{
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
         background: '#0a0a0f',
-        color: 'white'
+        color: 'white',
+        gap: '24px'
       }}>
-        Loading...
+        <div style={{
+          width: '200px',
+          height: '100px'
+        }}>
+          <CpuArchitecture />
+        </div>
+        <div style={{
+          fontSize: '16px',
+          fontWeight: '500',
+          color: '#94a3b8',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          Initializing...
+        </div>
       </div>
     )
   }
