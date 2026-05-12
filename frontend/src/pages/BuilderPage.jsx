@@ -116,12 +116,6 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No explanation, no markdown,
       
       setGeneratedCode(html)
       setGeneratedHTML(html)
-      
-      // Update iframe preview
-      if (iframeRef.current) {
-        iframeRef.current.srcdoc = html
-      }
-      
       setPreviewKey(prev => prev + 1)
       setIframeLoading(true)
 
@@ -539,9 +533,9 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No explanation, no markdown,
                 {generatedHTML ? (
                   <iframe
   key={previewKey}
-  srcDoc={generatedHTML}
+  srcDoc={generatedHTML || ''}
   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-  style={{ width: '100%', height: '100%', border: 'none' }}
+  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
   onLoad={() => setIframeLoading(false)}
 />
                 ) : (
