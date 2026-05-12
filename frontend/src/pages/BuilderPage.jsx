@@ -17,6 +17,8 @@ function BuilderPage() {
   const chatEndRef = useRef(null)
   const [iframeLoading, setIframeLoading] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
+  const [currentAgentStep, setCurrentAgentStep] = useState(0)
+  const agentStepsRef = useRef(null)
 
   useEffect(() => {
     // Get prompt from location state or dashboard enhancement
@@ -36,6 +38,30 @@ function BuilderPage() {
     // Scroll to bottom of chat when new messages are added
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    // Agent Plan animation logic
+    if (loading) {
+      setCurrentAgentStep(0)
+      agentStepsRef.current = setInterval(() => {
+        setCurrentAgentStep(prev => {
+          if (prev >= 4) return prev // Stop at the last step
+          return prev + 1
+        })
+      }, 1500)
+    } else {
+      if (agentStepsRef.current) {
+        clearInterval(agentStepsRef.current)
+        agentStepsRef.current = null
+      }
+    }
+
+    return () => {
+      if (agentStepsRef.current) {
+        clearInterval(agentStepsRef.current)
+      }
+    }
+  }, [loading])
 
   const generateCode = async (promptToUse, conversationHistory = []) => {
     if (!promptToUse || !promptToUse.trim()) return
@@ -188,6 +214,254 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation,
   const copyPrompt = () => {
     navigator.clipboard.writeText(prompt)
     // Could add toast notification here
+  }
+
+  const agentSteps = [
+    { id: 1, title: 'Analyzing your prompt', subtasks: ['Understanding requirements', 'Planning structure', 'Choosing color scheme'], status: 'done' },
+    { id: 2, title: 'Designing layout', subtasks: ['Creating hero section', 'Building navigation', 'Planning sections'], status: 'in-progress' },
+    { id: 3, title: 'Writing HTML & CSS', subtasks: [], status: 'pending' },
+    { id: 4, title: 'Adding animations', subtasks: [], status: 'pending' },
+    { id: 5, title: 'Finalizing website', subtasks: [], status: 'pending' },
+  ]
+
+  const getStepStatus = (stepIndex) => {
+    if (stepIndex < currentAgentStep) return 'done'
+    if (stepIndex === currentAgentStep) return 'in-progress'
+    return 'pending'
+  }
+
+  // Agent Plan Loading Screen
+  if (loading) {
+    return (
+      <div style={{
+        height: '100vh',
+        backgroundColor: '#ffffff',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+        overflow: 'hidden'
+      }}>
+        {/* Top Navbar */}
+        <div style={{
+          height: '48px',
+          backgroundColor: '#f8f8f8',
+          borderBottom: '1px solid #e5e7eb',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 20px'
+        }}>
+          {/* Left: Agent Plan Title */}
+          <div style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '#1a1a1a'
+          }}>
+            Agent Plan
+          </div>
+
+          {/* Right: Action Icons */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <Moon size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+            <RefreshCw size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+            <Link size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+            <Bookmark size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+            <Share2 size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
+            
+            <button
+              style={{
+                backgroundColor: '#3b82f6',
+                border: 'none',
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Copy size={14} />
+              Copy prompt
+            </button>
+            
+            <button
+              style={{
+                backgroundColor: '#10b981',
+                border: '1px solid #10b981',
+                color: 'white',
+                padding: '6px 16px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              Open
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content - Agent Plan Card */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 'calc(100vh - 48px)',
+          padding: '40px 20px'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '100%',
+            maxWidth: '600px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#1a1a1a',
+              margin: '0 0 24px 0'
+            }}>
+              Building your website...
+            </h2>
+
+            {/* Agent Steps */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              {agentSteps.map((step, index) => {
+                const status = getStepStatus(index)
+                return (
+                  <div key={step.id} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}>
+                    {/* Main Task Row */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      {/* Status Icon */}
+                      <div style={{
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        backgroundColor: status === 'done' ? '#10b981' : status === 'in-progress' ? '#ffffff' : '#e5e7eb',
+                        border: status === 'in-progress' ? '2px dashed #3b82f6' : 'none',
+                        color: status === 'done' ? '#ffffff' : status === 'in-progress' ? '#3b82f6' : '#9ca3af'
+                      }}>
+                        {status === 'done' ? '✓' : status === 'in-progress' ? (
+                          <div style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: '#3b82f6',
+                            animation: 'pulse 1.5s infinite'
+                          }}></div>
+                        ) : ''}
+                      </div>
+
+                      {/* Task Title */}
+                      <div style={{
+                        flex: 1,
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: status === 'done' ? '#6b7280' : '#1a1a1a',
+                        textDecoration: status === 'done' ? 'line-through' : 'none'
+                      }}>
+                        {step.title}
+                      </div>
+
+                      {/* Status Badge */}
+                      {status === 'in-progress' && (
+                        <div style={{
+                          backgroundColor: '#dbeafe',
+                          color: '#1e40af',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          padding: '4px 8px',
+                          borderRadius: '12px'
+                        }}>
+                          in-progress
+                        </div>
+                      )}
+                      {status === 'pending' && (
+                        <div style={{
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          padding: '4px 8px',
+                          borderRadius: '12px'
+                        }}>
+                          pending
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Subtasks */}
+                    {step.subtasks.length > 0 && (
+                      <div style={{
+                        marginLeft: '32px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}>
+                        {step.subtasks.map((subtask, subIndex) => (
+                          <div key={subIndex} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '12px',
+                            color: status === 'done' ? '#9ca3af' : '#6b7280',
+                            textDecoration: status === 'done' ? 'line-through' : 'none'
+                          }}>
+                            <div style={{
+                              width: '4px',
+                              height: '4px',
+                              borderRadius: '50%',
+                              backgroundColor: status === 'done' ? '#10b981' : '#d1d5db'
+                            }}></div>
+                            {subtask}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        <style>{`
+          @keyframes pulse {
+            0%, 80%, 100% {
+              opacity: 0.3;
+            }
+            40% {
+              opacity: 1;
+            }
+          }
+        `}</style>
+      </div>
+    )
   }
 
   return (
