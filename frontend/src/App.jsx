@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { supabase } from './lib/supabase'
 import { useAuthStore } from './store/authStore'
 import { CpuArchitecture } from './components/ui/cpu-architecture'
+import { DemoOne } from './components/ui/demo'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -183,6 +184,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signin-demo" element={<DemoOne />} />
           <Route 
             path="/dashboard" 
             element={

@@ -1,11 +1,11 @@
-"use client";
+import { SignInPage } from "@/components/ui/sign-in-flow-1";
 
-import Plan from "@/components/ui/agent-plan";
-
-export function Demo() {
+const DemoOne = () => {
   return (
-    <div className="flex flex-col p-4 w-full h-full">
-      <Plan />
+    <div className="flex w-full h-screen justify-center items-center">
+      <SignInPage />
     </div>
   );
-}
+};
+
+export { DemoOne };
