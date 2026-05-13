@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy } from 'lucide-react'
+import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets } from 'lucide-react'
 
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
-  const [generatedCode, setGeneratedCode] = useState('')
+  const [generatedCode, setGeneratedCode] = useState([])
   const [generatedHTML, setGeneratedHTML] = useState('')
+  const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [chatInput, setChatInput] = useState('')
   const [messages, setMessages] = useState([])
@@ -86,93 +87,27 @@ function BuilderPage() {
     setLoading(true)
     
     try {
-      const apiKey = import.meta.env.VITE_GROQ_API_KEY
-      
-      if (!apiKey) {
-        throw new Error('Groq API key is missing. Please configure VITE_GROQ_API_KEY.')
-      }
-
-      // Build conversation history for context
-      const messagesForAPI = [
-        {
-          role: 'system',
-          content: `You are a world-class creative web designer and developer who creates absolutely stunning, award-winning websites. Your websites look like they were designed by a senior designer at Apple or Stripe.
-
-CRITICAL NAVIGATION RULES:
-- NEVER use href="/" or any path-based links ever
-- ALL links must use href="#section-id" only
-- Every section must have a matching id attribute
-
-DESIGN STANDARDS - MAKE IT LOOK INCREDIBLE:
-- Import Google Fonts: use beautiful font combinations like "Playfair Display" + "Inter" or "Space Grotesk" + "DM Sans"
-- Import Font Awesome 6 from: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css
-- Use CSS custom properties (variables) for consistent theming
-- Create a visually stunning hero section with:
-  * Multi-layer gradient backgrounds or mesh gradients
-  * Large bold typography with gradient text effects
-  * Subtle floating/parallax animations
-  * A clear call-to-action button with hover effects
-- Add smooth scroll behavior to html element
-- Use glassmorphism effects (backdrop-filter: blur) for cards and navbar
-- Add micro-interactions: hover transforms, scale effects, color transitions
-- Use CSS animations: fadeIn, slideUp, float effects on load
-- Create a sticky navbar with blur background on scroll using JavaScript
-- Add scroll reveal animations using Intersection Observer API
-- Use modern color palettes: avoid basic red/blue/green, use sophisticated colors
-- Cards should have subtle shadows that deepen on hover
-- Buttons should have gradient backgrounds with shine effects
-- Add a beautiful gradient footer
-- Use CSS Grid for complex layouts
-- Add subtle background patterns or shapes using CSS
-
-CONTENT QUALITY:
-- Write realistic, professional content (not Lorem Ipsum)
-- Use relevant emojis sparingly for visual interest
-- Include realistic statistics, testimonials, team members
-- Make the content specific to what the user asked for
-
-Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation, no backticks.`
-        },
-        ...conversationHistory.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })),
-        {
-          role: 'user',
-          content: promptToUse
-        }
-      ]
-
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ai/generate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}` 
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: messagesForAPI,
-          max_tokens: 4000
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: promptToUse })
       })
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Invalid Groq API key. Please check your API key configuration.')
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please try again in a moment.')
-        } else {
-          throw new Error(`API Error: ${response.status} - ${response.statusText}`)
-        }
-      }
-
       const data = await response.json()
-      const html = data.choices[0].message.content
-      
-      setGeneratedCode(html)
-      setGeneratedHTML(html)
+      const files = data.files || []
+
+      const cssFile = files.find(f => f.name === 'styles.css')
+      const jsFile = files.find(f => f.name === 'script.js')
+      const htmlFile = files.find(f => f.name === 'index.html')
+
+      let combinedHTML = htmlFile?.content || ''
+      if (cssFile) combinedHTML = combinedHTML.replace('<link rel="stylesheet" href="styles.css">', `<style>${cssFile.content}</style>`)
+      if (jsFile) combinedHTML = combinedHTML.replace('<script src="script.js" defer></script>', `<script>${jsFile.content}</script>`)
+
+      setGeneratedHTML(combinedHTML)
+      setGeneratedCode(files)
       setPreviewKey(prev => prev + 1)
       setIframeLoading(true)
+      setSelectedFile(htmlFile?.name || null)
 
       // Add AI response to chat
       const aiMessage = {
@@ -660,8 +595,58 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation,
           <div style={{
             flex: 1,
             overflow: 'hidden',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            display: 'flex'
           }}>
+            {/* File Tree Panel */}
+            {activeTab === 'code' && generatedCode.length > 0 && (
+              <div style={{
+                width: '200px',
+                backgroundColor: '#f8fafc',
+                borderRight: '1px solid #e5e7eb',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6b7280',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Files
+                </div>
+                {generatedCode.map((file) => {
+                  const icon = file.name === 'index.html' ? FileCode : file.name === 'styles.css' ? FileText : Brackets
+                  return (
+                    <button
+                      key={file.name}
+                      onClick={() => setSelectedFile(file.name)}
+                      style={{
+                        backgroundColor: selectedFile === file.name ? '#e0f2fe' : 'transparent',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: selectedFile === file.name ? '#0369a1' : '#475569',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <icon size={16} />
+                      {file.name}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
             {activeTab === 'preview' && (
               <div style={{
                 width: '100%',
@@ -712,13 +697,12 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation,
 
             {activeTab === 'code' && (
               <div style={{
-                width: '100%',
-                height: '100%',
+                flex: 1,
                 backgroundColor: '#f8fafc',
                 padding: '20px',
                 overflow: 'auto'
               }}>
-                {generatedCode ? (
+                {generatedCode.length > 0 && selectedFile ? (
                   <pre style={{
                     margin: 0,
                     color: '#374151',
@@ -728,7 +712,7 @@ Return ONLY raw HTML starting with <!DOCTYPE html>. No markdown, no explanation,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word'
                   }}>
-                    {generatedCode}
+                    {generatedCode.find(f => f.name === selectedFile)?.content || ''}
                   </pre>
                 ) : (
                   <div style={{
