@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { PromptInputBox } from '../components/ui/ai-prompt-box'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -9,8 +10,9 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false)
   const [isEnhancing, setIsEnhancing] = useState(false)
 
-  const handleGenerate = async () => {
-    if (!userPrompt.trim()) return
+  const handleGenerate = async (messagePrompt) => {
+    const promptToUse = messagePrompt || userPrompt
+    if (!promptToUse.trim()) return
     setIsEnhancing(true)
     try {
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -23,7 +25,7 @@ export default function DashboardPage() {
           model: 'llama-3.3-70b-versatile',
           messages: [{
             role: 'user',
-            content: `You are a professional prompt engineer. Take this simple prompt and enhance it into a detailed professional prompt for building a stunning website. Return ONLY the enhanced prompt, nothing else, no quotes, no explanation.\n\nUser prompt: "${userPrompt}"` 
+            content: `Enhance this prompt for building a website: "${promptToUse}". Return ONLY the enhanced prompt.` 
           }],
           max_tokens: 500
         })
@@ -33,7 +35,7 @@ export default function DashboardPage() {
       setEnhancedPrompt(enhanced)
       setShowModal(true)
     } catch (error) {
-      navigate('/builder', { state: { prompt: userPrompt } })
+      navigate('/builder', { state: { prompt: promptToUse } })
     } finally {
       setIsEnhancing(false)
     }
@@ -63,24 +65,11 @@ export default function DashboardPage() {
           Transform your ideas into reality with AI-powered development
         </p>
 
-        <div style={{ width: '100%', maxWidth: '700px', border: '1px solid #ddd', borderRadius: '16px', padding: '16px', background: '#fafafa' }}>
-          <textarea
-            value={userPrompt}
-            onChange={(e) => setUserPrompt(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleGenerate() } }}
-            placeholder="Describe what you want to build..."
-            style={{ width: '100%', minHeight: '100px', border: 'none', background: 'transparent', outline: 'none', fontSize: '15px', resize: 'none', fontFamily: 'sans-serif' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-            <button
-              onClick={handleGenerate}
-              disabled={isEnhancing || !userPrompt.trim()}
-              style={{ background: '#000', color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '15px', cursor: 'pointer', opacity: isEnhancing ? 0.7 : 1 }}
-            >
-              {isEnhancing ? '✨ Enhancing...' : '✈ Generate'}
-            </button>
-          </div>
-        </div>
+        <PromptInputBox
+          onSend={(message) => handleGenerate(message)}
+          isLoading={isEnhancing}
+          placeholder="Describe what you want to build..."
+        />
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {['AI Company Showcase', 'AI Personal Brand Site', 'AI SaaS Waitlist Site'].map(p => (
