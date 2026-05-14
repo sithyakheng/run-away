@@ -7,6 +7,11 @@ export const generateCode = async (req, res) => {
       return res.status(400).json({ error: { message: 'Prompt is required' } })
     }
 
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+
     const systemPrompt = `You are a world-class web developer at a top agency like Awwwards. Generate a stunning, professional website as a SINGLE self-contained HTML file.
 
 CRITICAL RULES:
@@ -16,12 +21,7 @@ CRITICAL RULES:
 - NEVER use href="/" or any path-based links.
 - ALL links must use href="#section-id" only.
 - Every section must have a matching id attribute.
-
-Return ONLY a valid JSON object in this exact format:
-{
-  "html": "<!DOCTYPE html><html><head><style>...</style></head><body>...<script>...</script></body></html>",
-  "description": "Brief description of what was built"
-}
+- Return ONLY the raw HTML code. Do NOT wrap it in JSON. Do NOT include markdown code blocks (no \`\`\`html).
 
 DESIGN REQUIREMENTS:
 - Import Google Fonts with link tag in HTML
@@ -36,7 +36,7 @@ DESIGN REQUIREMENTS:
 - Professional realistic content no Lorem Ipsum
 - Make it look like a $10,000 agency website`
 
-    const completion = await groq.chat.completions.create({
+    const stream = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt }
@@ -44,25 +44,21 @@ DESIGN REQUIREMENTS:
       model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
       max_tokens: 8000,
-      response_format: { type: 'json_object' }
+      stream: true
     })
 
-    const response = completion.choices[0]?.message?.content
-    if (!response) throw new Error('No response from AI model')
-
-    let parsedResponse
-    try {
-      parsedResponse = JSON.parse(response)
-    } catch (error) {
-      parsedResponse = {
-        html: response,
-        description: 'Generated website'
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || ''
+      if (content) {
+        res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`)
       }
     }
 
-    res.status(200).json(parsedResponse)
+    res.write('data: [DONE]\n\n')
+    res.end()
   } catch (error) {
     console.error('AI Generation Error:', error)
-    res.status(500).json({ error: { message: 'Failed to generate code. Please try again.' } })
+    res.write(`data: ${JSON.stringify({ error: 'Failed to generate code' })}\n\n`)
+    res.end()
   }
 }

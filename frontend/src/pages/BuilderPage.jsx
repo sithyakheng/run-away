@@ -38,6 +38,8 @@ function BuilderPage() {
   const generateCode = async (promptToUse) => {
     if (!promptToUse || !promptToUse.trim()) return
     setLoading(true)
+    setGeneratedHTML('')
+    setGeneratedCode([])
     
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ai/generate`, {
@@ -45,11 +47,42 @@ function BuilderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: promptToUse })
       })
-      const data = await response.json()
-      
-      const htmlContent = data.html || ''
-      setGeneratedHTML(htmlContent)
-      setGeneratedCode([{ name: 'index.html', content: htmlContent }])
+
+      if (!response.ok) throw new Error('Failed to start generation')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let accumulatedHTML = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6).trim()
+            if (!dataStr || dataStr === '[DONE]') continue
+            
+            try {
+              const data = JSON.parse(dataStr)
+              if (data.chunk) {
+                accumulatedHTML += data.chunk
+                setGeneratedHTML(accumulatedHTML)
+                setGeneratedCode([{ name: 'index.html', content: accumulatedHTML }])
+              }
+              if (data.error) {
+                console.error('AI Error:', data.error)
+              }
+            } catch (e) {
+              // Ignore partial JSON parsing errors during streaming if any
+            }
+          }
+        }
+      }
+
       setPreviewKey(prev => prev + 1)
       setSelectedFile('index.html')
 
@@ -216,27 +249,26 @@ function BuilderPage() {
                   ref={iframeRef}
                   srcDoc={generatedHTML}
                   style={{ width: '100%', height: '100%', border: 'none' }}
-                  sandbox="allow-scripts"
+                  sandbox="allow-scripts allow-same-origin"
                   title="Preview"
                 />
               </div>
             ) : (
-              <div className="w-full h-full bg-[#1e1e1e] overflow-auto p-4 font-mono text-sm text-gray-300">
-                <pre>
-                  {generatedCode.map(file => (
-                    <div key={file.name} className="mb-8">
-                      <div className="text-[var(--color-text-muted)] mb-2 text-xs uppercase tracking-wider border-b border-gray-800 pb-1 flex justify-between">
-                        <span>{file.name}</span>
-                        <button 
-                          onClick={() => navigator.clipboard.writeText(file.content)}
-                          className="hover:text-white transition-colors"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <code>{file.content}</code>
-                    </div>
-                  ))}
+              <div className="w-full h-full bg-[#1e1e1e] overflow-auto relative group">
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedHTML)
+                    }}
+                    className="p-2 bg-gray-800 text-gray-400 hover:text-white rounded-md border border-gray-700 transition-colors flex items-center gap-2 text-xs"
+                    title="Copy Code"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre className="p-6 font-mono text-sm text-gray-300 leading-relaxed selection:bg-gray-700">
+                  <code>{generatedHTML}</code>
                 </pre>
               </div>
             )}
