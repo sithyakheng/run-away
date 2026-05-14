@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Home, Search, Star, Layers, Settings, ChevronDown, Plus, Users, Rocket, ChevronLeft, ChevronRight, Layout, Zap } from 'lucide-react'
 
 function Sidebar({ isCollapsed, onToggle }) {
-  const [activeItem, setActiveItem] = useState('home')
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
   const [expandedSections, setExpandedSections] = useState({
     projects: true
@@ -11,11 +11,11 @@ function Sidebar({ isCollapsed, onToggle }) {
   const location = useLocation()
 
   const menuItems = [
-    { id: 'home', label: 'Home', icon: '🏠', path: '/dashboard' },
-    { id: 'search', label: 'Search', icon: '🔍', path: '/search' },
-    { id: 'resources', label: 'Resources', icon: '⭐', path: '/resources' },
-    { id: 'connectors', label: 'Connectors', icon: '🔌', path: '/connectors' },
-    { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' }
+    { id: 'home', label: 'Home', icon: <Home className="w-4 h-4" />, path: '/dashboard' },
+    { id: 'search', label: 'Search', icon: <Search className="w-4 h-4" />, path: '/search' },
+    { id: 'resources', label: 'Resources', icon: <Star className="w-4 h-4" />, path: '/resources' },
+    { id: 'connectors', label: 'Connectors', icon: <Zap className="w-4 h-4" />, path: '/connectors' },
+    { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" />, path: '/settings' }
   ]
 
   const projectSections = [
@@ -32,65 +32,53 @@ function Sidebar({ isCollapsed, onToggle }) {
     }))
   }
 
-  const handleNavigation = (path, itemId) => {
+  const handleNavigation = (path) => {
     navigate(path)
-    setActiveItem(itemId)
   }
+
+  const isActive = (path) => location.pathname === path
 
   return (
     <aside 
-      className={`gradient-header border-r border-border transition-all-300 flex flex-col`}
-      style={{ 
-        width: isCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
-        borderRight: '1px solid transparent',
-        borderRightImage: 'linear-gradient(180deg, transparent, rgba(59, 130, 246, 0.1), transparent)',
-        borderRightImageSlice: 1
-      }}
+      className={`bg-[var(--color-surface)] border-r border-[var(--color-border)] transition-all duration-300 flex flex-col`}
+      style={{ width: isCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)' }}
     >
       {/* Workspace Selector */}
-      <div className="p-4 border-b border-border">
+      <div className="p-3 border-b border-[var(--color-border)]">
         <button
           onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
-          className="w-full flex items-center justify-between p-2 bg-surface/50 rounded-lg hover:bg-surface/70 transition-all-200"
+          className="w-full flex items-center justify-between p-2 hover:bg-[var(--color-hover)] rounded-md transition-colors group"
         >
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary-accent to-secondary-accent"></div>
-            {!isCollapsed && <span className="text-sm font-medium text-text-primary">My Workspace</span>}
+            <div className="w-6 h-6 rounded bg-[var(--color-accent)] flex items-center justify-center text-white text-[10px] font-bold">
+              RW
+            </div>
+            {!isCollapsed && (
+              <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                My Workspace
+              </span>
+            )}
           </div>
           {!isCollapsed && (
-            <svg 
-              className={`w-4 h-4 text-text-tertiary transition-transform-200 ${showWorkspaceMenu ? 'rotate-180' : ''}`}
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            <ChevronDown className={`w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)] transition-transform ${showWorkspaceMenu ? 'rotate-180' : ''}`} />
           )}
         </button>
 
         {/* Workspace Dropdown */}
         {showWorkspaceMenu && !isCollapsed && (
-          <div className="absolute left-4 mt-2 w-60 bg-card-bg rounded-lg shadow-xl border border-border z-50 transition-all-300">
-            <div className="p-2">
-              <button className="w-full text-left px-3 py-2 rounded hover:bg-surface/50 transition-all-200 flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                <span className="text-sm text-text-primary">My Workspace</span>
-                <svg className="w-4 h-4 text-success ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </button>
-              <button className="w-full text-left px-3 py-2 rounded hover:bg-surface/50 transition-all-200 flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-purple-500"></div>
-                <span className="text-sm text-text-primary">Team Workspace</span>
-              </button>
-            </div>
-            <div className="border-t border-border p-2">
-              <button className="w-full text-left px-3 py-2 rounded hover:bg-surface/50 transition-all-200 flex items-center gap-2 text-primary-accent">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="text-sm font-medium">Add Workspace</span>
+          <div className="absolute left-3 right-3 mt-1 bg-[var(--color-surface)] rounded-md shadow-lg border border-[var(--color-border)] z-50 py-1">
+            <button className="w-full text-left px-3 py-1.5 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-hover)] flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <span>My Workspace</span>
+            </button>
+            <button className="w-full text-left px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)] flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <span>Team Workspace</span>
+            </button>
+            <div className="border-t border-[var(--color-border)] mt-1 pt-1">
+              <button className="w-full text-left px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)] flex items-center gap-2">
+                <Plus className="w-3.5 h-3.5" />
+                <span>New Workspace</span>
               </button>
             </div>
           </div>
@@ -98,103 +86,95 @@ function Sidebar({ isCollapsed, onToggle }) {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 p-4">
-        <div className="space-y-1">
+      <nav className="flex-1 p-3 overflow-y-auto custom-scrollbar">
+        <div className="space-y-0.5">
           {menuItems.map(item => (
             <button
               key={item.id}
-              onClick={() => handleNavigation(item.path, item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all-200 ${
-                activeItem === item.id 
-                  ? 'bg-surface/70 border-l-2 border-primary-accent text-text-primary' 
-                  : 'text-text-secondary hover:bg-surface/50 hover:text-text-primary'
+              onClick={() => handleNavigation(item.path)}
+              className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
+                isActive(item.path)
+                  ? 'bg-[var(--color-hover)] text-[var(--color-text-primary)]'
+                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-hover)] hover:text-[var(--color-text-primary)]'
               }`}
               title={isCollapsed ? item.label : ''}
             >
-              <span className="text-lg">{item.icon}</span>
+              <span className={isActive(item.path) ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)]'}>
+                {item.icon}
+              </span>
               {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
             </button>
           ))}
         </div>
 
         {/* Projects Section */}
-        <div className="mt-8">
-          <button
-            onClick={() => toggleSection('projects')}
-            className="w-full flex items-center justify-between px-3 py-2 text-text-tertiary hover:text-text-primary transition-all-200"
-          >
-            <span className="text-xs font-semibold uppercase tracking-wider">Projects</span>
-            {!isCollapsed && (
-              <svg 
-                className={`w-4 h-4 transition-transform-200 ${expandedSections.projects ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            )}
-          </button>
+        {!isCollapsed && (
+          <div className="mt-8 space-y-1">
+            <button
+              onClick={() => toggleSection('projects')}
+              className="w-full flex items-center justify-between px-3 py-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] group"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-wider">Projects</span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${expandedSections.projects ? 'rotate-0' : '-rotate-90'}`} />
+            </button>
 
-          {expandedSections.projects && !isCollapsed && (
-            <div className="mt-2 space-y-1">
-              {projectSections.map(section => (
-                <button
-                  key={section.id}
-                  className="w-full flex items-center justify-between px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface/50 rounded transition-all-200"
-                >
-                  <span>{section.label}</span>
-                  <span className="text-xs text-text-tertiary bg-surface/50 px-2 py-1 rounded">
-                    {section.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+            {expandedSections.projects && (
+              <div className="space-y-0.5 mt-1">
+                {projectSections.map(section => (
+                  <button
+                    key={section.id}
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-hover)] rounded-md transition-colors"
+                  >
+                    <span>{section.label}</span>
+                    <span className="text-[10px] font-medium text-[var(--color-text-muted)] bg-[var(--color-page-bg)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">
+                      {section.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* Footer Cards */}
-      <div className="p-4 space-y-3">
-        {/* Referral Card */}
-        <div className="card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">👥</span>
-            <h4 className="text-sm font-semibold text-text-primary">Share Run Away</h4>
+      {!isCollapsed && (
+        <div className="p-3 space-y-3 border-t border-[var(--color-border)]">
+          <div className="p-3 bg-[var(--color-page-bg)] rounded-lg border border-[var(--color-border)] space-y-2">
+            <div className="flex items-center gap-2 text-[var(--color-text-primary)]">
+              <Users className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">Refer & Earn</span>
+            </div>
+            <p className="text-[10px] text-[var(--color-text-secondary)] leading-relaxed">
+              Earn 100 credits for each friend who joins.
+            </p>
+            <button className="w-full btn-primary text-[10px] py-1.5">
+              Invite Friends
+            </button>
           </div>
-          <p className="text-xs text-text-tertiary mb-3">Earn 100 credits for each paid referral</p>
-          <button className="w-full btn-primary text-sm py-2">
-            Invite Friends
-          </button>
-        </div>
 
-        {/* Upgrade Card */}
-        <div className="card p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">🚀</span>
-            <h4 className="text-sm font-semibold text-text-primary">Upgrade Plan</h4>
+          <div className="p-3 bg-[var(--color-accent)] text-white rounded-lg space-y-2">
+            <div className="flex items-center gap-2">
+              <Rocket className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">Go Pro</span>
+            </div>
+            <p className="text-[10px] text-white/80 leading-relaxed">
+              Unlock unlimited projects and AI features.
+            </p>
+            <button className="w-full bg-white text-black font-bold text-[10px] py-1.5 rounded-md hover:bg-white/90 transition-colors">
+              Upgrade Now
+            </button>
           </div>
-          <p className="text-xs text-text-tertiary mb-3">Unlock more features and credits</p>
-          <button className="w-full gradient-bg text-white text-sm py-2 rounded-lg font-semibold hover-scale cursor-pointer border-none">
-            Upgrade Now
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Toggle Button */}
-      <div className="p-4 border-t border-border">
+      <div className="p-3 border-t border-[var(--color-border)]">
         <button
           onClick={onToggle}
-          className="w-full flex items-center justify-center p-2 text-text-tertiary hover:text-text-primary hover:bg-surface/50 rounded transition-all-200"
+          className="w-full flex items-center justify-center p-2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-hover)] rounded-md transition-colors"
         >
-          <svg 
-            className={`w-5 h-5 transition-transform-200 ${isCollapsed ? 'rotate-180' : ''}`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-          </svg>
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
       </div>
     </aside>

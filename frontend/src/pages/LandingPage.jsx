@@ -1,72 +1,79 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Rocket, Zap, Paintbrush, ArrowRight } from 'lucide-react'
 
 function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="bg-black min-h-screen w-full relative selection:bg-white/30 selection:text-white">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-      </div>
+    <div className="bg-[var(--color-page-bg)] min-h-screen w-full relative selection:bg-black/10 selection:text-black">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
-        <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[var(--color-border)] text-[12px] font-medium text-[var(--color-text-secondary)] shadow-sm mb-8">
+          <span className="flex h-2 w-2 rounded-full bg-black"></span>
+          Now in Public Beta
+        </div>
+
+        <h1 className="text-6xl md:text-8xl font-medium tracking-tight mb-8 text-[var(--color-text-primary)] text-center">
           Run Away
         </h1>
         
-        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto text-center">
-          Transform your ideas into reality with AI-powered development
+        <p className="text-xl md:text-2xl text-[var(--color-text-secondary)] mb-12 max-w-2xl mx-auto text-center font-normal">
+          Build stunning websites in seconds with the power of AI.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-24">
           <button 
             onClick={() => navigate('/signup')}
-            className="bg-white text-black px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-200 transition-all hover:scale-105"
+            className="btn-primary flex items-center gap-2 px-8 py-4 text-lg"
           >
-            Get Started
+            Start building for free
+            <ArrowRight className="w-5 h-5" />
           </button>
           <button 
             onClick={() => navigate('/login')}
-            className="border border-white/30 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white/10 transition-all hover:scale-105"
+            className="btn-secondary px-8 py-4 text-lg"
           >
-            Login
+            Sign in
           </button>
         </div>
 
         {/* Feature cards */}
-        <div className="grid md:grid-cols-3 gap-8 mt-20 max-w-6xl mx-auto">
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all hover:scale-105">
-            <div className="text-3xl mb-4">🚀</div>
-            <h3 className="text-xl font-semibold mb-2">AI-Powered</h3>
-            <p className="text-gray-400">
-              Describe your app in natural language and watch it come to life
-            </p>
-          </div>
-          
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all hover:scale-105">
-            <div className="text-3xl mb-4">⚡</div>
-            <h3 className="text-xl font-semibold mb-2">Lightning Fast</h3>
-            <p className="text-gray-400">
-              Generate full-stack applications in seconds, not hours
-            </p>
-          </div>
-          
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all hover:scale-105">
-            <div className="text-3xl mb-4">🎨</div>
-            <h3 className="text-xl font-semibold mb-2">Modern Design</h3>
-            <p className="text-gray-400">
-              Beautiful, responsive designs that work on every device
-            </p>
-          </div>
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <FeatureCard 
+            icon={<Rocket className="w-6 h-6" />}
+            title="AI-Powered"
+            description="Describe your vision in natural language and watch it come to life instantly."
+          />
+          <FeatureCard 
+            icon={<Zap className="w-6 h-6" />}
+            title="Lightning Fast"
+            description="From idea to production-ready code in seconds, not hours or days."
+          />
+          <FeatureCard 
+            icon={<Paintbrush className="w-6 h-6" />}
+            title="Minimal Design"
+            description="Clean, modern, and professional designs that work on every device."
+          />
         </div>
       </div>
     </div>
   )
 }
+
+const FeatureCard = ({ icon, title, description }) => (
+  <div className="bg-white border border-[var(--color-border)] rounded-2xl p-8 hover:border-[var(--color-text-muted)] transition-all shadow-sm">
+    <div className="w-12 h-12 bg-[var(--color-page-bg)] rounded-lg flex items-center justify-center mb-6 text-[var(--color-text-primary)]">
+      {icon}
+    </div>
+    <h3 className="text-xl font-medium mb-3 text-[var(--color-text-primary)]">{title}</h3>
+    <p className="text-[var(--color-text-secondary)] leading-relaxed">
+      {description}
+    </p>
+  </div>
+)
 
 export default LandingPage

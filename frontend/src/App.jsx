@@ -27,35 +27,17 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          background: '#0a0a0f',
-          color: 'white',
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'sans-serif',
-          gap: '16px',
-          textAlign: 'center',
-          padding: '20px'
-        }}>
-          <h1 style={{color: '#7c3aed', fontSize: '48px', margin: 0}}>Run Away</h1>
-          <p style={{color: '#94a3b8', fontSize: '18px'}}>Something went wrong</p>
-          <p style={{color: '#ef4444', fontSize: '14px', maxWidth: '400px'}}>
-            {this.state.error?.message || 'An unexpected error occurred'}
-          </p>
+        <div className="min-h-screen bg-[var(--color-page-bg)] flex flex-col items-center justify-center p-6 text-center space-y-6">
+          <h1 className="text-4xl font-medium tracking-tight text-[var(--color-text-primary)]">Run Away</h1>
+          <div className="space-y-2">
+            <p className="text-lg text-[var(--color-text-secondary)]">Something went wrong</p>
+            <p className="text-sm text-red-500 max-w-md mx-auto">
+              {this.state.error?.message || 'An unexpected error occurred'}
+            </p>
+          </div>
           <button
             onClick={() => window.location.reload()}
-            style={{
-              padding: '12px 24px',
-              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: 'pointer'
-            }}
+            className="btn-primary"
           >
             Reload Page
           </button>
@@ -71,7 +53,6 @@ function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check session on mount
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -92,7 +73,6 @@ function ProtectedRoute({ children }) {
 
     checkSession()
 
-    // Listen to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
@@ -105,28 +85,11 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: '#0a0a0f',
-        color: 'white',
-        gap: '24px'
-      }}>
-        <div style={{
-          width: '200px',
-          height: '100px'
-        }}>
+      <div className="min-h-screen bg-[var(--color-page-bg)] flex flex-col items-center justify-center space-y-8">
+        <div className="w-48 h-24">
           <CpuArchitecture />
         </div>
-        <div style={{
-          fontSize: '16px',
-          fontWeight: '500',
-          color: '#94a3b8',
-          fontFamily: 'Inter, sans-serif'
-        }}>
+        <div className="text-sm font-medium text-[var(--color-text-secondary)]">
           Initializing...
         </div>
       </div>
@@ -146,30 +109,12 @@ function App() {
 
   if (!supabaseUrl || !supabaseKey) {
     return (
-      <div style={{
-        background: '#0a0a0f',
-        color: 'white',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'sans-serif',
-        gap: '16px'
-      }}>
-        <h1 style={{color: '#7c3aed', fontSize: '48px', margin: 0}}>Run Away</h1>
-        <p style={{color: '#94a3b8'}}>App needs configuration</p>
+      <div className="min-h-screen bg-[var(--color-page-bg)] flex flex-col items-center justify-center p-6 text-center space-y-6">
+        <h1 className="text-4xl font-medium tracking-tight text-[var(--color-text-primary)]">Run Away</h1>
+        <p className="text-[var(--color-text-secondary)]">App needs configuration</p>
         <button
           onClick={() => window.open('https://github.com/sithyakheng/run-away#environment-setup', '_blank')}
-          style={{
-            padding: '12px 24px',
-            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
+          className="btn-primary"
         >
           Configure App
         </button>

@@ -1,44 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { PromptInputBox } from '../components/ui/ai-prompt-box'
+import { LogOut, Rocket, Clock, Layout, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const [userPrompt, setUserPrompt] = useState('')
-  const [enhancedPrompt, setEnhancedPrompt] = useState('')
-  const [showModal, setShowModal] = useState(false)
   const [isEnhancing, setIsEnhancing] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [])
 
   const handleGenerate = async (messagePrompt) => {
     const promptToUse = messagePrompt || userPrompt
     if (!promptToUse.trim()) return
     setIsEnhancing(true)
-    try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}` 
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [{
-            role: 'user',
-            content: `Enhance this prompt for building a website: "${promptToUse}". Return ONLY the enhanced prompt.` 
-          }],
-          max_tokens: 500
-        })
-      })
-      const data = await response.json()
-      const enhanced = data.choices[0].message.content
-      setEnhancedPrompt(enhanced)
-      setShowModal(true)
-    } catch (error) {
-      navigate('/builder', { state: { prompt: promptToUse } })
-    } finally {
-      setIsEnhancing(false)
-    }
+    
+    // Direct navigate to builder with prompt for now
+    navigate('/builder', { state: { prompt: promptToUse } })
+    setIsEnhancing(false)
   }
 
   const handleLogout = async () => {
@@ -61,336 +48,103 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div className="min-h-screen bg-[var(--color-page-bg)]">
       {/* Navbar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', fontSize: '20px', color: '#fff' }}>
-          🚀 Run Away
+      <nav className="h-[var(--header-height)] bg-[var(--color-surface)] border-b border-[var(--color-border)] px-8 flex justify-between items-center sticky top-0 z-10">
+        <div className="flex items-center gap-2 font-medium text-lg tracking-tight">
+          <Rocket className="w-5 h-5" />
+          <span>Run Away</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span style={{ color: '#888', fontSize: '14px' }}>{supabase.auth.getUser?.()?.email}</span>
+        <div className="flex items-center gap-6">
+          <span className="text-sm text-[var(--color-text-secondary)]">{user?.email}</span>
           <button 
             onClick={handleLogout}
-            style={{ 
-              background: 'transparent', 
-              border: '1px solid rgba(255,255,255,0.2)', 
-              borderRadius: '8px', 
-              padding: '8px 20px', 
-              cursor: 'pointer', 
-              color: '#fff',
-              fontSize: '14px',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.4)'}
-            onMouseOut={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
+            className="btn-ghost flex items-center gap-2 px-3 py-1.5"
           >
-            Logout
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Hero Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '100px', paddingBottom: '60px', padding: '0 20px' }}>
-        {/* Glowing Badge */}
-        <div style={{ 
-          display: 'inline-flex', 
-          alignItems: 'center', 
-          gap: '6px',
-          background: 'rgba(139, 92, 246, 0.15)', 
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          color: '#a78bfa', 
-          borderRadius: '20px', 
-          padding: '6px 16px', 
-          fontSize: '13px', 
-          marginBottom: '32px',
-          boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)'
-        }}>
-          ✨ Powered by Groq AI
-        </div>
-
-        {/* Gradient Heading */}
-        <h1 style={{ 
-          fontSize: '64px', 
-          fontWeight: '800', 
-          textAlign: 'center', 
-          marginBottom: '16px', 
-          maxWidth: '900px',
-          background: 'linear-gradient(135deg, #fff 0%, #a78bfa 50%, #8b5cf6 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          lineHeight: '1.1'
-        }}>
-          What will you build today?
-        </h1>
-
-        {/* Subtitle */}
-        <p style={{ 
-          color: '#666', 
-          marginBottom: '48px', 
-          fontSize: '18px',
-          textAlign: 'center',
-          maxWidth: '600px'
-        }}>
-          Turn your ideas into stunning websites in seconds
-        </p>
-
-        {/* Prompt Input Area */}
-        <div style={{ width: '100%', maxWidth: '700px', marginBottom: '32px' }}>
-          <PromptInputBox
-            onSend={(message) => handleGenerate(message)}
-            isLoading={isEnhancing}
-            placeholder="Describe what you want to build..."
-          />
-        </div>
-
-        {/* Quick Suggestions */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '80px' }}>
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => setUserPrompt(s.label)}
-              style={{
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '25px',
-                padding: '10px 20px',
-                background: 'rgba(255,255,255,0.03)',
-                cursor: 'pointer',
-                fontSize: '14px',
-                color: '#ccc',
-                transition: 'all 0.3s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.borderColor = 'rgba(139, 92, 246, 0.5)'
-                e.target.style.background = 'rgba(139, 92, 246, 0.1)'
-                e.target.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.3)'
-                e.target.style.color = '#fff'
-              }}
-              onMouseOut={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.15)'
-                e.target.style.background = 'rgba(255,255,255,0.03)'
-                e.target.style.boxShadow = 'none'
-                e.target.style.color = '#ccc'
-              }}
-            >
-              <span>{s.emoji}</span>
-              <span>{s.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Recent Projects Section */}
-        <div style={{ width: '100%', maxWidth: '1200px', padding: '0 20px' }}>
-          <h2 style={{ 
-            color: '#fff', 
-            fontSize: '24px', 
-            fontWeight: '700', 
-            marginBottom: '24px' 
-          }}>
-            Recent Projects
-          </h2>
+      <main className="max-w-5xl mx-auto px-6 py-16 space-y-20">
+        {/* Hero Section */}
+        <div className="text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[12px] font-medium text-[var(--color-text-secondary)] shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Powered by Groq AI
+          </div>
           
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: '24px' 
-          }}>
-            {recentProjects.map((project, i) => (
-              <div
+          <h1 className="text-5xl md:text-6xl font-medium tracking-tight text-[var(--color-text-primary)]">
+            What will you build today?
+          </h1>
+          
+          <p className="text-[var(--color-text-secondary)] text-lg max-w-2xl mx-auto">
+            Turn your ideas into stunning websites in seconds with our AI-powered builder.
+          </p>
+
+          <div className="max-w-2xl mx-auto pt-4">
+            <PromptInputBox
+              onSend={(message) => handleGenerate(message)}
+              isLoading={isEnhancing}
+              placeholder="Describe what you want to build..."
+              className="shadow-md"
+            />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 pt-4">
+            {suggestions.map((s, i) => (
+              <button
                 key={i}
-                style={{
-                  background: '#111',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  padding: '24px',
-                  transition: 'all 0.3s',
-                  cursor: 'pointer'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.4)'
-                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.2)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
+                onClick={() => handleGenerate(s.label)}
+                className="btn-secondary flex items-center gap-2 px-4 py-2 rounded-full text-sm"
               >
-                {/* Thumbnail Placeholder */}
-                <div style={{
-                  width: '100%',
-                  height: '120px',
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                  borderRadius: '12px',
-                  marginBottom: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px dashed rgba(255,255,255,0.1)'
-                }}>
-                  <span style={{ color: '#444', fontSize: '32px' }}>📐</span>
-                </div>
-
-                {/* Project Info */}
-                <h3 style={{ 
-                  color: '#fff', 
-                  fontSize: '16px', 
-                  fontWeight: '600', 
-                  marginBottom: '8px' 
-                }}>
-                  {project.name}
-                </h3>
-                <p style={{ color: '#666', fontSize: '13px', marginBottom: '16px' }}>
-                  {project.date}
-                </p>
-
-                {/* Open Button */}
-                <button style={{
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  color: '#a78bfa',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  width: '100%'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.background = 'rgba(139, 92, 246, 0.2)'
-                  e.target.style.borderColor = 'rgba(139, 92, 246, 0.5)'
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'rgba(139, 92, 246, 0.1)'
-                  e.target.style.borderColor = 'rgba(139, 92, 246, 0.3)'
-                }}
-                >
-                  Open →
-                </button>
-              </div>
+                <span>{s.emoji}</span>
+                <span>{s.label}</span>
+              </button>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Enhanced Prompt Modal */}
-      {showModal && (
-        <div style={{ 
-          position: 'fixed', 
-          inset: 0, 
-          background: 'rgba(0,0,0,0.8)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 1000, 
-          backdropFilter: 'blur(8px)' 
-        }}>
-          <div style={{ 
-            background: '#15151a', 
-            borderRadius: '20px', 
-            padding: '40px', 
-            maxWidth: '600px', 
-            width: '90%', 
-            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            border: '1px solid rgba(255,255,255,0.08)'
-          }}>
-            <h2 style={{ 
-              color: '#fff', 
-              marginBottom: '8px', 
-              fontSize: '24px',
-              fontWeight: '700' 
-            }}>
-              ✨ Enhanced Prompt
+        {/* Recent Projects */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-medium tracking-tight flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[var(--color-text-secondary)]" />
+              Recent Projects
             </h2>
-            <p style={{ 
-              color: '#666', 
-              fontSize: '13px', 
-              marginBottom: '24px' 
-            }}>
-              Original: {userPrompt}
-            </p>
-            
-            <textarea
-              value={enhancedPrompt}
-              onChange={(e) => setEnhancedPrompt(e.target.value)}
-              style={{ 
-                width: '100%', 
-                minHeight: '180px', 
-                border: '1px solid rgba(255,255,255,0.1)', 
-                borderRadius: '12px', 
-                padding: '16px', 
-                fontSize: '14px', 
-                fontFamily: 'system-ui, sans-serif', 
-                resize: 'vertical', 
-                boxSizing: 'border-box',
-                background: '#0a0a0f',
-                color: '#fff',
-                outline: 'none'
-              }}
-            />
-            
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '24px', 
-              justifyContent: 'flex-end' 
-            }}>
-              <button
-                onClick={() => navigate('/builder', { state: { prompt: userPrompt } })}
-                style={{ 
-                  border: '1px solid rgba(255,255,255,0.15)', 
-                  borderRadius: '10px', 
-                  padding: '12px 24px', 
-                  cursor: 'pointer', 
-                  background: 'transparent',
-                  color: '#888',
-                  fontSize: '14px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.borderColor = 'rgba(255,255,255,0.3)'
-                  e.target.style.color = '#fff'
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.borderColor = 'rgba(255,255,255,0.15)'
-                  e.target.style.color = '#888'
-                }}
-              >
-                Use Original
-              </button>
-              <button
-                onClick={() => navigate('/builder', { state: { prompt: enhancedPrompt } })}
-                style={{ 
-                  background: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)', 
-                  color: '#fff', 
-                  border: 'none', 
-                  borderRadius: '10px', 
-                  padding: '12px 24px', 
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.transform = 'translateY(-2px)'
-                  e.target.style.boxShadow = '0 6px 24px rgba(139, 92, 246, 0.5)'
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.transform = 'translateY(0)'
-                  e.target.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4)'
-                }}
-              >
-                Use Enhanced ✨
-              </button>
-            </div>
+            <button className="btn-ghost text-sm font-medium">View all</button>
           </div>
-        </div>
-      )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {recentProjects.map((project, i) => (
+              <div
+                key={i}
+                className="card group p-5 space-y-4 cursor-pointer hover:shadow-sm transition-all"
+              >
+                <div className="aspect-video rounded-md bg-[var(--color-page-bg)] border border-[var(--color-border)] flex items-center justify-center group-hover:border-[var(--color-text-muted)] transition-colors">
+                  <Layout className="w-8 h-8 text-[var(--color-text-muted)]" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-medium text-[var(--color-text-primary)] group-hover:underline underline-offset-4">
+                    {project.name}
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Edited {project.date}
+                  </p>
+                </div>
+              </div>
+            ))}
+            <button className="card border-dashed flex flex-col items-center justify-center p-5 space-y-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)] transition-colors">
+              <Plus className="w-6 h-6" />
+              <span className="text-sm font-medium">New Project</span>
+            </button>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

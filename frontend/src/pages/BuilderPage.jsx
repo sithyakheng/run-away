@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets } from 'lucide-react'
+import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets, ChevronLeft, Play, Code, Eye, Download, Save } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
@@ -16,13 +17,9 @@ function BuilderPage() {
   const location = useLocation()
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
-  const [iframeLoading, setIframeLoading] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
-  const [currentAgentStep, setCurrentAgentStep] = useState(0)
-  const agentStepsRef = useRef(null)
 
   useEffect(() => {
-    // Get prompt from location state or dashboard enhancement
     const locationPrompt = location.state?.prompt
     const dashboardPrompt = location.state?.enhancedPrompt
     const finalPrompt = dashboardPrompt || locationPrompt
@@ -30,60 +27,16 @@ function BuilderPage() {
     if (finalPrompt) {
       setPrompt(finalPrompt)
       setProjectName(finalPrompt.slice(0, 30) + '...')
-      // Auto-generate when prompt is received
       generateCode(finalPrompt)
     }
   }, [])
 
   useEffect(() => {
-    // Scroll to bottom of chat when new messages are added
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  useEffect(() => {
-    // Agent Plan animation logic
-    if (loading) {
-      setCurrentAgentStep(0)
-      // Add agent plan message to chat
-      const agentPlanMessage = {
-        id: 'agent-plan',
-        role: 'assistant',
-        isAgentPlan: true,
-        steps: [
-          { title: 'Analyzing your prompt', status: 'done' },
-          { title: 'Designing layout', status: 'in-progress' },
-          { title: 'Writing HTML & CSS', status: 'pending' },
-          { title: 'Adding animations', status: 'pending' },
-          { title: 'Finalizing website', status: 'pending' },
-        ]
-      }
-      setMessages(prev => [...prev.filter(msg => msg.id !== 'agent-plan'), agentPlanMessage])
-      
-      agentStepsRef.current = setInterval(() => {
-        setCurrentAgentStep(prev => {
-          if (prev >= 4) return prev // Stop at the last step
-          return prev + 1
-        })
-      }, 1500)
-    } else {
-      if (agentStepsRef.current) {
-        clearInterval(agentStepsRef.current)
-        agentStepsRef.current = null
-      }
-      // Remove agent plan message when loading completes
-      setMessages(prev => prev.filter(msg => msg.id !== 'agent-plan'))
-    }
-
-    return () => {
-      if (agentStepsRef.current) {
-        clearInterval(agentStepsRef.current)
-      }
-    }
-  }, [loading])
-
-  const generateCode = async (promptToUse, conversationHistory = []) => {
+  const generateCode = async (promptToUse) => {
     if (!promptToUse || !promptToUse.trim()) return
-
     setLoading(true)
     
     try {
@@ -106,20 +59,17 @@ function BuilderPage() {
       setGeneratedHTML(combinedHTML)
       setGeneratedCode(files)
       setPreviewKey(prev => prev + 1)
-      setIframeLoading(true)
       setSelectedFile(htmlFile?.name || null)
 
-      // Add AI response to chat
       const aiMessage = {
         id: Date.now(),
         role: 'assistant',
-        content: `I've generated the website based on your request: "${promptToUse}". The preview is now showing on the right.`
+        content: `I've generated the website based on your request. You can see the preview on the right.`
       }
       setMessages(prev => [...prev, aiMessage])
       
     } catch (error) {
       console.error('Error generating code:', error)
-      alert(error.message || 'Failed to generate code. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -127,656 +77,179 @@ function BuilderPage() {
 
   const handleSendMessage = () => {
     if (!chatInput.trim() || loading) return
-
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: chatInput
-    }
-
+    const userMessage = { id: Date.now(), role: 'user', content: chatInput }
     setMessages(prev => [...prev, userMessage])
-    
-    // Add typing indicator
-    const typingMessage = {
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: 'typing...',
-      isTyping: true
-    }
-    setMessages(prev => [...prev, typingMessage])
-
-    // Generate code with conversation history
-    generateCode(chatInput, [...messages, userMessage])
+    generateCode(chatInput)
     setChatInput('')
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
-    }
-  }
-
-  const refreshPreview = () => {
-    if (iframeRef.current && generatedCode) {
-      iframeRef.current.srcdoc = generatedCode
-    }
-  }
-
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(prompt)
-    // Could add toast notification here
-  }
-
-  const getStepStatus = (stepIndex) => {
-    if (stepIndex < currentAgentStep) return 'done'
-    if (stepIndex === currentAgentStep) return 'in-progress'
-    return 'pending'
-  }
-
   return (
-    <div style={{
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#ffffff',
-      color: '#1a1a1a',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      overflow: 'hidden'
-    }}>
+    <div className="h-screen flex flex-col bg-[var(--color-page-bg)] overflow-hidden">
       {/* Top Navbar */}
-      <div style={{
-        height: '48px',
-        backgroundColor: '#f8f8f8',
-        borderBottom: '1px solid #e5e7eb',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 20px',
-        flexShrink: 0
-      }}>
-        {/* Left: Go Back to Dashboard */}
-        <button
-          onClick={() => navigate('/dashboard')}
-          style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: '#6b7280',
-            padding: '6px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          ← Back to Dashboard
-        </button>
-
-        {/* Center: Project Name */}
-        <div style={{
-          fontSize: '14px',
-          color: '#6b7280',
-          fontWeight: '500'
-        }}>
-          {projectName}
+      <header className="h-[var(--header-height)] bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 flex justify-between items-center flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-ghost p-2 rounded-md"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <div className="h-4 w-[1px] bg-[var(--color-border)]" />
+          <span className="text-sm font-medium text-[var(--color-text-primary)]">
+            {projectName}
+          </span>
         </div>
 
-        {/* Right: Icons and Buttons */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px'
-        }}>
-          <Moon size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
-          <RefreshCw size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
-          <Link size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
-          <Bookmark size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
-          <Share2 size={16} color="#9ca3af" style={{ cursor: 'pointer' }} />
-          
-          <button
-            onClick={copyPrompt}
-            style={{
-              backgroundColor: '#3b82f6',
-              border: 'none',
-              color: 'white',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <Copy size={14} />
-            Copy prompt
+        <div className="flex items-center gap-2">
+          <button className="btn-ghost p-2 rounded-md">
+            <Share2 className="w-4 h-4" />
           </button>
-          
-          <button
-            style={{
-              backgroundColor: '#10b981',
-              border: '1px solid #10b981',
-              color: 'white',
-              padding: '6px 16px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-          >
-            Open
+          <button className="btn-ghost p-2 rounded-md">
+            <Download className="w-4 h-4" />
+          </button>
+          <button className="btn-primary flex items-center gap-2 py-1.5 px-4">
+            <Save className="w-4 h-4" />
+            <span>Publish</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content Area */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        overflow: 'hidden'
-      }}>
-        {/* Left Panel - Chat (35%) */}
-        <div style={{
-          width: '35%',
-          backgroundColor: '#ffffff',
-          borderRight: '1px solid #e5e7eb',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          {/* Chat Messages */}
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            {/* Initial prompt message */}
-            {prompt && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end'
-              }}>
-                <div style={{
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  maxWidth: '80%',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  fontSize: '14px',
-                  lineHeight: '1.4'
-                }}>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#64748b',
-                    fontWeight: '500',
-                    marginBottom: '4px'
-                  }}>
-                    You
-                  </div>
-                  <div style={{ color: '#1a1a1a' }}>
-                    {prompt}
-                  </div>
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar: Chat */}
+        <div className="w-[350px] flex flex-col bg-[var(--color-surface)] border-r border-[var(--color-border)]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {messages.length === 0 && !loading && (
+              <div className="text-center py-12 space-y-4">
+                <div className="w-12 h-12 bg-[var(--color-page-bg)] rounded-full flex items-center justify-center mx-auto">
+                  <Brackets className="w-6 h-6 text-[var(--color-text-muted)]" />
                 </div>
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Describe what you want to change or add to your website.
+                </p>
               </div>
             )}
-
-            {/* Chat messages */}
-            {messages.map((message) => (
-              <div key={message.id} style={{
-                display: 'flex',
-                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start'
-              }}>
-                <div style={{
-                  backgroundColor: message.role === 'user' ? '#f8fafc' : '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  maxWidth: '80%',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  fontSize: '14px',
-                  lineHeight: '1.4'
-                }}>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#64748b',
-                    fontWeight: '500',
-                    marginBottom: '4px'
-                  }}>
-                    {message.role === 'user' ? 'You' : 'AI'}
-                  </div>
-                  <div style={{ color: '#1a1a1a' }}>
-                    {message.isAgentPlan ? (
-                      <div style={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                        width: '100%'
-                      }}>
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: '#1a1a1a',
-                          marginBottom: '12px'
-                        }}>
-                          Building your website...
-                        </div>
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '12px'
-                        }}>
-                          {message.steps.map((step, index) => {
-                            const status = getStepStatus(index)
-                            return (
-                              <div key={index} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '12px'
-                              }}>
-                                {/* Status Icon */}
-                                <div style={{
-                                  width: '16px',
-                                  height: '16px',
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '10px',
-                                  fontWeight: '600',
-                                  backgroundColor: status === 'done' ? '#10b981' : status === 'in-progress' ? '#ffffff' : '#e5e7eb',
-                                  border: status === 'in-progress' ? '2px dashed #3b82f6' : 'none',
-                                  color: status === 'done' ? '#ffffff' : status === 'in-progress' ? '#3b82f6' : '#9ca3af'
-                                }}>
-                                  {status === 'done' ? '✓' : status === 'in-progress' ? (
-                                    <div style={{
-                                      width: '6px',
-                                      height: '6px',
-                                      borderRadius: '50%',
-                                      backgroundColor: '#3b82f6',
-                                      animation: 'pulse 1.5s infinite'
-                                    }}></div>
-                                  ) : ''}
-                                </div>
-
-                                {/* Step Title */}
-                                <div style={{
-                                  flex: 1,
-                                  fontSize: '13px',
-                                  fontWeight: '500',
-                                  color: status === 'done' ? '#6b7280' : '#1a1a1a',
-                                  textDecoration: status === 'done' ? 'line-through' : 'none'
-                                }}>
-                                  {step.title}
-                                </div>
-
-                                {/* Status Badge */}
-                                {status === 'in-progress' && (
-                                  <div style={{
-                                    backgroundColor: '#dbeafe',
-                                    color: '#1e40af',
-                                    fontSize: '11px',
-                                    fontWeight: '500',
-                                    padding: '2px 6px',
-                                    borderRadius: '8px'
-                                  }}>
-                                    in-progress
-                                  </div>
-                                )}
-                                {status === 'pending' && (
-                                  <div style={{
-                                    backgroundColor: '#f3f4f6',
-                                    color: '#6b7280',
-                                    fontSize: '11px',
-                                    fontWeight: '500',
-                                    padding: '2px 6px',
-                                    borderRadius: '8px'
-                                  }}>
-                                    pending
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ) : message.isTyping ? (
-                      <div style={{
-                        display: 'flex',
-                        gap: '4px',
-                        alignItems: 'center'
-                      }}>
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          backgroundColor: '#9ca3af',
-                          borderRadius: '50%',
-                          animation: 'pulse 1.4s infinite'
-                        }}></div>
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          backgroundColor: '#9ca3af',
-                          borderRadius: '50%',
-                          animation: 'pulse 1.4s infinite 0.2s'
-                        }}></div>
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          backgroundColor: '#9ca3af',
-                          borderRadius: '50%',
-                          animation: 'pulse 1.4s infinite 0.4s'
-                        }}></div>
-                      </div>
-                    ) : (
-                      message.content
-                    )}
-                  </div>
+            
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                    msg.role === 'user'
+                      ? 'bg-[var(--color-accent)] text-white'
+                      : 'bg-[var(--color-page-bg)] text-[var(--color-text-primary)] border border-[var(--color-border)]'
+                  }`}
+                >
+                  {msg.content}
                 </div>
               </div>
             ))}
             
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-[var(--color-page-bg)] border border-[var(--color-border)] rounded-2xl px-4 py-2.5 space-y-2">
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-[var(--color-text-muted)] rounded-full animate-bounce" />
+                    <div className="w-1.5 h-1.5 bg-[var(--color-text-muted)] rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-1.5 h-1.5 bg-[var(--color-text-muted)] rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
 
-          {/* Chat Input */}
-          <div style={{
-            padding: '16px 20px',
-            borderTop: '1px solid #e5e7eb',
-            backgroundColor: '#ffffff'
-          }}>
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              alignItems: 'flex-end'
-            }}>
+          <div className="p-4 border-t border-[var(--color-border)]">
+            <div className="relative">
               <textarea
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
-                  color: '#1a1a1a',
-                  fontSize: '14px',
-                  resize: 'none',
-                  minHeight: '44px',
-                  maxHeight: '120px',
-                  fontFamily: 'inherit',
-                  outline: 'none'
-                }}
-                rows={1}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+                placeholder="Ask AI to edit..."
+                className="input w-full min-h-[80px] pr-10 resize-none"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!chatInput.trim() || loading}
-                style={{
-                  backgroundColor: chatInput.trim() && !loading ? '#3b82f6' : '#f3f4f6',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  cursor: chatInput.trim() && !loading ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}
+                className="absolute right-2 bottom-2 p-2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] disabled:opacity-50"
               >
-                <Send size={18} color={chatInput.trim() && !loading ? '#ffffff' : '#9ca3af'} />
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right Panel - Preview (65%) */}
-        <div style={{
-          width: '65%',
-          backgroundColor: '#ffffff',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          {/* Tab Bar */}
-          <div style={{
-            height: '56px',
-            backgroundColor: '#ffffff',
-            borderBottom: '1px solid #e5e7eb',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 24px',
-            gap: '4px'
-          }}>
-            <div style={{
-              display: 'flex',
-              gap: '4px',
-              backgroundColor: '#f3f4f6',
-              padding: '4px',
-              borderRadius: '8px'
-            }}>
-              {[
-                { id: 'preview', label: 'Preview' },
-                { id: 'code', label: 'Code' },
-                { id: 'share', label: 'Share' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    backgroundColor: activeTab === tab.id ? '#ffffff' : 'transparent',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: activeTab === tab.id ? '#1f2937' : '#6b7280',
-                    boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+        {/* Right Content: Preview/Code */}
+        <div className="flex-1 flex flex-col bg-[var(--color-page-bg)]">
+          <div className="h-12 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex items-center px-4 justify-between">
+            <div className="flex bg-[var(--color-page-bg)] p-1 rounded-md border border-[var(--color-border)]">
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
+                  activeTab === 'preview'
+                    ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                Preview
+              </button>
+              <button
+                onClick={() => setActiveTab('code')}
+                className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
+                  activeTab === 'code'
+                    ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                }`}
+              >
+                <Code className="w-3.5 h-3.5" />
+                Code
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button className="btn-ghost p-1.5 rounded-md">
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
 
-          {/* Content Area */}
-          <div style={{
-            flex: 1,
-            overflow: 'hidden',
-            backgroundColor: '#ffffff',
-            display: 'flex'
-          }}>
-            {/* File Tree Panel */}
-            {activeTab === 'code' && generatedCode.length > 0 && (
-              <div style={{
-                width: '200px',
-                backgroundColor: '#f8fafc',
-                borderRight: '1px solid #e5e7eb',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  marginBottom: '8px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Files
-                </div>
-                {generatedCode.map((file) => {
-                  const icon = file.name === 'index.html' ? FileCode : file.name === 'styles.css' ? FileText : Brackets
-                  return (
-                    <button
-                      key={file.name}
-                      onClick={() => setSelectedFile(file.name)}
-                      style={{
-                        backgroundColor: selectedFile === file.name ? '#e0f2fe' : 'transparent',
-                        border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '13px',
-                        fontWeight: '500',
-                        color: selectedFile === file.name ? '#0369a1' : '#475569',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <icon size={16} />
-                      {file.name}
-                    </button>
-                  )
-                })}
+          <div className="flex-1 overflow-hidden relative">
+            {activeTab === 'preview' ? (
+              <div className="w-full h-full bg-white shadow-inner">
+                <iframe
+                  key={previewKey}
+                  ref={iframeRef}
+                  srcDoc={generatedHTML}
+                  className="w-full h-full border-none"
+                  title="Preview"
+                />
               </div>
-            )}
-            {activeTab === 'preview' && (
-              <div style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative'
-              }}>
-                {iframeLoading && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 10
-                  }}>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      border: '4px solid #e5e7eb',
-                      borderTop: '4px solid #3b82f6',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
-                    }}></div>
-                  </div>
-                )}
-                
-                {generatedHTML ? (
-                  <iframe
-  key={previewKey}
-  srcDoc={generatedHTML || ''}
-  sandbox="allow-scripts allow-forms allow-popups allow-modals"
-  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-  onLoad={() => setIframeLoading(false)}
-/>
-                ) : (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    color: '#9ca3af',
-                    fontSize: '16px'
-                  }}>
-                    {loading ? 'Generating preview...' : 'No content to preview'}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'code' && (
-              <div style={{
-                flex: 1,
-                backgroundColor: '#f8fafc',
-                padding: '20px',
-                overflow: 'auto'
-              }}>
-                {generatedCode.length > 0 && selectedFile ? (
-                  <pre style={{
-                    margin: 0,
-                    color: '#374151',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    fontFamily: 'Monaco, Menlo, monospace',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word'
-                  }}>
-                    {generatedCode.find(f => f.name === selectedFile)?.content || ''}
-                  </pre>
-                ) : (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    color: '#9ca3af',
-                    fontSize: '16px'
-                  }}>
-                    No code generated yet
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'share' && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                color: '#9ca3af',
-                fontSize: '16px'
-              }}>
-                Share functionality coming soon
+            ) : (
+              <div className="w-full h-full bg-[#1e1e1e] overflow-auto p-4 font-mono text-sm text-gray-300">
+                <pre>
+                  {generatedCode.map(file => (
+                    <div key={file.name} className="mb-8">
+                      <div className="text-[var(--color-text-muted)] mb-2 text-xs uppercase tracking-wider border-b border-gray-800 pb-1 flex justify-between">
+                        <span>{file.name}</span>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(file.content)}
+                          className="hover:text-white transition-colors"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <code>{file.content}</code>
+                    </div>
+                  ))}
+                </pre>
               </div>
             )}
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 80%, 100% {
-            opacity: 0.3;
-          }
-          40% {
-            opacity: 1;
-          }
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        textarea::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        textarea::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        
-        textarea::-webkit-scrollbar-thumb {
-          background-color: #e5e7eb;
-          border-radius: 3px;
-        }
-        
-        textarea::-webkit-scrollbar-thumb:hover {
-          background-color: #d1d5db;
-        }
-      `}</style>
     </div>
   )
 }
