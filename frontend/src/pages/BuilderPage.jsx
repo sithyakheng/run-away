@@ -9,6 +9,7 @@ function BuilderPage() {
   const [generatedHTML, setGeneratedHTML] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [chatInput, setChatInput] = useState('')
   const [messages, setMessages] = useState([])
   const [activeTab, setActiveTab] = useState('preview')
@@ -38,17 +39,25 @@ function BuilderPage() {
   const generateCode = async (promptToUse) => {
     if (!promptToUse || !promptToUse.trim()) return
     setLoading(true)
+    setError(null)
     setGeneratedHTML('')
     setGeneratedCode([])
     
     try {
+      console.log('Starting generation for prompt:', promptToUse)
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ai/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: promptToUse })
       })
 
-      if (!response.ok) throw new Error('Failed to start generation')
+      console.log('Response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Full error response:', errorData)
+        throw new Error(errorData.error?.message || `Failed to start generation: ${response.status}`)
+      }
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
@@ -69,6 +78,7 @@ function BuilderPage() {
             try {
               const data = JSON.parse(dataStr)
               if (data.chunk) {
+                console.log('chunk received:', data.chunk)
                 accumulatedHTML += data.chunk
                 setGeneratedHTML(accumulatedHTML)
                 setGeneratedCode([{ name: 'index.html', content: accumulatedHTML }])
@@ -95,6 +105,7 @@ function BuilderPage() {
       
     } catch (error) {
       console.error('Error generating code:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -242,6 +253,20 @@ function BuilderPage() {
           </div>
 
           <div className="flex-1 overflow-hidden relative">
+            {error && (
+              <div className="absolute top-4 left-4 right-4 z-50 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                  <p className="text-sm font-medium">{error}</p>
+                </div>
+                <button 
+                  onClick={() => setError(null)}
+                  className="text-red-400 hover:text-red-600 transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             {activeTab === 'preview' ? (
               <div className="w-full h-full bg-white shadow-inner">
                 <iframe

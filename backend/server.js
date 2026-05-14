@@ -27,6 +27,7 @@ app.use(limiter)
 app.use(morgan('combined'))
 app.use(cors({
   origin: [
+    'https://run-away-snowy.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000',
     'https://vercel.app',

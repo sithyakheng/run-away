@@ -3,6 +3,7 @@ import groq from '../lib/groqClient.js'
 export const generateCode = async (req, res) => {
   try {
     const { prompt } = req.body
+    console.log('generateCode called with prompt:', prompt)
     if (!prompt) {
       return res.status(400).json({ error: { message: 'Prompt is required' } })
     }
