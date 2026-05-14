@@ -13,29 +13,26 @@ export const generateCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const systemPrompt = `You are a world-class web developer at a top agency like Awwwards. Generate a stunning, professional website as a SINGLE self-contained HTML file.
+    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete single-file HTML website.
 
-CRITICAL RULES:
-- ALL CSS must be inside a <style> tag in the <head>.
-- ALL JavaScript must be inside a <script> tag just before the closing </body> tag.
-- NO external file references for CSS or JS (no styles.css, no script.js).
-- NEVER use href="/" or any path-based links.
-- ALL links must use href="#section-id" only.
-- Every section must have a matching id attribute.
-- Return ONLY the raw HTML code. Do NOT wrap it in JSON. Do NOT include markdown code blocks (no \`\`\`html).
-
-DESIGN REQUIREMENTS:
-- Import Google Fonts with link tag in HTML
-- Import Font Awesome 6 from cdnjs in HTML
-- Use CSS variables for theming inside the <style> tag
-- Modern gradients, glassmorphism, animations
+DESIGN RULES — follow these exactly:
+- Use dark elegant color palettes: deep blacks (#0a0a0a, #111111), rich whites (#f5f5f5, #ffffff), and ONE tasteful accent color that fits the brand (gold for luxury, emerald for nature, blue for tech, etc)
+- NO bright random colors. NO blue/yellow combos. NO childish gradients
+- Use Google Fonts — import a premium font like Playfair Display, Inter, or DM Sans
+- Use Font Awesome 6 from cdnjs for icons
+- Hero section: full viewport height, dark background, large bold headline, subtle gradient overlay, CTA button
+- Glassmorphism cards where appropriate: backdrop-filter: blur(10px), semi-transparent backgrounds
+- Smooth scroll animations using Intersection Observer
+- Sticky navbar that gets a blur/dark background on scroll
+- Sections: Hero, About, Services/Rooms/Features, Testimonials, Contact, Footer
+- Real professional copywriting — no Lorem Ipsum
 - Mobile responsive with media queries
-- Hero section with stunning typography
-- Scroll reveal animations using Intersection Observer in the <script> tag
-- Sticky navbar with blur effect on scroll in the <script> tag
-- Smooth scroll behavior
-- Professional realistic content no Lorem Ipsum
-- Make it look like a $10,000 agency website`
+- CSS variables for all colors defined in :root
+- Subtle micro-animations on hover (transform, opacity transitions)
+- The site must look like it was built by a $15,000 agency
+
+TECHNICAL RULES:
+- All CSS inside a single`
 
     const stream = await groq.chat.completions.create({
       messages: [
