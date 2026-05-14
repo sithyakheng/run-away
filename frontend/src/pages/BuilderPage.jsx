@@ -46,20 +46,12 @@ function BuilderPage() {
         body: JSON.stringify({ prompt: promptToUse })
       })
       const data = await response.json()
-      const files = data.files || []
-
-      const cssFile = files.find(f => f.name === 'styles.css')
-      const jsFile = files.find(f => f.name === 'script.js')
-      const htmlFile = files.find(f => f.name === 'index.html')
-
-      let combinedHTML = htmlFile?.content || ''
-      if (cssFile) combinedHTML = combinedHTML.replace('<link rel="stylesheet" href="styles.css">', `<style>${cssFile.content}</style>`)
-      if (jsFile) combinedHTML = combinedHTML.replace('<script src="script.js" defer></script>', `<script>${jsFile.content}</script>`)
-
-      setGeneratedHTML(combinedHTML)
-      setGeneratedCode(files)
+      
+      const htmlContent = data.html || ''
+      setGeneratedHTML(htmlContent)
+      setGeneratedCode([{ name: 'index.html', content: htmlContent }])
       setPreviewKey(prev => prev + 1)
-      setSelectedFile(htmlFile?.name || null)
+      setSelectedFile('index.html')
 
       const aiMessage = {
         id: Date.now(),
@@ -223,7 +215,8 @@ function BuilderPage() {
                   key={previewKey}
                   ref={iframeRef}
                   srcDoc={generatedHTML}
-                  className="w-full h-full border-none"
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  sandbox="allow-scripts"
                   title="Preview"
                 />
               </div>

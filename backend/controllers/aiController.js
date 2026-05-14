@@ -7,45 +7,31 @@ export const generateCode = async (req, res) => {
       return res.status(400).json({ error: { message: 'Prompt is required' } })
     }
 
-    const systemPrompt = `You are a world-class web developer at a top agency like Awwwards. Generate a stunning, professional website split into 3 separate files.
+    const systemPrompt = `You are a world-class web developer at a top agency like Awwwards. Generate a stunning, professional website as a SINGLE self-contained HTML file.
 
-CRITICAL NAVIGATION RULES:
-- NEVER use href="/" or any path-based links
-- ALL links must use href="#section-id" only
-- Every section must have a matching id attribute
+CRITICAL RULES:
+- ALL CSS must be inside a <style> tag in the <head>.
+- ALL JavaScript must be inside a <script> tag just before the closing </body> tag.
+- NO external file references for CSS or JS (no styles.css, no script.js).
+- NEVER use href="/" or any path-based links.
+- ALL links must use href="#section-id" only.
+- Every section must have a matching id attribute.
 
 Return ONLY a valid JSON object in this exact format:
 {
-  "files": [
-    {
-      "name": "index.html",
-      "content": "<!DOCTYPE html>...</html>"
-    },
-    {
-      "name": "styles.css",
-      "content": "/* CSS here */"
-    },
-    {
-      "name": "script.js",
-      "content": "// JS here"
-    }
-  ],
+  "html": "<!DOCTYPE html><html><head><style>...</style></head><body>...<script>...</script></body></html>",
   "description": "Brief description of what was built"
 }
-
-For the HTML file, link to styles.css and script.js like this:
-<link rel="stylesheet" href="styles.css">
-<script src="script.js" defer></script>
 
 DESIGN REQUIREMENTS:
 - Import Google Fonts with link tag in HTML
 - Import Font Awesome 6 from cdnjs in HTML
-- Use CSS variables for theming in styles.css
+- Use CSS variables for theming inside the <style> tag
 - Modern gradients, glassmorphism, animations
 - Mobile responsive with media queries
-- Hero section with stunning gradient
-- Scroll reveal animations using Intersection Observer in script.js
-- Sticky navbar with blur effect on scroll in script.js
+- Hero section with stunning typography
+- Scroll reveal animations using Intersection Observer in the <script> tag
+- Sticky navbar with blur effect on scroll in the <script> tag
 - Smooth scroll behavior
 - Professional realistic content no Lorem Ipsum
 - Make it look like a $10,000 agency website`
@@ -69,7 +55,7 @@ DESIGN REQUIREMENTS:
       parsedResponse = JSON.parse(response)
     } catch (error) {
       parsedResponse = {
-        files: [{ name: 'index.html', content: response }],
+        html: response,
         description: 'Generated website'
       }
     }
