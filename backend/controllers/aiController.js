@@ -1,4 +1,7 @@
 import groq from '../lib/groqClient.js'
+import fs from 'fs'
+import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>: 
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
@@ -50,13 +53,22 @@ const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>
 `
 
 function parseMultiFile(raw) {
-  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====CSS===|$)/)
-  const cssMatch = raw.match(/===CSS===\n([\s\S]*?)(?====JS===|$)/)
-  const jsMatch = raw.match(/===JS===\n([\s\S]*?)$/)
+  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====RESET\.CSS===|$)/)
+  const resetCssMatch = raw.match(/===RESET\.CSS===\n([\s\S]*?)(?====TYPOGRAPHY\.CSS===|$)/)
+  const typographyCssMatch = raw.match(/===TYPOGRAPHY\.CSS===\n([\s\S]*?)(?====LAYOUT\.CSS===|$)/)
+  const layoutCssMatch = raw.match(/===LAYOUT\.CSS===\n([\s\S]*?)(?====COMPONENTS\.CSS===|$)/)
+  const componentsCssMatch = raw.match(/===COMPONENTS\.CSS===\n([\s\S]*?)(?====ANIMATIONS\.CSS===|$)/)
+  const animationsCssMatch = raw.match(/===ANIMATIONS\.CSS===\n([\s\S]*?)(?====MAIN\.JS===|$)/)
+  const mainJsMatch = raw.match(/===MAIN\.JS===\n([\s\S]*?)$/)
+  
   return {
     html: htmlMatch ? htmlMatch[1].trim() : '',
-    css: cssMatch ? cssMatch[1].trim() : '',
-    js: jsMatch ? jsMatch[1].trim() : ''
+    resetCss: resetCssMatch ? resetCssMatch[1].trim() : '',
+    typographyCss: typographyCssMatch ? typographyCssMatch[1].trim() : '',
+    layoutCss: layoutCssMatch ? layoutCssMatch[1].trim() : '',
+    componentsCss: componentsCssMatch ? componentsCssMatch[1].trim() : '',
+    animationsCss: animationsCssMatch ? animationsCssMatch[1].trim() : '',
+    mainJs: mainJsMatch ? mainJsMatch[1].trim() : ''
   }
 }
 
@@ -73,19 +85,26 @@ export const generateCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website (HTML, CSS, JS) split into 3 separate files.
+    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website split into 7 separate files.
 
     Always return output with these exact delimiters and nothing else:
     ===HTML===
-    (full index.html here, linking to styles.css and script.js before closing body)
-    ===CSS===
-    (all CSS combined into one big detailed file)
-    ===JS===
-    (all JavaScript in one file)
+    (index.html - clean semantic HTML linking all CSS and JS files: reset.css, typography.css, layout.css, components.css, animations.css, and main.js)
+    ===RESET.CSS===
+    (reset.css - CSS reset and root variables)
+    ===TYPOGRAPHY.CSS===
+    (typography.css - all font imports, heading styles, text styles)
+    ===LAYOUT.CSS===
+    (layout.css - navbar, hero, sections, grid, containers, footer)
+    ===COMPONENTS.CSS===
+    (components.css - cards, buttons, forms, badges, testimonials, pricing)
+    ===ANIMATIONS.CSS===
+    (animations.css - all keyframes, transitions, hover effects, scroll reveals)
+    ===MAIN.JS===
+    (main.js - all JavaScript: scroll, navbar, accordion, counters, parallax, hamburger, carousel, form validation, page loader)
 
-    Never return fewer than 3 files. Each file must be large and detailed. 
-    The HTML file links to styles.css in head. 
-    Script.js goes before closing body tag.
+    Never return fewer than 7 files. Each file must be large and detailed. 
+    The HTML file links to all 5 CSS files in the head (reset.css first) and main.js before the closing body tag.
 
 DESIGN RULES — follow these exactly:
 COLOR SYSTEM — you have full creative freedom with colors. Use one of these options: 
@@ -143,9 +162,8 @@ ANIMATION RULES:
 
 TECHNICAL RULES:
 - Include <meta name="viewport" content="width=device-width, initial-scale=1.0"> inside the <head>.
-- All CSS inside a single <style> tag.
-- All JavaScript inside a single <script> tag.
-- Return ONLY the raw HTML code starting with <!DOCTYPE html>.
+- Separate all code into the 7 files requested.
+- Return ONLY the raw code for each file using the delimiters.
 - Do not include any explanations or markdown code blocks.
 
 ADVANCED SECTIONS — include the right ones based on website type: 
@@ -312,7 +330,20 @@ ADVANCED SECTIONS — include the right ones based on website type:
       }
     }
 
-    res.write('data: ' + JSON.stringify({ files: parseMultiFile(fullResponse) }) + '\n\n')
+    const files = parseMultiFile(fullResponse)
+    const projectId = uuidv4()
+    const projectDir = path.join(process.cwd(), 'generated', projectId)
+    
+    fs.mkdirSync(projectDir, { recursive: true })
+    fs.writeFileSync(path.join(projectDir, 'index.html'), files.html)
+    fs.writeFileSync(path.join(projectDir, 'reset.css'), files.resetCss)
+    fs.writeFileSync(path.join(projectDir, 'typography.css'), files.typographyCss)
+    fs.writeFileSync(path.join(projectDir, 'layout.css'), files.layoutCss)
+    fs.writeFileSync(path.join(projectDir, 'components.css'), files.componentsCss)
+    fs.writeFileSync(path.join(projectDir, 'animations.css'), files.animationsCss)
+    fs.writeFileSync(path.join(projectDir, 'main.js'), files.mainJs)
+
+    res.write('data: ' + JSON.stringify({ done: true, projectId, files }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {
@@ -335,19 +366,26 @@ export const generateProCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website (HTML, CSS, JS) of the absolute highest quality split into 3 separate files. Every pixel must be intentional. Every interaction must feel premium. 
+    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website of the absolute highest quality split into 7 separate files. Every pixel must be intentional. Every interaction must feel premium. 
  
  Always return output with these exact delimiters and nothing else:
  ===HTML===
- (full index.html here, linking to styles.css and script.js before closing body)
- ===CSS===
- (all CSS combined into one big detailed file)
- ===JS===
- (all JavaScript in one file)
+ (index.html - clean semantic HTML linking all CSS and JS files: reset.css, typography.css, layout.css, components.css, animations.css, and main.js)
+ ===RESET.CSS===
+ (reset.css - CSS reset and root variables)
+ ===TYPOGRAPHY.CSS===
+ (typography.css - all font imports, heading styles, text styles)
+ ===LAYOUT.CSS===
+ (layout.css - navbar, hero, sections, grid, containers, footer)
+ ===COMPONENTS.CSS===
+ (components.css - cards, buttons, forms, badges, testimonials, pricing)
+ ===ANIMATIONS.CSS===
+ (animations.css - all keyframes, transitions, hover effects, scroll reveals)
+ ===MAIN.JS===
+ (main.js - all JavaScript: scroll, navbar, accordion, counters, parallax, hamburger, carousel, form validation, page loader)
 
- Never return fewer than 3 files. Each file must be large and detailed. 
- The HTML file links to styles.css in head. 
- Script.js goes before closing body tag.
+ Never return fewer than 7 files. Each file must be large and detailed. 
+ The HTML file links to all 5 CSS files in the head (reset.css first) and main.js before the closing body tag.
 
  Follow all the same STRUCTURE, LAYOUT, COLOR, TYPOGRAPHY, ANIMATION, and TEMPLATE rules as the standard prompt PLUS these upgrades: 
  
@@ -380,6 +418,12 @@ export const generateProCode = async (req, res) => {
  - Minimum 1200 lines of HTML 
  - The finished site must look like it costs $50,000
  
+ TECHNICAL RULES:
+- Include <meta name="viewport" content="width=device-width, initial-scale=1.0"> inside the <head>.
+- Separate all code into the 7 files requested.
+- Return ONLY the raw code for each file using the delimiters.
+- Do not include any explanations or markdown code blocks.
+ 
  SELF-REVIEW RULES — before returning any output you must internally review every file and fix all errors: 
  
  HTML: check all tags are properly closed, all links to CSS and JS files are correct, no missing attributes, no broken structure 
@@ -410,7 +454,20 @@ export const generateProCode = async (req, res) => {
       }
     }
 
-    res.write('data: ' + JSON.stringify({ files: parseMultiFile(fullResponse) }) + '\n\n')
+    const files = parseMultiFile(fullResponse)
+    const projectId = uuidv4()
+    const projectDir = path.join(process.cwd(), 'generated', projectId)
+    
+    fs.mkdirSync(projectDir, { recursive: true })
+    fs.writeFileSync(path.join(projectDir, 'index.html'), files.html)
+    fs.writeFileSync(path.join(projectDir, 'reset.css'), files.resetCss)
+    fs.writeFileSync(path.join(projectDir, 'typography.css'), files.typographyCss)
+    fs.writeFileSync(path.join(projectDir, 'layout.css'), files.layoutCss)
+    fs.writeFileSync(path.join(projectDir, 'components.css'), files.componentsCss)
+    fs.writeFileSync(path.join(projectDir, 'animations.css'), files.animationsCss)
+    fs.writeFileSync(path.join(projectDir, 'main.js'), files.mainJs)
+
+    res.write('data: ' + JSON.stringify({ done: true, projectId, files }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {

@@ -6,11 +6,15 @@ import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
 import aiRoutes from './routes/ai.js'
 import projectRoutes from './routes/projects.js'
+import path from 'path'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+
+// Serve generated projects as static files
+app.use('/generated', express.static(path.join(process.cwd(), 'generated')))
 
 // Rate limiting
 const limiter = rateLimit({

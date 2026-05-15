@@ -8,8 +8,12 @@ function BuilderPage() {
   const [generatedCode, setGeneratedCode] = useState([])
   const [files, setFiles] = useState({ 
     html: '', 
-    css: '', 
-    js: '' 
+    resetCss: '', 
+    typographyCss: '', 
+    layoutCss: '', 
+    componentsCss: '', 
+    animationsCss: '', 
+    mainJs: '' 
   })
   const [activeFile, setActiveFile] = useState('html')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -27,12 +31,20 @@ function BuilderPage() {
   const chatEndRef = useRef(null)
 
   useEffect(() => {
-    if (iframeRef.current && files.html) {
+    // We now use iframeRef.current.src to load the generated site
+    // This effect is kept for backwards compatibility or local preview during streaming if needed
+    if (iframeRef.current && files.html && !iframeRef.current.src.includes('/generated/')) {
       const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
       
       const combinedHTML = files.html
-        .replace('</head>', `<style>${files.css || ''}</style></head>`)
-        .replace('</body>', `<script>${files.js || ''}</script></body>`)
+        .replace('</head>', `<style>
+          ${files.resetCss || ''}
+          ${files.typographyCss || ''}
+          ${files.layoutCss || ''}
+          ${files.componentsCss || ''}
+          ${files.animationsCss || ''}
+        </style></head>`)
+        .replace('</body>', `<script>${files.mainJs || ''}</script></body>`)
 
       doc.open()
       doc.write(combinedHTML)
@@ -62,8 +74,12 @@ function BuilderPage() {
     setError(null)
     setFiles({ 
       html: '', 
-      css: '', 
-      js: '' 
+      resetCss: '', 
+      typographyCss: '', 
+      layoutCss: '', 
+      componentsCss: '', 
+      animationsCss: '', 
+      mainJs: '' 
     })
     setGeneratedCode([])
     
@@ -109,9 +125,18 @@ function BuilderPage() {
                 setFiles(data.files)
                 setGeneratedCode([
                   { name: 'index.html', content: data.files.html },
-                  { name: 'styles.css', content: data.files.css },
-                  { name: 'script.js', content: data.files.js }
+                  { name: 'reset.css', content: data.files.resetCss },
+                  { name: 'typography.css', content: data.files.typographyCss },
+                  { name: 'layout.css', content: data.files.layoutCss },
+                  { name: 'components.css', content: data.files.componentsCss },
+                  { name: 'animations.css', content: data.files.animationsCss },
+                  { name: 'main.js', content: data.files.mainJs }
                 ])
+              }
+              if (data.done && data.projectId) {
+                if (iframeRef.current) {
+                  iframeRef.current.src = `${import.meta.env.VITE_BACKEND_URL}/generated/${data.projectId}/index.html`
+                }
               }
               if (data.error) {
                 console.error('AI Error:', data.error)
@@ -387,8 +412,12 @@ function BuilderPage() {
                   </div>
                   {[
                     { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
-                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
+                    { id: 'resetCss', name: 'reset.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'typographyCss', name: 'typography.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'layoutCss', name: 'layout.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'componentsCss', name: 'components.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'animationsCss', name: 'animations.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'mainJs', name: 'main.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
                   ].map((file) => (
                     <button
                       key={file.id}
