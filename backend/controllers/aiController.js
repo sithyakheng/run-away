@@ -294,16 +294,26 @@ ADVANCED SECTIONS — include the right ones based on website type:
  - Spacing must be generous — never cramped 
  - Every button must have a hover state 
  - Images use Unsplash URLs relevant to the topic — pick real photo IDs not placeholders 
- - The finished HTML must be at minimum 800 lines long`
+ - The finished HTML must be at minimum 800 lines long
+ 
+ SELF-REVIEW RULES — before returning any output you must internally review every file and fix all errors: 
+ 
+ HTML: check all tags are properly closed, all links to CSS and JS files are correct, no missing attributes, no broken structure 
+ CSS: check all selectors are valid, no unclosed braces, no missing semicolons, all variables are defined in :root before use, no conflicting rules 
+ JS: check all functions are properly closed, no undefined variables, no missing event listeners, no syntax errors, all DOM elements being selected actually exist in the HTML 
+ Cross-file: check that every CSS class used in HTML exists in one of the CSS files, check that every element targeted by JS exists in the HTML 
+ Never return code with known errors 
+ If you find an error fix it silently before returning 
+ Every file must work perfectly together as a complete website`
 
     const stream = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       temperature: 0.7,
-      max_tokens: 8000,
+      max_tokens: 32000,
       stream: true
     })
 
@@ -388,16 +398,26 @@ export const generateProCode = async (req, res) => {
  - Mobile hamburger menu with smooth slide-in animation 
  - All forms have floating labels (label moves up when input is focused) 
  - Minimum 1200 lines of HTML 
- - The finished site must look like it costs $50,000` 
+ - The finished site must look like it costs $50,000
+ 
+ SELF-REVIEW RULES — before returning any output you must internally review every file and fix all errors: 
+ 
+ HTML: check all tags are properly closed, all links to CSS and JS files are correct, no missing attributes, no broken structure 
+ CSS: check all selectors are valid, no unclosed braces, no missing semicolons, all variables are defined in :root before use, no conflicting rules 
+ JS: check all functions are properly closed, no undefined variables, no missing event listeners, no syntax errors, all DOM elements being selected actually exist in the HTML 
+ Cross-file: check that every CSS class used in HTML exists in one of the CSS files, check that every element targeted by JS exists in the HTML 
+ Never return code with known errors 
+ If you find an error fix it silently before returning 
+ Every file must work perfectly together as a complete website` 
 
     const stream = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: proSystemPrompt },
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       temperature: 0.7,
-      max_tokens: 8000,
+      max_tokens: 32000,
       stream: true
     })
 
