@@ -49,6 +49,17 @@ const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>
  - Never use a plain unstyled text logo 
 `
 
+function parseMultiFile(raw) {
+  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====CSS===|$)/)
+  const cssMatch = raw.match(/===CSS===\n([\s\S]*?)(?====JS===|$)/)
+  const jsMatch = raw.match(/===JS===\n([\s\S]*?)$/)
+  return {
+    html: htmlMatch ? htmlMatch[1].trim() : '',
+    css: cssMatch ? cssMatch[1].trim() : '',
+    js: jsMatch ? jsMatch[1].trim() : ''
+  }
+}
+
 export const generateCode = async (req, res) => {
   try {
     const { prompt } = req.body
@@ -62,7 +73,19 @@ export const generateCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete single-file HTML website.
+    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website (HTML, CSS, JS).
+
+    Always return output with these exact delimiters and nothing else:
+    ===HTML===
+    (full index.html here, with a link tag to styles.css in head and script tag to script.js before closing body)
+    ===CSS===
+    (full raw CSS here, no style tags, just CSS)
+    ===JS===
+    (full raw JavaScript here, no script tags, just JS)
+
+    Never return a single file. Always split into exactly 3 files. 
+    CSS file handles all styling. 
+    JS file handles all animations, scroll effects, navbar, accordion, counters, interactions.
 
 DESIGN RULES — follow these exactly:
 COLOR SYSTEM — you have full creative freedom with colors. Use one of these options: 
@@ -270,13 +293,16 @@ ADVANCED SECTIONS — include the right ones based on website type:
       stream: true
     })
 
+    let fullResponse = ''
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || ''
       if (content) {
+        fullResponse += content
         res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`)
       }
     }
 
+    res.write('data: ' + JSON.stringify({ files: parseMultiFile(fullResponse) }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {
@@ -299,8 +325,20 @@ export const generateProCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a single-file HTML website of the absolute highest quality. Every pixel must be intentional. Every interaction must feel premium. 
+    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website (HTML, CSS, JS) of the absolute highest quality. Every pixel must be intentional. Every interaction must feel premium. 
  
+ Always return output with these exact delimiters and nothing else:
+ ===HTML===
+ (full index.html here, with a link tag to styles.css in head and script tag to script.js before closing body)
+ ===CSS===
+ (full raw CSS here, no style tags, just CSS)
+ ===JS===
+ (full raw JavaScript here, no script tags, just JS)
+
+ Never return a single file. Always split into exactly 3 files. 
+ CSS file handles all styling. 
+ JS file handles all animations, scroll effects, navbar, accordion, counters, interactions.
+
  Follow all the same STRUCTURE, LAYOUT, COLOR, TYPOGRAPHY, ANIMATION, and TEMPLATE rules as the standard prompt PLUS these upgrades: 
  
  PRO TEMPLATES — pick exactly ONE from this list: 
@@ -343,13 +381,16 @@ export const generateProCode = async (req, res) => {
       stream: true
     })
 
+    let fullResponse = ''
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || ''
       if (content) {
+        fullResponse += content
         res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`)
       }
     }
 
+    res.write('data: ' + JSON.stringify({ files: parseMultiFile(fullResponse) }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {

@@ -6,7 +6,8 @@ import { supabase } from '../lib/supabase'
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState([])
-  const [generatedHTML, setGeneratedHTML] = useState('')
+  const [files, setFiles] = useState({ html: '', css: '', js: '' })
+  const [activeFile, setActiveFile] = useState('html')
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -22,13 +23,25 @@ function BuilderPage() {
   const chatEndRef = useRef(null)
 
   useEffect(() => {
-    if (iframeRef.current && generatedHTML) {
+    if (iframeRef.current && files.html) {
       const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
+      let combinedHTML = files.html
+      
+      // Inject CSS
+      if (files.css) {
+        combinedHTML = combinedHTML.replace('</head>', `<style>${files.css}</style></head>`)
+      }
+      
+      // Inject JS
+      if (files.js) {
+        combinedHTML = combinedHTML.replace('</body>', `<script>${files.js}</script></body>`)
+      }
+
       doc.open()
-      doc.write(generatedHTML)
+      doc.write(combinedHTML)
       doc.close()
     }
-  }, [generatedHTML])
+  }, [files])
 
   useEffect(() => {
     const locationPrompt = location.state?.prompt
@@ -50,7 +63,7 @@ function BuilderPage() {
     if (!promptToUse || !promptToUse.trim()) return
     setLoading(true)
     setError(null)
-    setGeneratedHTML('')
+    setFiles({ html: '', css: '', js: '' })
     setGeneratedCode([])
     
     try {
@@ -72,7 +85,7 @@ function BuilderPage() {
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
-      let accumulatedHTML = ''
+      let accumulatedRaw = ''
 
       while (true) {
         const { done, value } = await reader.read()
@@ -89,16 +102,25 @@ function BuilderPage() {
             try {
               const data = JSON.parse(dataStr)
               if (data.chunk) {
-                console.log('chunk received:', data.chunk)
-                accumulatedHTML += data.chunk
-                setGeneratedHTML(accumulatedHTML)
-                setGeneratedCode([{ name: 'index.html', content: accumulatedHTML }])
+                accumulatedRaw += data.chunk
+                // For live preview during streaming, we still show raw if we want, 
+                // but the instructions say to wait for data.files for the final split.
+                // However, the user said "When streaming, if data.files exists call setFiles(data.files)"
+                // This means data.files is sent at the end of streaming.
+              }
+              if (data.files) {
+                setFiles(data.files)
+                setGeneratedCode([
+                  { name: 'index.html', content: data.files.html },
+                  { name: 'styles.css', content: data.files.css },
+                  { name: 'script.js', content: data.files.js }
+                ])
               }
               if (data.error) {
                 console.error('AI Error:', data.error)
               }
             } catch (e) {
-              // Ignore partial JSON parsing errors during streaming if any
+              // Ignore partial JSON parsing errors
             }
           }
         }
@@ -360,22 +382,52 @@ function BuilderPage() {
                 </div>
               </div>
             ) : (
-              <div className="w-full h-full bg-[#1e1e1e] overflow-auto relative group">
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedHTML)
-                    }}
-                    className="p-2 bg-gray-800 text-gray-400 hover:text-white rounded-md border border-gray-700 transition-colors flex items-center gap-2 text-xs"
-                    title="Copy Code"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
-                  </button>
+              <div className="w-full h-full flex bg-[#1e1e1e] overflow-hidden">
+                {/* File Explorer Sidebar */}
+                <div className="w-[180px] bg-[#252526] border-r border-[#333] flex flex-col py-2">
+                  <div className="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                    Files
+                  </div>
+                  {[
+                    { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
+                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
+                  ].map((file) => (
+                    <button
+                      key={file.id}
+                      onClick={() => setActiveFile(file.id)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                        activeFile === file.id
+                          ? 'bg-[#37373d] text-white border-l-2 border-[var(--color-accent)]'
+                          : 'text-gray-400 hover:bg-[#2a2d2e] hover:text-gray-200 border-l-2 border-transparent'
+                      }`}
+                    >
+                      {file.icon}
+                      <span>{file.name}</span>
+                    </button>
+                  ))}
                 </div>
-                <pre className="p-6 font-mono text-sm text-gray-300 leading-relaxed selection:bg-gray-700">
-                  <code>{generatedHTML}</code>
-                </pre>
+
+                {/* Code Editor Area */}
+                <div className="flex-1 flex flex-col overflow-hidden relative group">
+                  <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(files[activeFile])
+                      }}
+                      className="p-2 bg-gray-800 text-gray-400 hover:text-white rounded-md border border-gray-700 transition-colors flex items-center gap-2 text-xs"
+                      title="Copy Code"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-auto p-6 font-mono text-sm text-gray-300 leading-relaxed selection:bg-gray-700">
+                    <pre>
+                      <code>{files[activeFile] || '// No code generated yet...'}</code>
+                    </pre>
+                  </div>
+                </div>
               </div>
             )}
           </div>
