@@ -149,6 +149,64 @@ ADVANCED SECTIONS — include the right ones based on website type:
  - Spacing must be generous — never cramped 
  - Every button must have a hover state 
  - Images use Unsplash URLs relevant to the topic — pick real photo IDs not placeholders 
+ - The finished HTML must be at minimum 800 lines long
+
+ LAYOUT TEMPLATES — you must pick exactly ONE template from this list based on the website type and topic. Each template defines the page structure and section order. 
+ 
+ T01 — Classic Top Nav (general business): TopNav → FullHero → About → Services3Grid → Testimonials → Contact → Footer 
+ T02 — Centered Minimal (saas/app): CenteredNav → SplitHero(text left, image right) → LogoBar → Features3Col → Pricing3Tier → FAQ → Footer 
+ T03 — Bold Magazine (blog/news): TopNav → FullWidthHero → LatestPosts4Grid → CategoryRow → FeaturedArticle → Newsletter → Footer 
+ T04 — Left Sidebar Layout (portfolio): FixedLeftSidebar(nav+avatar+links) → MainContent(ProjectsGrid → About → Skills → Contact) 
+ T05 — Right Sidebar Layout (blog): TopNav → MainContent(left 70% articles) + Sidebar(right 30% bio+tags+popular) → Footer 
+ T06 — Fullscreen Scroll (luxury/hotel): FullscreenHero → FullscreenAbout → FullscreenRooms → FullscreenTestimonials → FullscreenContact → Footer 
+ T07 — Split Screen Hero (startup): LeftHalf(dark bg, headline, CTA) + RightHalf(mockup image) → Features → Pricing → Footer 
+ T08 — Diagonal Sections (creative agency): TopNav → DiagonalHero → DiagonalAbout → DiagonalWork → DiagonalContact → Footer (each section angled with clip-path) 
+ T09 — Card Dashboard (saas): TopNav → StatsRow4Cards → FeaturesGrid → Testimonials → Pricing → Footer 
+ T10 — Fullwidth Video Hero (event/conference): VideoHero(autoplay muted loop bg) → Speakers4Grid → Schedule → Sponsors → Footer 
+ T11 — Minimal White (design studio): MinimalNav → LargeTypographyHero → WorkGrid(masonry) → About → Contact → Footer 
+ T12 — Dark Immersive (gaming/tech): FullscreenDarkHero(particles bg) → Features → Leaderboard/Stats → CTA → Footer 
+ T13 — Horizontal Scroll Hero (fashion): TopNav → HorizontalScrollGallery → CollectionGrid → About → Newsletter → Footer 
+ T14 — Zigzag Layout (product): TopNav → Hero → ZigzagFeatures(alternating image+text left/right) → Pricing → Footer 
+ T15 — Sticky Side Nav (documentation): FixedLeftNav(links) → DocContent(right side, sections with headings) → Footer 
+ T16 — Timeline Layout (history/about): TopNav → Hero → VerticalTimeline → Team → Values → Contact → Footer 
+ T17 — Masonry Gallery (photography): MinimalNav → MasonryGallery(fullwidth) → About → Services → BookingForm → Footer 
+ T18 — One Page Scroll (personal brand): FixedNav → Hero → About → Skills → Portfolio → Testimonials → Contact (all sections fullheight) 
+ T19 — E-commerce Standard (shop): TopNav+SearchBar → HeroBanner → CategoryRow → ProductGrid → FeaturedProduct → Reviews → Footer 
+ T20 — Restaurant Classic (food): TopNav → FullHero(food image) → Menu(tabbed) → Gallery6Grid → Reservation → Testimonials → Footer 
+ T21 — SaaS Long Form (conversion): TopNav → Hero+SocialProof → Problem → Solution → Features → HowItWorks3Steps → Testimonials → Pricing → FAQ → FinalCTA → Footer 
+ T22 — Portfolio Fullscreen (creative): SplitFullscreen(left fixed text, right scrolling projects) → About → Contact → Footer 
+ T23 — Agency Bold (marketing): LargeNav → HeroWithStats → ServicesHorizontalScroll → CaseStudies → Team → Contact → Footer 
+ T24 — Medical Clean (clinic/health): TopNav → Hero → Services4Grid → Doctors3Grid → HowItWorks → Testimonials → AppointmentForm → Footer 
+ T25 — Real Estate (property): TopNav → SearchHero(search bar overlay) → FeaturedListings → MapSection → AgentsGrid → Testimonials → Footer 
+ T26 — Fitness Bold (gym): DarkTopNav → VideoHero → Programs3Grid → Trainers → Transformation(before/after) → Pricing → Footer 
+ T27 — Law Firm Professional (legal): TopNav → SplitHero(dark left, image right) → PracticeAreas → Attorneys → CaseResults(stats) → Contact → Footer 
+ T28 — Education Clean (school/course): TopNav → Hero → CourseGrid → Instructors → HowItWorks → Testimonials → Pricing → Footer 
+ T29 — Non-profit Emotional (charity): TopNav → EmotionalHero(large image+story) → ImpactStats → Programs → Volunteer → Donate → Footer 
+ T30 — Tech Product (hardware/device): TopNav → CinematicHero(product centered) → Specs → Features → ComparisonTable → Reviews → Buy → Footer 
+ T31 — Music Artist (band/musician): DarkNav → FullscreenHero(artist photo) → LatestRelease → TourDates → Merch → Bio → Contact → Footer 
+ T32 — Travel Agency (tours): TopNav → SearchHero → FeaturedDestinations → PopularTours → Testimonials → Newsletter → Footer 
+ T33 — Crypto/Web3 (blockchain): DarkNav → AnimatedHero(gradient mesh) → Stats4Cards → HowItWorks → Tokenomics → Roadmap → FAQ → Footer 
+ T34 — Interior Design (home decor): MinimalNav → LargePortfolioHero → ProjectsGrid(masonry) → Services → Process4Steps → Contact → Footer 
+ T35 — Wedding (event planning): ElegantNav → RomanticHero → OurStory → Gallery → Venue → RSVP → Registry → Footer 
+ T36 — Podcast/Media (show): TopNav → HeroWithPlayer → LatestEpisodes → GuestGrid → Reviews → Subscribe → Footer 
+ T37 — Job Board (careers): TopNav+SearchBar → HeroBanner → FeaturedJobs → Categories → Companies → HowItWorks → Footer 
+ T38 — Dashboard App (tool): TopNav → SidebarLeft(nav) + MainArea(StatsCards → Charts → RecentActivity) → Footer 
+ T39 — Bakery/Cafe (artisan food): WarmNav → CozyHero → Specials3Cards → Menu → Gallery → About → Order → Footer 
+ T40 — NFT/Art Gallery (digital art): DarkNav → FullscreenGalleryHero → FeaturedArtworks → Artists → HowToBuy3Steps → FAQ → Footer 
+ 
+ TEMPLATE SELECTION RULES: 
+ - Read the user prompt and pick the ONE template that best fits the topic and industry 
+ - Follow the section order exactly as listed in the template 
+ - Never skip sections listed in the chosen template 
+ - Adapt section content to the specific topic but keep the structure 
+ - If unsure between two templates pick the one with more sections 
+ 
+ QUALITY RULES: 
+ - The site must look like it was built by a $20,000 agency 
+ - Every section must have enough content to feel complete and real 
+ - Spacing must be generous — never cramped 
+ - Every button must have a hover state 
+ - Images use Unsplash URLs relevant to the topic — pick real photo IDs not placeholders 
  - The finished HTML must be at minimum 800 lines long`
 
     const stream = await groq.chat.completions.create({
