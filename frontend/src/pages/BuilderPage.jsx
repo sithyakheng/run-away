@@ -19,7 +19,15 @@ function BuilderPage() {
   const location = useLocation()
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
-  const [previewKey, setPreviewKey] = useState(0)
+
+  useEffect(() => {
+    if (iframeRef.current && generatedHTML) {
+      const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
+      doc.open()
+      doc.write(generatedHTML)
+      doc.close()
+    }
+  }, [generatedHTML])
 
   useEffect(() => {
     const locationPrompt = location.state?.prompt
@@ -94,7 +102,6 @@ function BuilderPage() {
         }
       }
 
-      setPreviewKey(prev => prev + 1)
       setSelectedFile('index.html')
 
       const aiMessage = {
@@ -322,9 +329,7 @@ function BuilderPage() {
                   }}
                 >
                   <iframe
-                    key={previewKey}
                     ref={iframeRef}
-                    srcDoc={generatedHTML}
                     style={{ width: '100%', height: '100%', border: 'none' }}
                     sandbox="allow-scripts allow-same-origin"
                     title="Preview"
