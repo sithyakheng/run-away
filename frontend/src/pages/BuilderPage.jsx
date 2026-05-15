@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets, ChevronLeft, Play, Code, Eye, Download, Save, Monitor, Tablet, Smartphone } from 'lucide-react'
+import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, Brackets, ChevronLeft, Play, Code, Eye, Download, Save, Monitor, Tablet, Smartphone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 function BuilderPage() {
@@ -11,7 +11,6 @@ function BuilderPage() {
     css: '', 
     js: '' 
   })
-  const [activeFile, setActiveFile] = useState('html')
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -388,37 +387,12 @@ function BuilderPage() {
               </div>
             ) : (
               <div className="w-full h-full flex bg-[#1e1e1e] overflow-hidden">
-                {/* File Explorer Sidebar */}
-                <div className="w-[180px] bg-[#252526] border-r border-[#333] flex flex-col py-2">
-                  <div className="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                    Files
-                  </div>
-                  {[
-                    { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
-                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
-                  ].map((file) => (
-                    <button
-                      key={file.id}
-                      onClick={() => setActiveFile(file.id)}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
-                        activeFile === file.id
-                          ? 'bg-[#37373d] text-white border-l-2 border-[var(--color-accent)]'
-                          : 'text-gray-400 hover:bg-[#2a2d2e] hover:text-gray-200 border-l-2 border-transparent'
-                      }`}
-                    >
-                      {file.icon}
-                      <span>{file.name}</span>
-                    </button>
-                  ))}
-                </div>
-
                 {/* Code Editor Area */}
                 <div className="flex-1 flex flex-col overflow-hidden relative group">
                   <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={() => {
-                        navigator.clipboard.writeText(files[activeFile])
+                        navigator.clipboard.writeText(files.html)
                       }}
                       className="p-2 bg-gray-800 text-gray-400 hover:text-white rounded-md border border-gray-700 transition-colors flex items-center gap-2 text-xs"
                       title="Copy Code"
@@ -427,9 +401,9 @@ function BuilderPage() {
                       <span>Copy</span>
                     </button>
                   </div>
-                  <div className="flex-1 overflow-auto p-6 font-mono text-sm text-gray-300 leading-relaxed selection:bg-gray-700">
+                  <div className="flex-1 overflow-auto p-6 font-mono text-sm text-white leading-relaxed selection:bg-gray-700">
                     <pre>
-                      <code>{files[activeFile] || '// No code generated yet...'}</code>
+                      <code>{files.html || '// No code generated yet...'}</code>
                     </pre>
                   </div>
                 </div>
