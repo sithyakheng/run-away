@@ -52,6 +52,7 @@ ANIMATION RULES:
 - Cards fade in from below using Intersection Observer with translateY(30px) to translateY(0)
 
 TECHNICAL RULES:
+- Include <meta name="viewport" content="width=device-width, initial-scale=1.0"> inside the <head>.
 - All CSS inside a single <style> tag.
 - All JavaScript inside a single <script> tag.
 - Return ONLY the raw HTML code starting with <!DOCTYPE html>.

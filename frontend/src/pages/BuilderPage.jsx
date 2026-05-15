@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets, ChevronLeft, Play, Code, Eye, Download, Save } from 'lucide-react'
+import { Send, RefreshCw, Moon, Link, Bookmark, Share2, Copy, FileCode, FileText, Brackets, ChevronLeft, Play, Code, Eye, Download, Save, Monitor, Tablet, Smartphone } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 function BuilderPage() {
@@ -13,6 +13,7 @@ function BuilderPage() {
   const [chatInput, setChatInput] = useState('')
   const [messages, setMessages] = useState([])
   const [activeTab, setActiveTab] = useState('preview')
+  const [previewMode, setPreviewMode] = useState('desktop')
   const [projectName, setProjectName] = useState('Untitled Project')
   const navigate = useNavigate()
   const location = useLocation()
@@ -220,29 +221,69 @@ function BuilderPage() {
         {/* Right Content: Preview/Code */}
         <div className="flex-1 flex flex-col bg-[var(--color-page-bg)]">
           <div className="h-12 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex items-center px-4 justify-between">
-            <div className="flex bg-[var(--color-page-bg)] p-1 rounded-md border border-[var(--color-border)]">
-              <button
-                onClick={() => setActiveTab('preview')}
-                className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  activeTab === 'preview'
-                    ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-                }`}
-              >
-                <Eye className="w-3.5 h-3.5" />
-                Preview
-              </button>
-              <button
-                onClick={() => setActiveTab('code')}
-                className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  activeTab === 'code'
-                    ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-                }`}
-              >
-                <Code className="w-3.5 h-3.5" />
-                Code
-              </button>
+            <div className="flex items-center gap-4">
+              <div className="flex bg-[var(--color-page-bg)] p-1 rounded-md border border-[var(--color-border)]">
+                <button
+                  onClick={() => setActiveTab('preview')}
+                  className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
+                    activeTab === 'preview'
+                      ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Preview
+                </button>
+                <button
+                  onClick={() => setActiveTab('code')}
+                  className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
+                    activeTab === 'code'
+                      ? 'bg-[var(--color-surface)] text-[var(--color-text-primary)] shadow-sm'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                  }`}
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  Code
+                </button>
+              </div>
+
+              {activeTab === 'preview' && (
+                <div className="flex bg-[var(--color-page-bg)] p-1 rounded-md border border-[var(--color-border)]">
+                  <button
+                    onClick={() => setPreviewMode('desktop')}
+                    className={`p-1.5 rounded transition-all ${
+                      previewMode === 'desktop'
+                        ? 'bg-[var(--color-surface)] text-[var(--color-accent)] shadow-sm'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                    }`}
+                    title="Desktop"
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('tablet')}
+                    className={`p-1.5 rounded transition-all ${
+                      previewMode === 'tablet'
+                        ? 'bg-[var(--color-surface)] text-[var(--color-accent)] shadow-sm'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                    }`}
+                    title="Tablet"
+                  >
+                    <Tablet className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('mobile')}
+                    className={`p-1.5 rounded transition-all ${
+                      previewMode === 'mobile'
+                        ? 'bg-[var(--color-surface)] text-[var(--color-accent)] shadow-sm'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                    }`}
+                    title="Mobile"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -268,15 +309,27 @@ function BuilderPage() {
               </div>
             )}
             {activeTab === 'preview' ? (
-              <div className="w-full h-full bg-white shadow-inner">
-                <iframe
-                  key={previewKey}
-                  ref={iframeRef}
-                  srcDoc={generatedHTML}
-                  style={{ width: '100%', height: '100%', border: 'none' }}
-                  sandbox="allow-scripts allow-same-origin"
-                  title="Preview"
-                />
+              <div className={`w-full h-full flex justify-center items-start overflow-auto transition-colors duration-300 ${
+                previewMode !== 'desktop' ? 'bg-[#f0f0f0] p-8' : 'bg-white'
+              }`}>
+                <div 
+                  className="transition-all duration-300 ease-in-out bg-white overflow-hidden shadow-sm"
+                  style={{ 
+                    width: previewMode === 'desktop' ? '100%' : previewMode === 'tablet' ? '768px' : '390px',
+                    height: previewMode === 'desktop' ? '100%' : '100%',
+                    border: previewMode === 'desktop' ? 'none' : '1px solid #d1d5db',
+                    borderRadius: previewMode === 'desktop' ? '0' : previewMode === 'tablet' ? '12px' : '24px',
+                  }}
+                >
+                  <iframe
+                    key={previewKey}
+                    ref={iframeRef}
+                    srcDoc={generatedHTML}
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    sandbox="allow-scripts allow-same-origin"
+                    title="Preview"
+                  />
+                </div>
               </div>
             ) : (
               <div className="w-full h-full bg-[#1e1e1e] overflow-auto relative group">
