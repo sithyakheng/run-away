@@ -108,18 +108,17 @@ function BuilderPage() {
               const data = JSON.parse(dataStr)
               if (data.chunk) {
                 accumulatedRaw += data.chunk
+                setFiles(prev => ({ ...prev, html: accumulatedRaw }))
               }
-              if (data.files) {
-                setFiles(data.files)
-                setGeneratedCode([
-                  { name: 'index.html', content: data.files.html },
-                  { name: 'styles.css', content: data.files.css },
-                  { name: 'script.js', content: data.files.js }
-                ])
-              }
-              if (data.done && data.projectId) {
+              if (data.done) {
+                setFiles({ html: data.html, css: '', js: '' })
+                setGeneratedCode([{ name: 'index.html', content: data.html }])
+                
                 if (iframeRef.current) {
-                  iframeRef.current.src = `${import.meta.env.VITE_BACKEND_URL}/generated/${data.projectId}/index.html`
+                  const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
+                  doc.open()
+                  doc.write(data.html)
+                  doc.close()
                 }
               }
               if (data.error) {
