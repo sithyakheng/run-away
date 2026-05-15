@@ -50,13 +50,21 @@ const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>
 `
 
 function parseMultiFile(raw) {
-  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====CSS===|$)/)
-  const cssMatch = raw.match(/===CSS===\n([\s\S]*?)(?====JS===|$)/)
-  const jsMatch = raw.match(/===JS===\n([\s\S]*?)$/)
+  const get = (key, next) => {
+    const pattern = next
+      ? new RegExp(`===${key}===\\n([\\s\\S]*?)(?====${next}===|$)`)
+      : new RegExp(`===${key}===\\n([\\s\\S]*?)$`)
+    const match = raw.match(pattern)
+    return match ? match[1].trim() : ''
+  }
+
   return {
-    html: htmlMatch ? htmlMatch[1].trim() : '',
-    css: cssMatch ? cssMatch[1].trim() : '',
-    js: jsMatch ? jsMatch[1].trim() : ''
+    html: get('HTML', 'BASE.CSS'),
+    baseCss: get('BASE.CSS', 'LAYOUT.CSS'),
+    layoutCss: get('LAYOUT.CSS', 'COMPONENTS.CSS'),
+    componentsCss: get('COMPONENTS.CSS', 'ANIMATIONS.CSS'),
+    animationsCss: get('ANIMATIONS.CSS', 'SCRIPT.JS'),
+    js: get('SCRIPT.JS', null)
   }
 }
 
@@ -73,19 +81,25 @@ export const generateCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website (HTML, CSS, JS).
+    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website (HTML, CSS, JS) split into 6 separate files.
 
     Always return output with these exact delimiters and nothing else:
     ===HTML===
-    (full index.html here, with a link tag to styles.css in head and script tag to script.js before closing body)
-    ===CSS===
-    (full raw CSS here, no style tags, just CSS)
-    ===JS===
-    (full raw JavaScript here, no script tags, just JS)
+    (full index.html here, linking to all CSS and JS files in the correct order: base.css, layout.css, components.css, animations.css, and script.js before closing body)
+    ===BASE.CSS===
+    (CSS reset, root variables, typography, base body styles, scrollbar, selection styles)
+    ===LAYOUT.CSS===
+    (navbar, hero, sections, grid systems, containers, footer layout)
+    ===COMPONENTS.CSS===
+    (cards, buttons, forms, badges, modals, testimonials, pricing tables, all UI components)
+    ===ANIMATIONS.CSS===
+    (all keyframe animations, transitions, hover effects, scroll reveal classes, parallax, loading animations)
+    ===SCRIPT.JS===
+    (all JavaScript: scroll effects, navbar, accordion, counters, typewriter, parallax, intersection observer, hamburger menu, tabs, carousel, form validation, page loader)
 
-    Never return a single file. Always split into exactly 3 files. 
-    CSS file handles all styling. 
-    JS file handles all animations, scroll effects, navbar, accordion, counters, interactions.
+    Never return fewer than 6 files. Each file must be large and detailed. 
+    The HTML file links them in this order in head: base.css, layout.css, components.css, animations.css. 
+    Script.js goes before closing body tag.
 
 DESIGN RULES — follow these exactly:
 COLOR SYSTEM — you have full creative freedom with colors. Use one of these options: 
@@ -325,19 +339,25 @@ export const generateProCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website (HTML, CSS, JS) of the absolute highest quality. Every pixel must be intentional. Every interaction must feel premium. 
+    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website (HTML, CSS, JS) of the absolute highest quality split into 6 separate files. Every pixel must be intentional. Every interaction must feel premium. 
  
  Always return output with these exact delimiters and nothing else:
  ===HTML===
- (full index.html here, with a link tag to styles.css in head and script tag to script.js before closing body)
- ===CSS===
- (full raw CSS here, no style tags, just CSS)
- ===JS===
- (full raw JavaScript here, no script tags, just JS)
+ (full index.html here, linking to all CSS and JS files in the correct order: base.css, layout.css, components.css, animations.css, and script.js before closing body)
+ ===BASE.CSS===
+ (CSS reset, root variables, typography, base body styles, scrollbar, selection styles)
+ ===LAYOUT.CSS===
+ (navbar, hero, sections, grid systems, containers, footer layout)
+ ===COMPONENTS.CSS===
+ (cards, buttons, forms, badges, modals, testimonials, pricing tables, all UI components)
+ ===ANIMATIONS.CSS===
+ (all keyframe animations, transitions, hover effects, scroll reveal classes, parallax, loading animations)
+ ===SCRIPT.JS===
+ (all JavaScript: scroll effects, navbar, accordion, counters, typewriter, parallax, intersection observer, hamburger menu, tabs, carousel, form validation, page loader)
 
- Never return a single file. Always split into exactly 3 files. 
- CSS file handles all styling. 
- JS file handles all animations, scroll effects, navbar, accordion, counters, interactions.
+ Never return fewer than 6 files. Each file must be large and detailed. 
+ The HTML file links them in this order in head: base.css, layout.css, components.css, animations.css. 
+ Script.js goes before closing body tag.
 
  Follow all the same STRUCTURE, LAYOUT, COLOR, TYPOGRAPHY, ANIMATION, and TEMPLATE rules as the standard prompt PLUS these upgrades: 
  

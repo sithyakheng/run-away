@@ -6,7 +6,14 @@ import { supabase } from '../lib/supabase'
 function BuilderPage() {
   const [prompt, setPrompt] = useState('')
   const [generatedCode, setGeneratedCode] = useState([])
-  const [files, setFiles] = useState({ html: '', css: '', js: '' })
+  const [files, setFiles] = useState({ 
+    html: '', 
+    baseCss: '', 
+    layoutCss: '', 
+    componentsCss: '', 
+    animationsCss: '', 
+    js: '' 
+  })
   const [activeFile, setActiveFile] = useState('html')
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -25,17 +32,15 @@ function BuilderPage() {
   useEffect(() => {
     if (iframeRef.current && files.html) {
       const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
-      let combinedHTML = files.html
       
-      // Inject CSS
-      if (files.css) {
-        combinedHTML = combinedHTML.replace('</head>', `<style>${files.css}</style></head>`)
-      }
+      const allCSS = (files.baseCss || '') + '\n' + 
+                    (files.layoutCss || '') + '\n' + 
+                    (files.componentsCss || '') + '\n' + 
+                    (files.animationsCss || '')
       
-      // Inject JS
-      if (files.js) {
-        combinedHTML = combinedHTML.replace('</body>', `<script>${files.js}</script></body>`)
-      }
+      const combinedHTML = files.html
+        .replace('</head>', `<style>${allCSS}</style></head>`)
+        .replace('</body>', `<script>${files.js || ''}</script></body>`)
 
       doc.open()
       doc.write(combinedHTML)
@@ -63,7 +68,14 @@ function BuilderPage() {
     if (!promptToUse || !promptToUse.trim()) return
     setLoading(true)
     setError(null)
-    setFiles({ html: '', css: '', js: '' })
+    setFiles({ 
+      html: '', 
+      baseCss: '', 
+      layoutCss: '', 
+      componentsCss: '', 
+      animationsCss: '', 
+      js: '' 
+    })
     setGeneratedCode([])
     
     try {
@@ -103,16 +115,15 @@ function BuilderPage() {
               const data = JSON.parse(dataStr)
               if (data.chunk) {
                 accumulatedRaw += data.chunk
-                // For live preview during streaming, we still show raw if we want, 
-                // but the instructions say to wait for data.files for the final split.
-                // However, the user said "When streaming, if data.files exists call setFiles(data.files)"
-                // This means data.files is sent at the end of streaming.
               }
               if (data.files) {
                 setFiles(data.files)
                 setGeneratedCode([
                   { name: 'index.html', content: data.files.html },
-                  { name: 'styles.css', content: data.files.css },
+                  { name: 'base.css', content: data.files.baseCss },
+                  { name: 'layout.css', content: data.files.layoutCss },
+                  { name: 'components.css', content: data.files.componentsCss },
+                  { name: 'animations.css', content: data.files.animationsCss },
                   { name: 'script.js', content: data.files.js }
                 ])
               }
@@ -390,7 +401,10 @@ function BuilderPage() {
                   </div>
                   {[
                     { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
-                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'baseCss', name: 'base.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'layoutCss', name: 'layout.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'componentsCss', name: 'components.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'animationsCss', name: 'animations.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
                     { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
                   ].map((file) => (
                     <button
