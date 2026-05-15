@@ -75,7 +75,81 @@ TECHNICAL RULES:
 - All CSS inside a single <style> tag.
 - All JavaScript inside a single <script> tag.
 - Return ONLY the raw HTML code starting with <!DOCTYPE html>.
-- Do not include any explanations or markdown code blocks.`
+- Do not include any explanations or markdown code blocks.
+
+ADVANCED SECTIONS — include the right ones based on website type: 
+ 
+ For ALL websites always include: 
+ - Sticky navbar with logo + links + CTA button 
+ - Hero with background image, headline, subheadline, 2 CTA buttons 
+ - About section with image placeholder (use gradient div) + text 
+ - Testimonials: 3 cards with star rating, quote, name, title, avatar placeholder 
+ - Contact section with a styled form: name, email, message, submit button 
+ - Footer: logo, 3 columns of links, copyright, social icons 
+ 
+ For BUSINESS / CORPORATE websites also add: 
+ - Stats section: 4 numbers with labels (e.g. 500+ Clients, 10 Years Experience) 
+ - Team section: 4 cards with avatar, name, role 
+ - Partners/logos section: row of blurred placeholder logos 
+ 
+ For SAAS / TECH / STARTUP websites also add: 
+ - Features section: icon + title + description in a 3 column grid 
+ - Pricing section: 3 tiers (Free, Pro, Enterprise) with feature lists and CTA buttons, highlight the middle tier 
+ - FAQ section: accordion style, at least 5 questions, toggle open/close with JS 
+ 
+ For RESTAURANT / FOOD websites also add: 
+ - Menu section: categorized items with name, description, price 
+ - Gallery section: 6 image placeholders using gradient divs with overlay text 
+ - Reservation form: date, time, guests, name, phone 
+ 
+ For PORTFOLIO websites also add: 
+ - Skills section: animated progress bars 
+ - Projects grid: 6 project cards with title, tech stack tags, hover overlay with links 
+ - Experience timeline: vertical timeline with company, role, dates, description 
+ 
+ For ECOMMERCE websites also add: 
+ - Featured products grid: image placeholder, name, price, rating stars, Add to Cart button 
+ - Categories section: 4 category cards with icons 
+ - Sale banner: full width strip with countdown timer using JS 
+ 
+ SMART CONTENT RULES: 
+ - Read the user prompt carefully and write ALL content specifically for that business 
+ - Invent a realistic brand name if none is given 
+ - Write a compelling hero headline that speaks directly to the target customer 
+ - Write real benefit-driven copy for every section — no filler text 
+ - Testimonials must sound human and specific to the industry 
+ - Pricing tiers must have realistic feature lists for that type of product 
+ - FAQ questions must be real questions that customers in that industry actually ask 
+ 
+ ADVANCED ANIMATION RULES: 
+ - Hero: text slides up on load with opacity 0 to 1, transform translateY(40px) to 0, 0.8s ease 
+ - Navbar: on scroll past 50px add blur and darken background smoothly 
+ - Number stats: count up animation from 0 to final number when scrolled into view 
+ - FAQ accordion: smooth max-height transition for open/close 
+ - Progress bars: animate width from 0 to final % when scrolled into view 
+ - Pricing cards: middle tier slightly larger with a glowing border using box-shadow 
+ - Hover effects on ALL interactive elements: buttons, cards, nav links, social icons 
+ - Page loader: simple fade out loader div that disappears after 0.5s 
+ 
+ WEBSITE TYPE DETECTION: 
+ - Read the user prompt and automatically detect what type of site to build 
+ - hotel/resort/airbnb = hospitality 
+ - restaurant/cafe/food/bar = food 
+ - agency/portfolio/freelance/designer = portfolio 
+ - shop/store/ecommerce/products = ecommerce 
+ - app/saas/software/platform/tool = saas 
+ - clinic/hospital/doctor/medical = medical 
+ - gym/fitness/yoga/wellness = fitness 
+ - law/legal/attorney/firm = professional 
+ - Each type gets its own relevant sections, content, and color pair 
+ 
+ QUALITY RULES: 
+ - The site must look like it was built by a $20,000 agency 
+ - Every section must have enough content to feel complete and real 
+ - Spacing must be generous — never cramped 
+ - Every button must have a hover state 
+ - Images use Unsplash URLs relevant to the topic — pick real photo IDs not placeholders 
+ - The finished HTML must be at minimum 800 lines long`
 
     const stream = await groq.chat.completions.create({
       messages: [
