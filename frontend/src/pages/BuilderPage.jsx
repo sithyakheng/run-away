@@ -113,11 +113,9 @@ function BuilderPage() {
                 setFiles({ html: data.html, css: '', js: '' })
                 setGeneratedCode([{ name: 'index.html', content: data.html }])
                 
-                if (iframeRef.current) {
-                  const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
-                  doc.open()
-                  doc.write(data.html)
-                  doc.close()
+                if (iframeRef.current && data.projectId) {
+                  const url = `${import.meta.env.VITE_BACKEND_URL}/generated/${data.projectId}/index.html`
+                  iframeRef.current.src = url
                 }
               }
               if (data.error) {

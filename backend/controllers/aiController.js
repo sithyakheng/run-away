@@ -1,4 +1,6 @@
 import Groq from 'groq-sdk' 
+import fs from 'fs'
+import path from 'path'
  
  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY }) 
  
@@ -25,7 +27,13 @@ import Groq from 'groq-sdk'
          res.write(`data: ${JSON.stringify({ chunk: content })} \n\n`) 
        } 
      } 
-     res.write(`data: ${JSON.stringify({ done: true, html })} \n\n`) 
+     
+     const projectId = Date.now().toString() 
+     const dir = path.join(process.cwd(), 'generated', projectId) 
+     fs.mkdirSync(dir, { recursive: true }) 
+     fs.writeFileSync(path.join(dir, 'index.html'), html) 
+
+     res.write(`data: ${JSON.stringify({ done: true, html, projectId })} \n\n`) 
      res.write('data: [DONE] \n\n') 
      res.end() 
    } catch (error) { 
@@ -58,7 +66,13 @@ import Groq from 'groq-sdk'
          res.write(`data: ${JSON.stringify({ chunk: content })} \n\n`) 
        } 
      } 
-     res.write(`data: ${JSON.stringify({ done: true, html })} \n\n`) 
+
+     const projectId = Date.now().toString() 
+     const dir = path.join(process.cwd(), 'generated', projectId) 
+     fs.mkdirSync(dir, { recursive: true }) 
+     fs.writeFileSync(path.join(dir, 'index.html'), html) 
+
+     res.write(`data: ${JSON.stringify({ done: true, html, projectId })} \n\n`) 
      res.write('data: [DONE] \n\n') 
      res.end() 
    } catch (error) { 
