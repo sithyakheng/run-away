@@ -1,5 +1,54 @@
 import groq from '../lib/groqClient.js'
 
+const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>: 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> 
+ <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"> 
+ <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script> 
+  
+ Use icons everywhere: navbar, feature cards, footer social links, service sections, buttons, stats, testimonials. Never leave a section without icons. Mix icon libraries freely. 
+  
+ FONT SYSTEM — pick the best font pairing from this list based on website type. Always import from Google Fonts. 
+  
+ DISPLAY / LOGO FONTS (use for brand name and hero headlines): 
+ Playfair Display, Cormorant Garamond, DM Serif Display, Libre Baskerville, Abril Fatface, Bebas Neue, Righteous, Syne, Clash Display, Monument Extended, Unbounded, Big Shoulders Display, Familjen Grotesk, Space Grotesk, Cabinet Grotesk, Fraunces, Yeseva One, Josefin Sans, Cinzel, Marcellus, Bodoni Moda, Italiana, Oleo Script, Pacifico, Lobster, Dancing Script, Great Vibes, Sacramento, Satisfy, Parisienne, Allura, Alex Brush, Pinyon Script, Petit Formal Script, Nixie One, Syncopate, Orbitron, Audiowide, Share Tech Mono, VT323, Press Start 2P, Silkscreen, Bungee, Bungee Shade, Teko, Barlow Condensed, Oswald, Anton, Black Han Sans, Rowdies, Ultra, Alfa Slab One 
+  
+ BODY / UI FONTS (use for paragraphs, labels, buttons, nav): 
+ Inter, Plus Jakarta Sans, DM Sans, Geist, Outfit, Nunito, Poppins, Raleway, Lato, Source Sans Pro, Open Sans, Roboto, Work Sans, Manrope, Figtree, Karla, Mulish, Quicksand, Jost, Urbanist, Sora, Lexend, Noto Sans, Public Sans, Epilogue, Be Vietnam Pro, Onest, Bricolage Grotesque, Darker Grotesque, Hanken Grotesk, Instrument Sans, Mona Sans, Hubot Sans, Albert Sans, Atkinson Hyperlegible, Inclusive Sans, Literata, Lora, Merriweather, PT Serif, Crimson Pro, Spectral, EB Garamond, Cardo, Gentium Book Basic, Vollkorn, Arvo, Rokkitt, Zilla Slab, Bitter, Domine, Tinos, Gelasio 
+  
+ MONOSPACE FONTS (use for code, tech, terminal sections): 
+ Fira Code, JetBrains Mono, Source Code Pro, Space Mono, Roboto Mono, IBM Plex Mono, Courier Prime, Share Tech Mono, Oxanium, Inconsolata, Martian Mono 
+  
+ FONT PAIRING RULES — always use exactly 2 fonts, one display + one body: 
+ - Luxury / Hotel: Cormorant Garamond + Raleway 
+ - SaaS / Tech: Space Grotesk + Inter 
+ - Restaurant / Food: Playfair Display + Lato 
+ - Portfolio / Creative: Syne + DM Sans 
+ - Fitness / Gym: Bebas Neue + Barlow Condensed 
+ - Law / Finance: Libre Baskerville + Source Sans Pro 
+ - Wedding / Elegant: Great Vibes + Cormorant Garamond 
+ - Gaming / Web3: Orbitron + Rajdhani 
+ - Medical / Health: Plus Jakarta Sans + Nunito 
+ - Education: Josefin Sans + Work Sans 
+ - Coffee / Cafe: Oleo Script + Karla 
+ - Fashion: Bodoni Moda + Outfit 
+ - Music / Artist: Abril Fatface + Poppins 
+ - Agency / Bold: Anton + Roboto 
+ - Crypto / NFT: Unbounded + Space Grotesk 
+ - Startup / Modern: Bricolage Grotesque + Figtree 
+ - Real Estate: Marcellus + Mulish 
+ - Non-profit: Merriweather + Open Sans 
+ - Travel: Yeseva One + Jost 
+ - Photography: Cinzel + Lora 
+  
+ LOGO RULES: 
+ - Always create a text-based logo in the navbar using the display font 
+ - Logo should have the brand name styled with letter-spacing, font-weight 700+ 
+ - Add a simple icon before or after the brand name using Font Awesome or Bootstrap Icons 
+ - Logo color should be the accent color or white depending on navbar background 
+ - Never use a plain unstyled text logo 
+`
+
 export const generateCode = async (req, res) => {
   try {
     const { prompt } = req.body
@@ -38,7 +87,6 @@ COLOR SYSTEM — you have full creative freedom with colors. Use one of these op
  - Never use more than 3 main colors in one site 
  - No random clashing colors ever 
 
-- Use Google Fonts — import a premium font like Playfair Display, Inter, or DM Sans
 - Use Font Awesome 6 from cdnjs for icons
 - Hero section: full viewport height, dark background, large bold headline, subtle gradient overlay, CTA button
 - Glassmorphism cards where appropriate: backdrop-filter: blur(10px), semi-transparent backgrounds
@@ -200,6 +248,8 @@ ADVANCED SECTIONS — include the right ones based on website type:
  - Never skip sections listed in the chosen template 
  - Adapt section content to the specific topic but keep the structure 
  - If unsure between two templates pick the one with more sections 
+
+ ${commonRules}
  
  QUALITY RULES: 
  - The site must look like it was built by a $20,000 agency 
@@ -232,6 +282,79 @@ ADVANCED SECTIONS — include the right ones based on website type:
   } catch (error) {
     console.error('AI Generation Error:', error)
     res.write(`data: ${JSON.stringify({ error: 'Failed to generate code' })}\n\n`)
+    res.end()
+  }
+}
+
+export const generateProCode = async (req, res) => {
+  try {
+    const { prompt } = req.body
+    console.log('generateProCode called with prompt:', prompt)
+    if (!prompt) {
+      return res.status(400).json({ error: { message: 'Prompt is required' } })
+    }
+
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+
+    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a single-file HTML website of the absolute highest quality. Every pixel must be intentional. Every interaction must feel premium. 
+ 
+ Follow all the same STRUCTURE, LAYOUT, COLOR, TYPOGRAPHY, ANIMATION, and TEMPLATE rules as the standard prompt PLUS these upgrades: 
+ 
+ PRO TEMPLATES — pick exactly ONE from this list: 
+ 
+ P01 — Luxury Parallax (high-end brand): FixedNav(transparent→dark on scroll) → ParallaxHero(multiple layers) → StaggeredAbout(image+text with scroll-triggered entrance) → ProductShowcase(horizontal pin scroll) → Testimonials(large quotes, full bleed) → Contact(split: form left, map/image right) → Footer 
+ P02 — Cinematic SaaS (premium app): DarkCenteredNav → CinematicHero(headline animates word by word) → SocialProofBar(logos fade in) → BentoGridFeatures(asymmetric card grid) → InteractiveDemo(tabbed mockup) → PricingToggle(monthly/yearly) → TestimonialsCarousel → Footer 
+ P03 — Editorial Portfolio (creative director): FullscreenTypographyHero(huge text, minimal) → HorizontalScrollWork(pinned scroll through projects) → AboutSplit(large photo + biography) → AwardsBadges → ContactMinimal → Footer 
+ P04 — Immersive 3D Product (tech hardware): DarkNav → Hero(product centered with rotating CSS 3D transform) → SpecsReveal(scroll-triggered one by one) → ComparisonSlider(before/after drag) → Reviews(masonry layout) → BuyNowSticky → Footer 
+ P05 — Boutique Hotel (5-star luxury): ElegantScriptNav → FullscreenVideoHero(muted autoplay) → RoomsReveal(each room fades in fullscreen on scroll) → AmenitiesGrid(icon+text, gold accents) → DiningSection → TestimonialsLarge → ReservationForm(floating card) → Footer 
+ P06 — Venture Studio (VC/investment): MinimalDarkNav → HeroWithTicker(scrolling text marquee) → PortfolioCompanies(logo grid with hover reveals) → ThesisSection(large text statements) → TeamCards(b&w photos, color on hover) → ContactMinimal → Footer 
+ P07 — Web3 Immersive (NFT/crypto): AnimatedGradientNav → HeroWithParticles(JS canvas) → LiveStats(animated counters) → CollectionShowcase(3D tilt cards on hover) → Roadmap(horizontal scroll timeline) → TeamAvatars(pixelated style) → FAQ(accordion) → Footer 
+ P08 — Premium Restaurant (michelin): ScriptLogoNav → FullbleedHero(dish photography) → PhilosophySection(chef quote, large typography) → MenuReveal(each course fades in) → GalleryMasonry(hover zoom) → ReservationElegant(minimal form) → Footer 
+ P09 — Global Agency (top tier): LargeKineticNav(letters animate on hover) → HeroWithCursor(custom cursor that changes on hover) → WorkGrid(case studies, hover reveals stats) → ServicesAccordion → GlobalOffices(world map dots) → CareersTeaser → Footer 
+ P10 — AI SaaS Platform (cutting edge): GlassmorphismNav → HeroWithTypewriter(rotating use cases) → FeaturesBento(asymmetric glass cards) → LiveDemoEmbed(interactive widget) → IntegrationsGrid(logo cloud) → PricingCards(glassmorphism) → FAQ → Footer 
+ 
+ ${commonRules}
+
+ PRO QUALITY UPGRADES: 
+ - Custom CSS cursor for the entire page 
+ - Smooth page entrance: everything fades in staggered on load 
+ - All images use carefully chosen Unsplash URLs — real relevant photos, not random 
+ - Micro-interactions on every button: scale(1.03) on hover, scale(0.97) on click 
+ - Text animations: headlines split into words/chars and animate in one by one using JS 
+ - Scroll progress bar at the top of the page 
+ - Glassmorphism navbar always: backdrop-filter: blur(20px), semi-transparent bg 
+ - Section dividers: use clip-path or SVG waves between sections instead of flat edges 
+ - Mobile hamburger menu with smooth slide-in animation 
+ - All forms have floating labels (label moves up when input is focused) 
+ - Minimum 1200 lines of HTML 
+ - The finished site must look like it costs $50,000` 
+
+    const stream = await groq.chat.completions.create({
+      messages: [
+        { role: 'system', content: proSystemPrompt },
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 8000,
+      stream: true
+    })
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || ''
+      if (content) {
+        res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`)
+      }
+    }
+
+    res.write('data: [DONE]\n\n')
+    res.end()
+  } catch (error) {
+    console.error('AI PRO Generation Error:', error)
+    res.write(`data: ${JSON.stringify({ error: 'Failed to generate pro code' })}\n\n`)
     res.end()
   }
 }

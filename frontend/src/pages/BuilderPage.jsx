@@ -15,6 +15,7 @@ function BuilderPage() {
   const [activeTab, setActiveTab] = useState('preview')
   const [previewMode, setPreviewMode] = useState('desktop')
   const [projectName, setProjectName] = useState('Untitled Project')
+  const [isPro, setIsPro] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const iframeRef = useRef(null)
@@ -53,8 +54,9 @@ function BuilderPage() {
     setGeneratedCode([])
     
     try {
-      console.log('Starting generation for prompt:', promptToUse)
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ai/generate`, {
+      console.log('Starting generation for prompt:', promptToUse, 'Pro mode:', isPro)
+      const endpoint = isPro ? '/api/ai/generate-pro' : '/api/ai/generate'
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: promptToUse })
@@ -212,15 +214,30 @@ function BuilderPage() {
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
                 placeholder="Ask AI to edit..."
-                className="input w-full min-h-[80px] pr-10 resize-none"
+                className="input w-full min-h-[80px] pr-20 resize-none"
               />
-              <button
-                onClick={handleSendMessage}
-                disabled={!chatInput.trim() || loading}
-                className="absolute right-2 bottom-2 p-2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] disabled:opacity-50"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              <div className="absolute right-2 bottom-2 flex items-center gap-2">
+                <button 
+                  onClick={() => setIsPro(!isPro)} 
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: '4px', 
+                    padding: '5px 10px', fontSize: '11px', fontWeight: '600', 
+                    borderRadius: '6px', border: 'none', cursor: 'pointer', 
+                    background: isPro ? 'linear-gradient(135deg, #f59e0b, #d97706)' : '#e5e5e5', 
+                    color: isPro ? '#ffffff' : '#666666', 
+                    transition: 'all 0.2s ease' 
+                  }} 
+                > 
+                  ✦ {isPro ? 'PRO ON' : 'PRO'} 
+                </button> 
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!chatInput.trim() || loading}
+                  className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-accent)] disabled:opacity-50"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -253,6 +270,12 @@ function BuilderPage() {
                   Code
                 </button>
               </div>
+
+              {isPro && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 shadow-sm border border-amber-300/30">
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider">Pro</span>
+                </div>
+              )}
 
               {activeTab === 'preview' && (
                 <div className="flex bg-[var(--color-page-bg)] p-1 rounded-md border border-[var(--color-border)]">
