@@ -24,24 +24,16 @@ function BuilderPage() {
   const location = useLocation()
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
+  const generatedHTMLRef = useRef('')
 
   useEffect(() => {
-    // We now use iframeRef.current.src to load the generated site
-    // This effect is kept for backwards compatibility or local preview during streaming if needed
-    if (iframeRef.current && files.html && !iframeRef.current.src.includes('/generated/')) {
+    if (activeTab === 'preview' && iframeRef.current && generatedHTMLRef.current) {
       const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
-      
-      const combinedHTML = files.html
-        .replace('</head>', `<style>
-          ${files.css || ''}
-        </style></head>`)
-        .replace('</body>', `<script>${files.js || ''}</script></body>`)
-
       doc.open()
-      doc.write(combinedHTML)
+      doc.write(generatedHTMLRef.current)
       doc.close()
     }
-  }, [files])
+  }, [activeTab])
 
   useEffect(() => {
     const locationPrompt = location.state?.prompt
@@ -113,9 +105,12 @@ function BuilderPage() {
                 setFiles({ html: data.html, css: '', js: '' })
                 setGeneratedCode([{ name: 'index.html', content: data.html }])
                 
-                if (iframeRef.current && data.projectId) {
-                  const url = `${import.meta.env.VITE_BACKEND_URL}/generated/${data.projectId}/index.html`
-                  iframeRef.current.src = url
+                generatedHTMLRef.current = data.html
+                if (iframeRef.current) {
+                  const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
+                  doc.open()
+                  doc.write(data.html)
+                  doc.close()
                 }
               }
               if (data.error) {
