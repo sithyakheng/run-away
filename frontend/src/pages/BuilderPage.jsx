@@ -8,12 +8,8 @@ function BuilderPage() {
   const [generatedCode, setGeneratedCode] = useState([])
   const [files, setFiles] = useState({ 
     html: '', 
-    resetCss: '', 
-    typographyCss: '', 
-    layoutCss: '', 
-    componentsCss: '', 
-    animationsCss: '', 
-    mainJs: '' 
+    css: '', 
+    js: '' 
   })
   const [activeFile, setActiveFile] = useState('html')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -38,13 +34,9 @@ function BuilderPage() {
       
       const combinedHTML = files.html
         .replace('</head>', `<style>
-          ${files.resetCss || ''}
-          ${files.typographyCss || ''}
-          ${files.layoutCss || ''}
-          ${files.componentsCss || ''}
-          ${files.animationsCss || ''}
+          ${files.css || ''}
         </style></head>`)
-        .replace('</body>', `<script>${files.mainJs || ''}</script></body>`)
+        .replace('</body>', `<script>${files.js || ''}</script></body>`)
 
       doc.open()
       doc.write(combinedHTML)
@@ -74,12 +66,8 @@ function BuilderPage() {
     setError(null)
     setFiles({ 
       html: '', 
-      resetCss: '', 
-      typographyCss: '', 
-      layoutCss: '', 
-      componentsCss: '', 
-      animationsCss: '', 
-      mainJs: '' 
+      css: '', 
+      js: '' 
     })
     setGeneratedCode([])
     
@@ -125,12 +113,8 @@ function BuilderPage() {
                 setFiles(data.files)
                 setGeneratedCode([
                   { name: 'index.html', content: data.files.html },
-                  { name: 'reset.css', content: data.files.resetCss },
-                  { name: 'typography.css', content: data.files.typographyCss },
-                  { name: 'layout.css', content: data.files.layoutCss },
-                  { name: 'components.css', content: data.files.componentsCss },
-                  { name: 'animations.css', content: data.files.animationsCss },
-                  { name: 'main.js', content: data.files.mainJs }
+                  { name: 'styles.css', content: data.files.css },
+                  { name: 'script.js', content: data.files.js }
                 ])
               }
               if (data.done && data.projectId) {
@@ -412,12 +396,8 @@ function BuilderPage() {
                   </div>
                   {[
                     { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
-                    { id: 'resetCss', name: 'reset.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'typographyCss', name: 'typography.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'layoutCss', name: 'layout.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'componentsCss', name: 'components.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'animationsCss', name: 'animations.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'mainJs', name: 'main.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
+                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
                   ].map((file) => (
                     <button
                       key={file.id}

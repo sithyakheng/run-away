@@ -53,22 +53,14 @@ const commonRules = `ICON LIBRARIES — always import ALL of these in the <head>
 `
 
 function parseMultiFile(raw) {
-  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====RESET\.CSS===|$)/)
-  const resetCssMatch = raw.match(/===RESET\.CSS===\n([\s\S]*?)(?====TYPOGRAPHY\.CSS===|$)/)
-  const typographyCssMatch = raw.match(/===TYPOGRAPHY\.CSS===\n([\s\S]*?)(?====LAYOUT\.CSS===|$)/)
-  const layoutCssMatch = raw.match(/===LAYOUT\.CSS===\n([\s\S]*?)(?====COMPONENTS\.CSS===|$)/)
-  const componentsCssMatch = raw.match(/===COMPONENTS\.CSS===\n([\s\S]*?)(?====ANIMATIONS\.CSS===|$)/)
-  const animationsCssMatch = raw.match(/===ANIMATIONS\.CSS===\n([\s\S]*?)(?====MAIN\.JS===|$)/)
-  const mainJsMatch = raw.match(/===MAIN\.JS===\n([\s\S]*?)$/)
+  const htmlMatch = raw.match(/===HTML===\n([\s\S]*?)(?====CSS===|$)/)
+  const cssMatch = raw.match(/===CSS===\n([\s\S]*?)(?====JS===|$)/)
+  const jsMatch = raw.match(/===JS===\n([\s\S]*?)$/)
   
   return {
     html: htmlMatch ? htmlMatch[1].trim() : '',
-    resetCss: resetCssMatch ? resetCssMatch[1].trim() : '',
-    typographyCss: typographyCssMatch ? typographyCssMatch[1].trim() : '',
-    layoutCss: layoutCssMatch ? layoutCssMatch[1].trim() : '',
-    componentsCss: componentsCssMatch ? componentsCssMatch[1].trim() : '',
-    animationsCss: animationsCssMatch ? animationsCssMatch[1].trim() : '',
-    mainJs: mainJsMatch ? mainJsMatch[1].trim() : ''
+    css: cssMatch ? cssMatch[1].trim() : '',
+    js: jsMatch ? jsMatch[1].trim() : ''
   }
 }
 
@@ -85,26 +77,18 @@ export const generateCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website split into 7 separate files.
+    const systemPrompt = `You are an elite web designer who builds stunning, modern websites. Generate a complete multi-file website split into 3 separate files.
 
     Always return output with these exact delimiters and nothing else:
     ===HTML===
-    (index.html - clean semantic HTML linking all CSS and JS files: reset.css, typography.css, layout.css, components.css, animations.css, and main.js)
-    ===RESET.CSS===
-    (reset.css - CSS reset and root variables)
-    ===TYPOGRAPHY.CSS===
-    (typography.css - all font imports, heading styles, text styles)
-    ===LAYOUT.CSS===
-    (layout.css - navbar, hero, sections, grid, containers, footer)
-    ===COMPONENTS.CSS===
-    (components.css - cards, buttons, forms, badges, testimonials, pricing)
-    ===ANIMATIONS.CSS===
-    (animations.css - all keyframes, transitions, hover effects, scroll reveals)
-    ===MAIN.JS===
-    (main.js - all JavaScript: scroll, navbar, accordion, counters, parallax, hamburger, carousel, form validation, page loader)
+    (index.html - clean semantic HTML linking to styles.css and script.js)
+    ===CSS===
+    (styles.css - all CSS combined into one big detailed file)
+    ===JS===
+    (script.js - all JavaScript in one file)
 
-    Never return fewer than 7 files. Each file must be large and detailed. 
-    The HTML file links to all 5 CSS files in the head (reset.css first) and main.js before the closing body tag.
+    Never return fewer than 3 files. Each file must be large and detailed. 
+    The HTML file links to styles.css in the head and script.js before the closing body tag.
 
 DESIGN RULES — follow these exactly:
 COLOR SYSTEM — you have full creative freedom with colors. Use one of these options: 
@@ -315,9 +299,9 @@ ADVANCED SECTIONS — include the right ones based on website type:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
-      max_tokens: 32000,
+      max_tokens: 8000,
       stream: true
     })
 
@@ -336,18 +320,15 @@ ADVANCED SECTIONS — include the right ones based on website type:
     
     fs.mkdirSync(projectDir, { recursive: true })
     fs.writeFileSync(path.join(projectDir, 'index.html'), files.html)
-    fs.writeFileSync(path.join(projectDir, 'reset.css'), files.resetCss)
-    fs.writeFileSync(path.join(projectDir, 'typography.css'), files.typographyCss)
-    fs.writeFileSync(path.join(projectDir, 'layout.css'), files.layoutCss)
-    fs.writeFileSync(path.join(projectDir, 'components.css'), files.componentsCss)
-    fs.writeFileSync(path.join(projectDir, 'animations.css'), files.animationsCss)
-    fs.writeFileSync(path.join(projectDir, 'main.js'), files.mainJs)
+    fs.writeFileSync(path.join(projectDir, 'styles.css'), files.css)
+    fs.writeFileSync(path.join(projectDir, 'script.js'), files.js)
 
     res.write('data: ' + JSON.stringify({ done: true, projectId, files }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {
     console.error('AI Generation Error:', error)
+    console.error('Full error:', JSON.stringify(error, null, 2))
     res.write(`data: ${JSON.stringify({ error: 'Failed to generate code' })}\n\n`)
     res.end()
   }
@@ -366,26 +347,18 @@ export const generateProCode = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
 
-    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website of the absolute highest quality split into 7 separate files. Every pixel must be intentional. Every interaction must feel premium. 
+    const proSystemPrompt = `You are a world-class senior frontend engineer and award-winning UI/UX designer. You build websites that win Awwwards. Generate a complete multi-file website of the absolute highest quality split into 3 separate files. Every pixel must be intentional. Every interaction must feel premium. 
  
  Always return output with these exact delimiters and nothing else:
  ===HTML===
- (index.html - clean semantic HTML linking all CSS and JS files: reset.css, typography.css, layout.css, components.css, animations.css, and main.js)
- ===RESET.CSS===
- (reset.css - CSS reset and root variables)
- ===TYPOGRAPHY.CSS===
- (typography.css - all font imports, heading styles, text styles)
- ===LAYOUT.CSS===
- (layout.css - navbar, hero, sections, grid, containers, footer)
- ===COMPONENTS.CSS===
- (components.css - cards, buttons, forms, badges, testimonials, pricing)
- ===ANIMATIONS.CSS===
- (animations.css - all keyframes, transitions, hover effects, scroll reveals)
- ===MAIN.JS===
- (main.js - all JavaScript: scroll, navbar, accordion, counters, parallax, hamburger, carousel, form validation, page loader)
+ (index.html - clean semantic HTML linking to styles.css and script.js)
+ ===CSS===
+ (styles.css - all CSS combined into one big detailed file)
+ ===JS===
+ (script.js - all JavaScript in one file)
 
- Never return fewer than 7 files. Each file must be large and detailed. 
- The HTML file links to all 5 CSS files in the head (reset.css first) and main.js before the closing body tag.
+ Never return fewer than 3 files. Each file must be large and detailed. 
+ The HTML file links to styles.css in the head and script.js before the closing body tag.
 
  Follow all the same STRUCTURE, LAYOUT, COLOR, TYPOGRAPHY, ANIMATION, and TEMPLATE rules as the standard prompt PLUS these upgrades: 
  
@@ -420,7 +393,7 @@ export const generateProCode = async (req, res) => {
  
  TECHNICAL RULES:
 - Include <meta name="viewport" content="width=device-width, initial-scale=1.0"> inside the <head>.
-- Separate all code into the 7 files requested.
+- Separate all code into the 3 files requested.
 - Return ONLY the raw code for each file using the delimiters.
 - Do not include any explanations or markdown code blocks.
  
@@ -439,9 +412,9 @@ export const generateProCode = async (req, res) => {
         { role: 'system', content: proSystemPrompt },
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.1-8b-instant',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.7,
-      max_tokens: 32000,
+      max_tokens: 8000,
       stream: true
     })
 
@@ -460,18 +433,15 @@ export const generateProCode = async (req, res) => {
     
     fs.mkdirSync(projectDir, { recursive: true })
     fs.writeFileSync(path.join(projectDir, 'index.html'), files.html)
-    fs.writeFileSync(path.join(projectDir, 'reset.css'), files.resetCss)
-    fs.writeFileSync(path.join(projectDir, 'typography.css'), files.typographyCss)
-    fs.writeFileSync(path.join(projectDir, 'layout.css'), files.layoutCss)
-    fs.writeFileSync(path.join(projectDir, 'components.css'), files.componentsCss)
-    fs.writeFileSync(path.join(projectDir, 'animations.css'), files.animationsCss)
-    fs.writeFileSync(path.join(projectDir, 'main.js'), files.mainJs)
+    fs.writeFileSync(path.join(projectDir, 'styles.css'), files.css)
+    fs.writeFileSync(path.join(projectDir, 'script.js'), files.js)
 
     res.write('data: ' + JSON.stringify({ done: true, projectId, files }) + '\n\n')
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error) {
     console.error('AI PRO Generation Error:', error)
+    console.error('Full error:', JSON.stringify(error, null, 2))
     res.write(`data: ${JSON.stringify({ error: 'Failed to generate pro code' })}\n\n`)
     res.end()
   }
