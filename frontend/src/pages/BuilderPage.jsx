@@ -8,10 +8,7 @@ function BuilderPage() {
   const [generatedCode, setGeneratedCode] = useState([])
   const [files, setFiles] = useState({ 
     html: '', 
-    baseCss: '', 
-    layoutCss: '', 
-    componentsCss: '', 
-    animationsCss: '', 
+    css: '', 
     js: '' 
   })
   const [activeFile, setActiveFile] = useState('html')
@@ -33,13 +30,8 @@ function BuilderPage() {
     if (iframeRef.current && files.html) {
       const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
       
-      const allCSS = (files.baseCss || '') + '\n' + 
-                    (files.layoutCss || '') + '\n' + 
-                    (files.componentsCss || '') + '\n' + 
-                    (files.animationsCss || '')
-      
       const combinedHTML = files.html
-        .replace('</head>', `<style>${allCSS}</style></head>`)
+        .replace('</head>', `<style>${files.css || ''}</style></head>`)
         .replace('</body>', `<script>${files.js || ''}</script></body>`)
 
       doc.open()
@@ -70,10 +62,7 @@ function BuilderPage() {
     setError(null)
     setFiles({ 
       html: '', 
-      baseCss: '', 
-      layoutCss: '', 
-      componentsCss: '', 
-      animationsCss: '', 
+      css: '', 
       js: '' 
     })
     setGeneratedCode([])
@@ -120,10 +109,7 @@ function BuilderPage() {
                 setFiles(data.files)
                 setGeneratedCode([
                   { name: 'index.html', content: data.files.html },
-                  { name: 'base.css', content: data.files.baseCss },
-                  { name: 'layout.css', content: data.files.layoutCss },
-                  { name: 'components.css', content: data.files.componentsCss },
-                  { name: 'animations.css', content: data.files.animationsCss },
+                  { name: 'styles.css', content: data.files.css },
                   { name: 'script.js', content: data.files.js }
                 ])
               }
@@ -401,10 +387,7 @@ function BuilderPage() {
                   </div>
                   {[
                     { id: 'html', name: 'index.html', icon: <FileCode className="w-4 h-4 text-orange-400" /> },
-                    { id: 'baseCss', name: 'base.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'layoutCss', name: 'layout.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'componentsCss', name: 'components.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-                    { id: 'animationsCss', name: 'animations.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+                    { id: 'css', name: 'styles.css', icon: <FileText className="w-4 h-4 text-blue-400" /> },
                     { id: 'js', name: 'script.js', icon: <Brackets className="w-4 h-4 text-yellow-400" /> }
                   ].map((file) => (
                     <button
