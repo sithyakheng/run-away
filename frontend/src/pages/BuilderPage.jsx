@@ -119,16 +119,18 @@ function BuilderPage() {
                 }
               }
 
-              console.log('DONE received, html length:', data.html?.length)
-              if (data.done && data.html) {
-                generatedHTMLRef.current = data.html
-                setGeneratedHTML(data.html)
-                if (iframeRef.current) {
-                  const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
-                  doc.open()
-                  doc.write(data.html)
-                  doc.close()
-                }
+              if (data.done && data.html) { 
+                console.log('DONE received, html length:', data.html.length) 
+                generatedHTMLRef.current = data.html 
+                setGeneratedHTML(data.html) 
+                setTimeout(() => { 
+                  if (iframeRef.current) { 
+                    const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document 
+                    doc.open() 
+                    doc.write(data.html) 
+                    doc.close() 
+                  } 
+                }, 100) 
 
                 // Replace status message with final message
                 setMessages(prev => {
