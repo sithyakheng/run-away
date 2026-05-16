@@ -97,13 +97,33 @@ function BuilderPage() {
             
             try {
               const data = JSON.parse(dataStr)
-              if (data.chunk) {
-                accumulatedRaw += data.chunk
-                setFiles(prev => ({ ...prev, html: accumulatedRaw }))
+              
+              if (data.status) {
+                setMessages(prev => {
+                  const lastMsg = prev[prev.length - 1]
+                  if (lastMsg && lastMsg.role === 'assistant' && lastMsg.isStatus) {
+                    return [...prev.slice(0, -1), { ...lastMsg, content: data.status }]
+                  }
+                  return [...prev, { id: Date.now(), role: 'assistant', content: data.status, isStatus: true }]
+                })
               }
+
+              if (data.chunk) {
+                if (data.file === 'index.html') {
+                  setFiles(prev => ({ ...prev, html: prev.html + data.chunk }))
+                } else if (data.file === 'styles.css') {
+                  setFiles(prev => ({ ...prev, css: prev.css + data.chunk }))
+                } else if (data.file === 'script.js') {
+                  setFiles(prev => ({ ...prev, js: prev.js + data.chunk }))
+                }
+              }
+
               if (data.done) {
-                setFiles({ html: data.html, css: '', js: '' })
-                setGeneratedCode([{ name: 'index.html', content: data.html }])
+                setGeneratedCode([
+                  { name: 'index.html', content: data.html },
+                  { name: 'styles.css', content: '' }, 
+                  { name: 'script.js', content: '' }
+                ])
                 
                 generatedHTMLRef.current = data.html
                 if (iframeRef.current) {
@@ -112,9 +132,20 @@ function BuilderPage() {
                   doc.write(data.html)
                   doc.close()
                 }
+
+                // Replace status message with final message
+                setMessages(prev => {
+                  const filtered = prev.filter(m => !m.isStatus)
+                  return [...filtered, {
+                    id: Date.now(),
+                    role: 'assistant',
+                    content: `I've generated the website based on your request. You can see the preview on the right.`
+                  }]
+                })
               }
               if (data.error) {
                 console.error('AI Error:', data.error)
+                setError(data.error)
               }
             } catch (e) {
               // Ignore partial JSON parsing errors
@@ -124,13 +155,6 @@ function BuilderPage() {
       }
 
       setSelectedFile('index.html')
-
-      const aiMessage = {
-        id: Date.now(),
-        role: 'assistant',
-        content: `I've generated the website based on your request. You can see the preview on the right.`
-      }
-      setMessages(prev => [...prev, aiMessage])
       
     } catch (error) {
       console.error('Error generating code:', error)
@@ -379,13 +403,42 @@ function BuilderPage() {
                 </div>
               </div>
             ) : (
-              <div className="w-full h-full flex bg-[#1e1e1e] overflow-hidden">
+              <div className="w-full h-full flex flex-col bg-[#1e1e1e] overflow-hidden">
+                {/* File Tabs */}
+                <div className="flex bg-[#252526] border-b border-[#333] px-2">
+                  {[
+                    { id: 'index.html', label: 'index.html', icon: 'HTML' },
+                    { id: 'styles.css', label: 'styles.css', icon: 'CSS' },
+                    { id: 'script.js', label: 'script.js', icon: 'JS' }
+                  ].map((file) => (
+                    <button
+                      key={file.id}
+                      onClick={() => setSelectedFile(file.id)}
+                      className={`px-4 py-2 text-xs font-medium border-b-2 transition-colors flex items-center gap-2 ${
+                        selectedFile === file.id
+                          ? 'border-[var(--color-accent)] text-white bg-[#1e1e1e]'
+                          : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-[#2d2d2d]'
+                      }`}
+                    >
+                      <span className={`w-3 h-3 flex items-center justify-center rounded-[2px] text-[8px] font-bold ${
+                        file.icon === 'HTML' ? 'bg-orange-500 text-white' : 
+                        file.icon === 'CSS' ? 'bg-blue-500 text-white' : 'bg-yellow-500 text-black'
+                      }`}>
+                        {file.icon[0]}
+                      </span>
+                      {file.label}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Code Editor Area */}
                 <div className="flex-1 flex flex-col overflow-hidden relative group">
                   <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={() => {
-                        navigator.clipboard.writeText(files.html)
+                        const content = selectedFile === 'index.html' ? files.html : 
+                                      selectedFile === 'styles.css' ? files.css : files.js
+                        navigator.clipboard.writeText(content)
                       }}
                       className="p-2 bg-gray-800 text-gray-400 hover:text-white rounded-md border border-gray-700 transition-colors flex items-center gap-2 text-xs"
                       title="Copy Code"
@@ -396,7 +449,12 @@ function BuilderPage() {
                   </div>
                   <div className="flex-1 overflow-auto p-6 font-mono text-sm text-white leading-relaxed selection:bg-gray-700">
                     <pre>
-                      <code>{files.html || '// No code generated yet...'}</code>
+                      <code>
+                        {selectedFile === 'index.html' ? files.html : 
+                         selectedFile === 'styles.css' ? files.css : 
+                         selectedFile === 'script.js' ? files.js : 
+                         '// No code generated yet...'}
+                      </code>
                     </pre>
                   </div>
                 </div>
