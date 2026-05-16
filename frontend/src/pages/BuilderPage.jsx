@@ -26,6 +26,9 @@ function BuilderPage() {
   const iframeRef = useRef(null)
   const chatEndRef = useRef(null)
   const generatedHTMLRef = useRef('')
+  const htmlRef = useRef('')
+  const cssRef = useRef('')
+  const jsRef = useRef('')
 
   useEffect(() => {
     if (activeTab === 'preview' && iframeRef.current && generatedHTMLRef.current) {
@@ -62,6 +65,9 @@ function BuilderPage() {
       js: '' 
     })
     setGeneratedCode([])
+    htmlRef.current = ''
+    cssRef.current = ''
+    jsRef.current = ''
     
     try {
       console.log('Starting generation for prompt:', promptToUse, 'Pro mode:', isPro)
@@ -99,48 +105,47 @@ function BuilderPage() {
             try {
               const data = JSON.parse(dataStr)
               
-              if (data.status) {
-                setMessages(prev => {
-                  const lastMsg = prev[prev.length - 1]
-                  if (lastMsg && lastMsg.role === 'assistant' && lastMsg.isStatus) {
-                    return [...prev.slice(0, -1), { ...lastMsg, content: data.status }]
-                  }
-                  return [...prev, { id: Date.now(), role: 'assistant', content: data.status, isStatus: true }]
-                })
+              if (data.file === 'index.html') {
+                htmlRef.current += data.chunk
+                setFiles(prev => ({ ...prev, html: htmlRef.current }))
               }
-
-              if (data.chunk) {
-                if (data.file === 'index.html') {
-                  setFiles(prev => ({ ...prev, html: prev.html + data.chunk }))
-                } else if (data.file === 'styles.css') {
-                  setFiles(prev => ({ ...prev, css: prev.css + data.chunk }))
-                } else if (data.file === 'script.js') {
-                  setFiles(prev => ({ ...prev, js: prev.js + data.chunk }))
-                }
+              if (data.file === 'styles.css') {
+                cssRef.current += data.chunk
+                setFiles(prev => ({ ...prev, css: cssRef.current }))
               }
-
-              if (data.done && data.html) { 
-                console.log('DONE received, html length:', data.html.length) 
-                generatedHTMLRef.current = data.html 
-                setGeneratedHTML(data.html) 
+              if (data.file === 'script.js') {
+                jsRef.current += data.chunk
+                setFiles(prev => ({ ...prev, js: jsRef.current }))
+              }
+              
+              if (data.status) { 
+                // Update chat message to show which file is being generated 
+                setMessages(prev => { 
+                  const last = prev[prev.length - 1] 
+                  if (last?.role === 'status') return [...prev.slice(0, -1), { ...last, content: data.status }] 
+                  return [...prev, { id: Date.now(), role: 'status', content: data.status }] 
+                }) 
+              } 
+              
+              if (data.done) { 
+                console.log('DONE - html:', htmlRef.current.length, 'css:', cssRef.current.length, 'js:', jsRef.current.length) 
+                const combined = htmlRef.current 
+                  .replace('</head>', `<style>${cssRef.current}</style></head>`) 
+                  .replace('</body>', `<script>${jsRef.current}</script></body>`) 
+                
+                generatedHTMLRef.current = combined 
+                setGeneratedHTML(combined) 
+                
                 setTimeout(() => { 
                   if (iframeRef.current) { 
                     const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document 
                     doc.open() 
-                    doc.write(data.html) 
+                    doc.write(combined) 
                     doc.close() 
                   } 
-                }, 100) 
-
-                // Replace status message with final message
-                setMessages(prev => {
-                  const filtered = prev.filter(m => !m.isStatus)
-                  return [...filtered, {
-                    id: Date.now(),
-                    role: 'assistant',
-                    content: `I've generated the website based on your request. You can see the preview on the right.`
-                  }]
-                })
+                }, 200) 
+                
+                setLoading(false) 
               }
               if (data.error) {
                 console.error('AI Error:', data.error)
