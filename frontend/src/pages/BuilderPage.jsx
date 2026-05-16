@@ -101,59 +101,67 @@ function BuilderPage() {
           if (line.startsWith('data: ')) {
             const dataStr = line.slice(6).trim()
             if (!dataStr || dataStr === '[DONE]') continue
-            
             try {
               const data = JSON.parse(dataStr)
-              
-              if (data.file === 'index.html') {
+
+              if (data.status) {
+                setMessages(prev => {
+                  const last = prev[prev.length - 1]
+                  if (last?.role === 'status') return [...prev.slice(0, -1), { ...last, content: data.status }]
+                  return [...prev, { id: Date.now(), role: 'status', content: data.status }]
+                })
+              }
+
+              if (data.file && data.chunk) {
+                if (data.file === 'index.html') {
+                  htmlRef.current += data.chunk
+                  setFiles(prev => ({ ...prev, html: htmlRef.current }))
+                }
+                if (data.file === 'styles.css') {
+                  cssRef.current += data.chunk
+                  setFiles(prev => ({ ...prev, css: cssRef.current }))
+                }
+                if (data.file === 'script.js') {
+                  jsRef.current += data.chunk
+                  setFiles(prev => ({ ...prev, js: jsRef.current }))
+                }
+              }
+
+              if (data.chunk && !data.file) {
                 htmlRef.current += data.chunk
                 setFiles(prev => ({ ...prev, html: htmlRef.current }))
               }
-              if (data.file === 'styles.css') {
-                cssRef.current += data.chunk
-                setFiles(prev => ({ ...prev, css: cssRef.current }))
+
+              if (data.done) {
+                console.log('DONE html:', htmlRef.current.length, 'css:', cssRef.current.length, 'js:', jsRef.current.length)
+                let combined = ''
+                if (data.html) {
+                  combined = data.html
+                } else {
+                  combined = htmlRef.current
+                    .replace('</head>', `<style>${cssRef.current}</style></head>`)
+                    .replace('</body>', `<script>${jsRef.current}</script></body>`)
+                }
+                generatedHTMLRef.current = combined
+                setGeneratedHTML(combined)
+                setActiveTab('preview')
+                setTimeout(() => {
+                  if (iframeRef.current) {
+                    const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
+                    doc.open()
+                    doc.write(combined)
+                    doc.close()
+                  }
+                }, 300)
+                setLoading(false)
+                setMessages(prev => [...prev, { id: Date.now(), role: 'assistant', content: 'Website generated! You can see the preview on the right.' }])
               }
-              if (data.file === 'script.js') {
-                jsRef.current += data.chunk
-                setFiles(prev => ({ ...prev, js: jsRef.current }))
-              }
-              
-              if (data.status) { 
-                // Update chat message to show which file is being generated 
-                setMessages(prev => { 
-                  const last = prev[prev.length - 1] 
-                  if (last?.role === 'status') return [...prev.slice(0, -1), { ...last, content: data.status }] 
-                  return [...prev, { id: Date.now(), role: 'status', content: data.status }] 
-                }) 
-              } 
-              
-              if (data.done) { 
-                console.log('DONE - html:', htmlRef.current.length, 'css:', cssRef.current.length, 'js:', jsRef.current.length) 
-                const combined = htmlRef.current 
-                  .replace('</head>', `<style>${cssRef.current}</style></head>`) 
-                  .replace('</body>', `<script>${jsRef.current}</script></body>`) 
-                
-                generatedHTMLRef.current = combined 
-                setGeneratedHTML(combined) 
-                
-                setTimeout(() => { 
-                  if (iframeRef.current) { 
-                    const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document 
-                    doc.open() 
-                    doc.write(combined) 
-                    doc.close() 
-                  } 
-                }, 200) 
-                
-                setLoading(false) 
-              }
+
               if (data.error) {
-                console.error('AI Error:', data.error)
                 setError(data.error)
+                setLoading(false)
               }
-            } catch (e) {
-              // Ignore partial JSON parsing errors
-            }
+            } catch (e) {}
           }
         }
       }
