@@ -19,6 +19,7 @@ function BuilderPage() {
   const [activeTab, setActiveTab] = useState('preview')
   const [previewMode, setPreviewMode] = useState('desktop')
   const [projectName, setProjectName] = useState('Untitled Project')
+  const [generatedHTML, setGeneratedHTML] = useState('')
   const [isPro, setIsPro] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -118,14 +119,10 @@ function BuilderPage() {
                 }
               }
 
-              if (data.done) {
-                setGeneratedCode([
-                  { name: 'index.html', content: data.html },
-                  { name: 'styles.css', content: '' }, 
-                  { name: 'script.js', content: '' }
-                ])
-                
+              console.log('DONE received, html length:', data.html?.length)
+              if (data.done && data.html) {
                 generatedHTMLRef.current = data.html
+                setGeneratedHTML(data.html)
                 if (iframeRef.current) {
                   const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document
                   doc.open()
